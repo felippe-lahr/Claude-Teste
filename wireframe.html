@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe — Fazenda Santo Antônio da Barra</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #222; }
+
+  /* NAV */
+  .doc-nav {
+    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+    background: #1e293b; color: #cbd5e1; overflow-y: auto; z-index: 100;
+    padding: 20px 0;
+  }
+  .doc-nav h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+    padding: 0 20px 12px; color: #64748b; border-bottom: 1px solid #334155; margin-bottom: 8px; }
+  .doc-nav a { display: block; padding: 8px 20px; font-size: 13px; color: #94a3b8;
+    text-decoration: none; transition: all .15s; }
+  .doc-nav a:hover, .doc-nav a.active { background: #334155; color: #f1f5f9; }
+  .doc-nav .section-title { padding: 14px 20px 4px; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1px; color: #475569; }
+
+  /* MAIN */
+  .doc-main { margin-left: 220px; padding: 40px; }
+
+  /* SECTION */
+  .section { margin-bottom: 60px; scroll-margin-top: 20px; }
+  .section-header { font-size: 22px; font-weight: 700; color: #0f172a;
+    border-left: 4px solid #6366f1; padding-left: 14px; margin-bottom: 24px; }
+  .section-sub { font-size: 16px; font-weight: 600; color: #334155; margin: 24px 0 12px; }
+  .section-desc { color: #64748b; font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+
+  /* ARCHITECTURE */
+  .arch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .arch-card { background: #fff; border-radius: 10px; padding: 20px;
+    border: 1px solid #e2e8f0; }
+  .arch-card .layer { font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: #6366f1; font-weight: 700; margin-bottom: 8px; }
+  .arch-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .arch-card ul { list-style: none; font-size: 13px; color: #475569; }
+  .arch-card ul li { padding: 3px 0; }
+  .arch-card ul li::before { content: "▸ "; color: #6366f1; }
+
+  .arch-flow { background: #fff; border-radius: 10px; padding: 24px;
+    border: 1px solid #e2e8f0; margin-bottom: 24px; }
+  .flow-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .flow-box { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px;
+    padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; }
+  .flow-box.blue { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+  .flow-box.purple { background: #f5f3ff; border-color: #ddd6fe; color: #6d28d9; }
+  .flow-box.green { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  .flow-box.orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+  .flow-arrow { color: #94a3b8; font-size: 18px; }
+
+  .env-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .env-card { border-radius: 10px; padding: 20px; border: 1px solid; }
+  .env-card.prod { background: #f0fdf4; border-color: #86efac; }
+  .env-card.staging { background: #fefce8; border-color: #fde047; }
+  .env-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .env-card ul { list-style: none; font-size: 13px; }
+  .env-card ul li { padding: 3px 0; }
+
+  /* DB SCHEMA */
+  .schema-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .table-card { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden; }
+  .table-header { background: #1e293b; color: #fff; padding: 10px 16px;
+    font-size: 13px; font-weight: 700; }
+  .table-row { padding: 6px 16px; font-size: 12px; border-bottom: 1px solid #f1f5f9;
+    display: flex; justify-content: space-between; }
+  .table-row:last-child { border-bottom: none; }
+  .field-name { color: #1e293b; font-weight: 500; }
+  .field-type { color: #6366f1; font-size: 11px; }
+  .field-pk { color: #f59e0b; font-size: 10px; font-weight: 700; }
+  .field-fk { color: #10b981; font-size: 10px; }
+
+  /* WIREFRAME SCREENS */
+  .screen-wrapper { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
+    overflow: hidden; margin-bottom: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .screen-title-bar { background: #334155; color: #f1f5f9; padding: 10px 16px;
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .screen-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .screen-body { padding: 0; }
+
+  /* WIREFRAME ELEMENTS */
+  .wf-topbar { background: #1e293b; padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between; }
+  .wf-topbar .brand { color: #fff; font-weight: 700; font-size: 15px; }
+  .wf-topbar .brand small { display: block; color: #94a3b8; font-size: 11px; font-weight: 400; }
+  .wf-topbar .user { color: #94a3b8; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+  .wf-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
+  .wf-btn-primary { background: #6366f1; color: #fff; }
+  .wf-btn-danger { background: #ef4444; color: #fff; }
+  .wf-btn-outline { background: transparent; border: 1px solid #e2e8f0; color: #475569; }
+  .wf-btn-green { background: #10b981; color: #fff; }
+  .wf-btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  .wf-nav { background: #6366f1; display: flex; gap: 4px; padding: 0 24px; }
+  .wf-nav a { color: rgba(255,255,255,.7); padding: 10px 14px; font-size: 12px;
+    font-weight: 600; text-decoration: none; border-bottom: 2px solid transparent; }
+  .wf-nav a.active { color: #fff; border-bottom-color: #fff; }
+
+  .wf-ticker { background: #0f172a; padding: 6px 24px; display: flex; gap: 24px; align-items: center; }
+  .wf-ticker .ticker-item { font-size: 11px; color: #94a3b8; }
+  .wf-ticker .ticker-item strong { color: #fff; }
+  .wf-ticker .up { color: #10b981; }
+  .wf-ticker .down { color: #ef4444; }
+
+  .wf-content { padding: 24px; background: #f8fafc; min-height: 300px; }
+  .wf-page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .wf-page-sub { font-size: 13px; color: #64748b; margin-bottom: 20px; }
+
+  .wf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .wf-stat-card { border-radius: 10px; padding: 16px 20px; color: #fff; }
+  .wf-stat-card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .85; }
+  .wf-stat-card .value { font-size: 28px; font-weight: 800; margin: 4px 0; }
+  .wf-stat-card .sub { font-size: 10px; opacity: .75; }
+  .c-red { background: linear-gradient(135deg,#ef4444,#dc2626); }
+  .c-cyan { background: linear-gradient(135deg,#06b6d4,#0891b2); }
+  .c-blue { background: linear-gradient(135deg,#3b82f6,#2563eb); }
+  .c-green { background: linear-gradient(135deg,#10b981,#059669); }
+  .c-purple { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+  .c-yellow { background: linear-gradient(135deg,#f59e0b,#d97706); }
+  .c-pink { background: linear-gradient(135deg,#ec4899,#db2777); }
+  .c-orange { background: linear-gradient(135deg,#f97316,#ea580c); }
+
+  .wf-owners { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .wf-owner-card { border-radius: 10px; padding: 16px 20px; color: #fff; }
+  .wf-owner-card .name { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .wf-owner-card .count { font-size: 36px; font-weight: 800; margin: 6px 0 2px; }
+  .wf-owner-card .pct { font-size: 12px; opacity: .8; }
+
+  .wf-modules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .wf-module { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 20px; text-align: center; cursor: pointer; }
+  .wf-module .icon { font-size: 28px; margin-bottom: 8px; }
+  .wf-module .mod-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .wf-module .mod-desc { font-size: 11px; color: #64748b; line-height: 1.4; }
+  .wf-module .badge { display: inline-block; margin-top: 6px; background: #fef3c7;
+    color: #92400e; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+
+  /* FILTERS */
+  .wf-filters { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 20px; margin-bottom: 16px; }
+  .wf-filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  .wf-field { display: flex; flex-direction: column; gap: 4px; }
+  .wf-field label { font-size: 11px; font-weight: 600; color: #374151; }
+  .wf-field input, .wf-field select {
+    border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 10px;
+    font-size: 12px; color: #374151; background: #fff; }
+  .wf-filter-actions { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+
+  /* TABLE */
+  .wf-table-wrapper { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  .wf-table-header { padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+  .wf-table-header .count { font-size: 13px; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  table th { background: #f8fafc; padding: 10px 14px; text-align: left;
+    font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+  table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid #f8fafc; }
+  .badge-denom { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .bd-vaca { background: #dbeafe; color: #1e40af; }
+  .bd-boi { background: #d1fae5; color: #065f46; }
+  .bd-touro { background: #dcfce7; color: #14532d; }
+  .bd-novilha { background: #ede9fe; color: #4c1d95; }
+  .bd-garrote { background: #fef3c7; color: #78350f; }
+  .bd-bzf { background: #fce7f3; color: #831843; }
+  .bd-bzm { background: #ffedd5; color: #7c2d12; }
+  .badge-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .bs-vivo { background: #dcfce7; color: #14532d; }
+  .bs-morto { background: #fee2e2; color: #7f1d1d; }
+
+  /* FORM */
+  .wf-form { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 28px; max-width: 800px; margin: 0 auto; }
+  .wf-form h2 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 24px; }
+  .wf-form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+  .wf-form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .wf-form-check { display: flex; align-items: center; gap: 8px; margin: 12px 0; font-size: 13px; }
+  .wf-form-check input { width: 16px; height: 16px; }
+  .wf-textarea { border: 1px solid #d1d5db; border-radius: 6px; padding: 10px;
+    font-size: 12px; width: 100%; height: 80px; resize: none; margin-bottom: 14px; }
+  .wf-photo-drop { border: 2px dashed #6366f1; border-radius: 8px; padding: 30px;
+    text-align: center; color: #6366f1; font-size: 13px; margin-bottom: 20px; }
+  .wf-form-actions { display: flex; gap: 12px; justify-content: center; }
+
+  /* LOGIN */
+  .wf-login { min-height: 400px; display: flex; align-items: center;
+    justify-content: center; background: linear-gradient(135deg,#1e293b,#334155); }
+  .wf-login-card { background: #fff; border-radius: 14px; padding: 36px 32px;
+    width: 340px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .wf-login-card .logo { text-align: center; margin-bottom: 24px; }
+  .wf-login-card .logo h1 { font-size: 16px; font-weight: 800; }
+  .wf-login-card .logo p { font-size: 12px; color: #64748b; }
+  .wf-login-card .wf-field { margin-bottom: 14px; }
+  .wf-login-card input { width: 100%; }
+
+  /* IMPORT */
+  .wf-import-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 28px; }
+  .wf-steps { display: flex; gap: 0; margin-bottom: 28px; }
+  .wf-step { flex: 1; display: flex; flex-direction: column; align-items: center;
+    position: relative; }
+  .wf-step:not(:last-child)::after {
+    content: ''; position: absolute; top: 14px; left: 50%; width: 100%;
+    height: 2px; background: #e2e8f0; z-index: 0; }
+  .wf-step-num { width: 28px; height: 28px; border-radius: 50%; background: #6366f1;
+    color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; z-index: 1; margin-bottom: 6px; }
+  .wf-step-num.inactive { background: #e2e8f0; color: #94a3b8; }
+  .wf-step-label { font-size: 11px; color: #64748b; text-align: center; }
+
+  /* CONFIG */
+  .wf-config-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .wf-config-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px;
+    padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+  .wf-config-row { display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid #f8fafc; font-size: 13px; }
+  .wf-config-row:last-child { border-bottom: none; }
+  .wf-config-row .label { width: 160px; font-weight: 600; }
+  .wf-config-row .badge-denom { width: 110px; text-align: center; }
+  .wf-config-row input { width: 70px; border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 5px 8px; font-size: 12px; text-align: center; }
+  .wf-config-row .separator { color: #94a3b8; font-size: 12px; }
+
+  /* DEATHS */
+  .wf-death-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .wf-death-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+  .wf-death-stat .ds-label { font-size: 11px; color: #64748b; text-transform: uppercase; }
+  .wf-death-stat .ds-value { font-size: 24px; font-weight: 800; color: #ef4444; }
+
+  /* HEALTH */
+  .wf-health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .wf-health-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+
+  /* NOTES */
+  .wf-note { background: #eff6ff; border-left: 3px solid #6366f1; padding: 12px 16px;
+    border-radius: 0 8px 8px 0; font-size: 13px; color: #1e40af; margin-bottom: 20px; }
+
+  .divider { border: none; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+
+  /* RESPONSIVE placeholder rows */
+  .skeleton { background: #f1f5f9; border-radius: 4px; height: 12px; }
+  .skeleton.w-full { width: 100%; }
+  .skeleton.w-3/4 { width: 75%; }
+  .skeleton.w-1/2 { width: 50%; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<nav class="doc-nav">
+  <h2>Wireframe</h2>
+  <div class="section-title">Arquitetura</div>
+  <a href="#stack">Stack de Desenvolvimento</a>
+  <a href="#db">Modelo de Dados</a>
+  <a href="#railway">Ambientes Railway</a>
+  <div class="section-title">Telas</div>
+  <a href="#login">1. Login</a>
+  <a href="#dashboard">2. Dashboard</a>
+  <a href="#animais">3. Lista de Animais</a>
+  <a href="#cadastrar">4. Cadastrar Animal</a>
+  <a href="#editar">5. Ver / Editar Animal</a>
+  <a href="#importar">6. Importar Planilha</a>
+  <a href="#mortes">7. Mortes</a>
+  <a href="#sanitario">8. Sanitário</a>
+  <a href="#config">9. Configurações</a>
+</nav>
+
+<main class="doc-main">
+
+  <!-- ═══════════════════════════════════════════ STACK -->
+  <div class="section" id="stack">
+    <div class="section-header">Stack de Desenvolvimento</div>
+    <p class="section-desc">Tecnologias escolhidas para o projeto, organizadas por camada.</p>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="layer">Frontend</div>
+        <h3>Next.js 14</h3>
+        <ul>
+          <li>TypeScript (tipagem forte)</li>
+          <li>App Router (rotas modernas)</li>
+          <li>Tailwind CSS (estilização)</li>
+          <li>shadcn/ui (componentes)</li>
+          <li>React Hook Form (formulários)</li>
+          <li>Zod (validação)</li>
+        </ul>
+      </div>
+      <div class="arch-card">
+        <div class="layer">Backend / API</div>
+        <h3>Next.js API Routes</h3>
+        <ul>
+          <li>API dentro do mesmo projeto</li>
+          <li>NextAuth.js (autenticação)</li>
+          <li>Prisma ORM (banco de dados)</li>
+          <li>bcrypt (senhas)</li>
+          <li>xlsx / exceljs (planilhas)</li>
+          <li>zod (validação server-side)</li>
+        </ul>
+      </div>
+      <div class="arch-card">
+        <div class="layer">Banco de Dados</div>
+        <h3>PostgreSQL</h3>
+        <ul>
+          <li>Nativo no Railway</li>
+          <li>Prisma Migrations</li>
+          <li>Relacionamentos estruturados</li>
+          <li>Backup automático (Railway)</li>
+          <li>1 banco por ambiente</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-sub">Fluxo de Requisição</div>
+    <div class="arch-flow">
+      <div class="flow-row">
+        <div class="flow-box blue">Navegador<br><small style="font-weight:400;font-size:11px">Usuário acessa</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Next.js<br><small style="font-weight:400;font-size:11px">Renderiza página</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">API Route<br><small style="font-weight:400;font-size:11px">/api/animais</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">Prisma ORM<br><small style="font-weight:400;font-size:11px">Query segura</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box orange">PostgreSQL<br><small style="font-weight:400;font-size:11px">Dados</small></div>
+      </div>
+    </div>
+
+    <div class="section-sub">Rotas da Aplicação</div>
+    <div class="arch-flow">
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f8fafc">
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e2e8f0">Rota</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e2e8f0">Página</th>
+            <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e2e8f0">Acesso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/login</code></td><td>Login</td><td>Público</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/dashboard</code></td><td>Dashboard geral</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/animais</code></td><td>Lista de animais</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/animais/novo</code></td><td>Cadastrar animal</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/animais/[id]</code></td><td>Ver / Editar animal</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/importar</code></td><td>Importar planilha</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/mortes</code></td><td>Controle de mortes</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><code>/sanitario</code></td><td>Controle sanitário</td><td>Autenticado</td></tr>
+          <tr><td style="padding:7px 12px"><code>/configuracoes</code></td><td>Regras + usuários</td><td>Admin</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ DB -->
+  <div class="section" id="db">
+    <div class="section-header">Modelo de Dados (Banco)</div>
+    <p class="section-desc">Tabelas principais do PostgreSQL gerenciadas pelo Prisma ORM.</p>
+
+    <div class="schema-grid">
+
+      <div class="table-card">
+        <div class="table-header">👤 User (Usuário/Sócio)</div>
+        <div class="table-row"><span class="field-name">id</span><span><span class="field-pk">PK</span> <span class="field-type">Int</span></span></div>
+        <div class="table-row"><span class="field-name">name</span><span class="field-type">String</span></div>
+        <div class="table-row"><span class="field-name">email</span><span class="field-type">String (unique)</span></div>
+        <div class="table-row"><span class="field-name">password</span><span class="field-type">String (hash)</span></div>
+        <div class="table-row"><span class="field-name">role</span><span class="field-type">ADMIN | SOCIO</span></div>
+        <div class="table-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">🐄 Animal</div>
+        <div class="table-row"><span class="field-name">id</span><span><span class="field-pk">PK</span> <span class="field-type">Int</span></span></div>
+        <div class="table-row"><span class="field-name">numero</span><span class="field-type">String? (opcional)</span></div>
+        <div class="table-row"><span class="field-name">genero</span><span class="field-type">MACHO | FEMEA</span></div>
+        <div class="table-row"><span class="field-name">eraMes</span><span class="field-type">Int? (1–12)</span></div>
+        <div class="table-row"><span class="field-name">eraAno</span><span class="field-type">Int?</span></div>
+        <div class="table-row"><span class="field-name">peso</span><span class="field-type">Float?</span></div>
+        <div class="table-row"><span class="field-name">reprodutor</span><span class="field-type">Boolean</span></div>
+        <div class="table-row"><span class="field-name">status</span><span class="field-type">VIVO | MORTO</span></div>
+        <div class="table-row"><span class="field-name">denominacao</span><span class="field-type">String (calculado)</span></div>
+        <div class="table-row"><span class="field-name">observacoes</span><span class="field-type">String?</span></div>
+        <div class="table-row"><span class="field-name">fotoUrl</span><span class="field-type">String?</span></div>
+        <div class="table-row"><span class="field-name">proprietarioId</span><span><span class="field-fk">FK</span> <span class="field-type">User</span></span></div>
+        <div class="table-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">⚙️ ClassificacaoConfig</div>
+        <div class="table-row"><span class="field-name">id</span><span><span class="field-pk">PK</span> <span class="field-type">Int</span></span></div>
+        <div class="table-row"><span class="field-name">denominacao</span><span class="field-type">String</span></div>
+        <div class="table-row"><span class="field-name">genero</span><span class="field-type">MACHO | FEMEA</span></div>
+        <div class="table-row"><span class="field-name">idadeMinMeses</span><span class="field-type">Int</span></div>
+        <div class="table-row"><span class="field-name">idadeMaxMeses</span><span class="field-type">Int?</span></div>
+        <div class="table-row"><span class="field-name">ordem</span><span class="field-type">Int</span></div>
+        <div class="table-row"><span class="field-name">updatedAt</span><span class="field-type">DateTime</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">💀 Morte</div>
+        <div class="table-row"><span class="field-name">id</span><span><span class="field-pk">PK</span> <span class="field-type">Int</span></span></div>
+        <div class="table-row"><span class="field-name">animalId</span><span><span class="field-fk">FK</span> <span class="field-type">Animal</span></span></div>
+        <div class="table-row"><span class="field-name">dataObito</span><span class="field-type">DateTime</span></div>
+        <div class="table-row"><span class="field-name">causa</span><span class="field-type">String?</span></div>
+        <div class="table-row"><span class="field-name">observacoes</span><span class="field-type">String?</span></div>
+        <div class="table-row"><span class="field-name">registradoPor</span><span><span class="field-fk">FK</span> <span class="field-type">User</span></span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">💉 RegistroSanitario</div>
+        <div class="table-row"><span class="field-name">id</span><span><span class="field-pk">PK</span> <span class="field-type">Int</span></span></div>
+        <div class="table-row"><span class="field-name">animalId</span><span><span class="field-fk">FK</span> <span class="field-type">Animal</span></span></div>
+        <div class="table-row"><span class="field-name">tipo</span><span class="field-type">VACINA | MEDICAMENTO</span></div>
+        <div class="table-row"><span class="field-name">produto</span><span class="field-type">String</span></div>
+        <div class="table-row"><span class="field-name">data</span><span class="field-type">DateTime</span></div>
+        <div class="table-row"><span class="field-name">dose</span><span class="field-type">String?</span></div>
+        <div class="table-row"><span class="field-name">observacoes</span><span class="field-type">String?</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">📋 Regras de Classificação (padrão)</div>
+        <div style="padding:14px 16px;font-size:12px;color:#475569;line-height:1.8">
+          <div><strong>Bezerra Fêmea:</strong> FEMEA, 0–12 meses</div>
+          <div><strong>Novilha:</strong> FEMEA, 13–30 meses</div>
+          <div><strong>Vaca:</strong> FEMEA, 31+ meses</div>
+          <div style="margin-top:8px"><strong>Bezerro Macho:</strong> MACHO, 0–12 meses</div>
+          <div><strong>Garrote:</strong> MACHO, 13–30 meses</div>
+          <div><strong>Boi:</strong> MACHO, 31+ meses</div>
+          <div style="margin-top:8px;color:#6366f1"><strong>Touro:</strong> MACHO + reprodutor=true (override manual)</div>
+          <div style="margin-top:8px;color:#94a3b8;font-size:11px">* Faixas configuráveis via tela de Configurações</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ RAILWAY -->
+  <div class="section" id="railway">
+    <div class="section-header">Ambientes Railway</div>
+    <p class="section-desc">Dois ambientes isolados: Produção (estável) e Staging (testes). Cada um com sua própria URL e banco de dados.</p>
+
+    <div class="env-grid">
+      <div class="env-card prod">
+        <h3>🟢 Production</h3>
+        <ul>
+          <li>✅ URL: <strong>app.fazendasantantoniodabarra.com.br</strong></li>
+          <li>✅ Banco: PostgreSQL isolado</li>
+          <li>✅ Deploy automático da branch <code>main</code></li>
+          <li>✅ Variáveis de ambiente próprias</li>
+          <li>✅ Dados reais da fazenda</li>
+        </ul>
+      </div>
+      <div class="env-card staging">
+        <h3>🟡 Staging (Testes)</h3>
+        <ul>
+          <li>⚙️ URL: <strong>staging-fazenda.up.railway.app</strong></li>
+          <li>⚙️ Banco: PostgreSQL isolado</li>
+          <li>⚙️ Deploy automático da branch <code>develop</code></li>
+          <li>⚙️ Variáveis de ambiente próprias</li>
+          <li>⚙️ Dados de teste</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-sub" style="margin-top:20px">Fluxo de Deploy</div>
+    <div class="arch-flow">
+      <div class="flow-row">
+        <div class="flow-box blue">Código local<br><small style="font-weight:400;font-size:11px">develop branch</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box purple">Push GitHub<br><small style="font-weight:400;font-size:11px">git push</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box orange">Railway Build<br><small style="font-weight:400;font-size:11px">npm run build</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green" style="background:#fef3c7;border-color:#fde047;color:#92400e">Staging<br><small style="font-weight:400;font-size:11px">Testar aqui</small></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box green">Production<br><small style="font-weight:400;font-size:11px">main branch</small></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══════════════════════════════════════════ LOGIN -->
+  <div class="section" id="login">
+    <div class="section-header">1. Login</div>
+    <p class="section-desc">Tela de acesso ao sistema. Apenas os 3 sócios cadastrados podem entrar. Sem cadastro público.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/login</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-login">
+          <div class="wf-login-card">
+            <div class="logo">
+              <h1>Fazenda Santo Antônio da Barra</h1>
+              <p>Sistema de Gestão de Bovinos</p>
+            </div>
+            <div class="wf-field">
+              <label>E-mail</label>
+              <input type="text" placeholder="seu@email.com" style="width:100%">
+            </div>
+            <div class="wf-field" style="margin-top:10px">
+              <label>Senha</label>
+              <input type="password" placeholder="••••••••" style="width:100%">
+            </div>
+            <button class="wf-btn wf-btn-primary" style="width:100%;margin-top:16px;justify-content:center">Entrar</button>
+            <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:12px">Acesso restrito aos sócios</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ DASHBOARD -->
+  <div class="section" id="dashboard">
+    <div class="section-header">2. Dashboard</div>
+    <p class="section-desc">Visão geral do rebanho com totais por categoria, distribuição por proprietário e atalhos para os módulos.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/dashboard</span>
+      </div>
+      <div class="screen-body">
+        <!-- Topbar -->
+        <div class="wf-topbar">
+          <div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div>
+          <div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div>
+        </div>
+        <!-- Ticker -->
+        <div class="wf-ticker">
+          <span style="font-size:11px;color:#64748b;font-weight:700">IMEA-MT</span>
+          <div class="ticker-item">Boi Gordo <strong>R$ 343,02/@</strong> <span class="down">-0.02%</span></div>
+          <div class="ticker-item">Vaca Gorda <strong>R$ 312,70/@</strong> <span class="down">-0.10%</span></div>
+          <div class="ticker-item">Bezerro 8M <strong>R$ 2.795,89</strong> <span class="up">+5.05%</span></div>
+          <div class="ticker-item">Garrote 18M <strong>R$ 4.075,06</strong> <span class="up">+3.16%</span></div>
+        </div>
+        <!-- Nav -->
+        <div class="wf-nav">
+          <a href="#" class="active">Dashboard</a>
+          <a href="#">Animais</a>
+          <a href="#">Importar</a>
+          <a href="#">Mortes</a>
+          <a href="#">Sanitário</a>
+          <a href="#">Configurações</a>
+        </div>
+        <!-- Content -->
+        <div class="wf-content">
+          <div class="wf-page-title">Dashboard</div>
+          <div class="wf-page-sub">Visão geral do rebanho e estatísticas</div>
+
+          <!-- Stats row 1 -->
+          <div class="wf-stats">
+            <div class="wf-stat-card c-red"><div class="label">Total de Animais</div><div class="value">1.589</div></div>
+            <div class="wf-stat-card c-cyan"><div class="label">Vacas</div><div class="value">899</div><div class="sub">sendo 16 sem numeração</div></div>
+            <div class="wf-stat-card c-blue"><div class="label">Bois</div><div class="value">2</div></div>
+            <div class="wf-stat-card c-green"><div class="label">Touros</div><div class="value">30</div></div>
+          </div>
+          <!-- Stats row 2 -->
+          <div class="wf-stats">
+            <div class="wf-stat-card c-purple"><div class="label">Novilhas</div><div class="value">84</div></div>
+            <div class="wf-stat-card c-yellow"><div class="label">Garrotes</div><div class="value">0</div></div>
+            <div class="wf-stat-card c-pink"><div class="label">Bezerra Fêmea</div><div class="value">382</div></div>
+            <div class="wf-stat-card c-orange"><div class="label">Bezerro Macho</div><div class="value">192</div></div>
+          </div>
+
+          <!-- Proprietários -->
+          <div class="section-sub">Proprietários</div>
+          <div class="wf-owners">
+            <div class="wf-owner-card c-blue"><div class="name">Luiz Henrique</div><div class="count">665</div><div class="pct">41.9% do rebanho</div></div>
+            <div class="wf-owner-card c-purple"><div class="name">Luiz Antonio</div><div class="count">436</div><div class="pct">27.4% do rebanho</div></div>
+            <div class="wf-owner-card" style="background:linear-gradient(135deg,#ec4899,#db2777)"><div class="name">Leda</div><div class="count">488</div><div class="pct">30.7% do rebanho</div></div>
+          </div>
+
+          <!-- Módulos -->
+          <div class="section-sub">Módulos do Sistema</div>
+          <div class="wf-modules">
+            <div class="wf-module"><div class="icon">➕</div><div class="mod-name">Cadastrar Animal</div><div class="mod-desc">Adicionar novo animal ao rebanho com denominação automática</div></div>
+            <div class="wf-module"><div class="icon">📋</div><div class="mod-name">Lista de Animais</div><div class="mod-desc">Visualizar, filtrar e gerenciar animais cadastrados</div></div>
+            <div class="wf-module"><div class="icon">📥</div><div class="mod-name">Importar Planilha</div><div class="mod-desc">Importar animais em massa via Excel ou CSV</div></div>
+            <div class="wf-module"><div class="icon">📊</div><div class="mod-name">Exportar Planilha</div><div class="mod-desc">Baixar todos os dados dos animais em Excel</div></div>
+            <div class="wf-module"><div class="icon">💀</div><div class="mod-name">Mortes</div><div class="mod-desc">Controle de óbitos e causas de morte do rebanho</div></div>
+            <div class="wf-module"><div class="icon">💉</div><div class="mod-name">Sanitário</div><div class="mod-desc">Vacinas e medicamentos aplicados</div></div>
+            <div class="wf-module"><div class="icon">⚙️</div><div class="mod-name">Configurações</div><div class="mod-desc">Regras de classificação e gestão de usuários</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ LISTA -->
+  <div class="section" id="animais">
+    <div class="section-header">3. Lista de Animais</div>
+    <p class="section-desc">Listagem completa com filtros por número, proprietário, gênero, denominação, status e faixa de nascimento.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/animais</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar">
+          <div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div>
+          <div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div>
+        </div>
+        <div class="wf-nav">
+          <a href="#">Dashboard</a>
+          <a href="#" class="active">Animais</a>
+          <a href="#">Importar</a>
+          <a href="#">Mortes</a>
+          <a href="#">Sanitário</a>
+          <a href="#">Configurações</a>
+        </div>
+        <div class="wf-content">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+            <div>
+              <div class="wf-page-title">Lista de Animais</div>
+              <div class="wf-page-sub">Gerencie e visualize todos os animais do rebanho</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="wf-btn wf-btn-primary">+ Cadastrar Animal</button>
+              <button class="wf-btn wf-btn-outline">📥 Importar</button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="wf-filters">
+            <div style="font-size:14px;font-weight:700;margin-bottom:14px">Filtros de Busca</div>
+            <div class="wf-filter-grid">
+              <div class="wf-field"><label>Número</label><input type="text" placeholder="Ex: 001, A123"></div>
+              <div class="wf-field"><label>Proprietário</label><select><option>Todos</option><option>Luiz Henrique</option><option>Luiz Antonio</option><option>Leda</option></select></div>
+              <div class="wf-field"><label>Gênero</label><select><option>Todos</option><option>Macho</option><option>Fêmea</option></select></div>
+              <div class="wf-field"><label>Status</label><select><option>Todos</option><option>Vivo</option><option>Morto</option></select></div>
+            </div>
+            <div class="wf-filter-grid">
+              <div class="wf-field"><label>Denominação</label><select><option>Todas</option><option>Vaca</option><option>Boi</option><option>Touro</option><option>Novilha</option><option>Garrote</option><option>Bezerra Fêmea</option><option>Bezerro Macho</option></select></div>
+              <div class="wf-field"><label>Nascimento de</label><select><option>Mês</option></select></div>
+              <div class="wf-field"><label>&nbsp;</label><select><option>Ano</option></select></div>
+              <div class="wf-field"><label>Até</label><select><option>Mês</option></select></div>
+            </div>
+            <div class="wf-filter-actions">
+              <button class="wf-btn wf-btn-outline">🗑️ Limpar Filtros</button>
+              <button class="wf-btn wf-btn-primary">🔍 Aplicar Filtros</button>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="wf-table-wrapper">
+            <div class="wf-table-header">
+              <strong style="font-size:14px">Animais Cadastrados</strong>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span class="count">1.850 animais encontrados</span>
+                <button class="wf-btn wf-btn-green wf-btn-sm">📊 Exportar Filtrados</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Número</th><th>Proprietário</th><th>Gênero</th><th>Denominação</th><th>Era</th><th>Peso</th><th>Status</th><th>Ações</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>2373</td><td>849</td><td>Leda</td><td>Fêmea</td><td><span class="badge-denom bd-vaca">Vaca</span></td><td>-</td><td>-</td><td><span class="badge-status bs-morto">Morto</span></td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver/Editar</button> <button class="wf-btn wf-btn-danger wf-btn-sm">Excluir</button></td></tr>
+                <tr><td>2372</td><td>-</td><td>Leda</td><td>Macho</td><td><span class="badge-denom bd-bzm">Bezerro Macho</span></td><td>Nov/2025</td><td>-</td><td><span class="badge-status bs-vivo">Vivo</span></td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver/Editar</button> <button class="wf-btn wf-btn-danger wf-btn-sm">Excluir</button></td></tr>
+                <tr><td>2371</td><td>-</td><td>Leda</td><td>Fêmea</td><td><span class="badge-denom bd-bzf">Bezerra Fêmea</span></td><td>Nov/2025</td><td>-</td><td><span class="badge-status bs-vivo">Vivo</span></td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver/Editar</button> <button class="wf-btn wf-btn-danger wf-btn-sm">Excluir</button></td></tr>
+                <tr><td>2370</td><td>-</td><td>Luiz Antonio</td><td>Macho</td><td><span class="badge-denom bd-touro">Touro</span></td><td>Mar/2020</td><td>650kg</td><td><span class="badge-status bs-vivo">Vivo</span></td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver/Editar</button> <button class="wf-btn wf-btn-danger wf-btn-sm">Excluir</button></td></tr>
+                <tr><td>2369</td><td>312</td><td>Luiz Henrique</td><td>Fêmea</td><td><span class="badge-denom bd-vaca">Vaca</span></td><td>Jun/2019</td><td>480kg</td><td><span class="badge-status bs-vivo">Vivo</span></td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver/Editar</button> <button class="wf-btn wf-btn-danger wf-btn-sm">Excluir</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ CADASTRAR -->
+  <div class="section" id="cadastrar">
+    <div class="section-header">4. Cadastrar Animal</div>
+    <p class="section-desc">Formulário de cadastro. A denominação é calculada automaticamente ao salvar com base em gênero + data de nascimento + flag de reprodutor.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/animais/novo</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar">
+          <div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div>
+          <div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div>
+        </div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#" class="active">Animais</a><a href="#">Importar</a><a href="#">Mortes</a><a href="#">Sanitário</a><a href="#">Configurações</a></div>
+        <div class="wf-content">
+          <div class="wf-form">
+            <h2>Cadastrar Novo Animal</h2>
+            <div class="wf-form-grid">
+              <div class="wf-field"><label>Número do Animal</label><input placeholder="Ex: 001, A123 (opcional)"></div>
+              <div class="wf-field"><label>Proprietário *</label><select><option>Selecione o proprietário</option><option>Luiz Henrique</option><option>Luiz Antonio</option><option>Leda</option></select></div>
+              <div class="wf-field"><label>Gênero *</label><select><option>Selecione o gênero</option><option>Macho</option><option>Fêmea</option></select></div>
+              <div class="wf-field"><label>Status *</label><select><option>Selecione o status</option><option>Vivo</option><option>Morto</option></select></div>
+            </div>
+            <div class="wf-form-grid">
+              <div class="wf-field"><label>Mês de Nascimento</label><select><option>Selecione</option></select></div>
+              <div class="wf-field"><label>Ano de Nascimento</label><select><option>Selecione</option></select></div>
+              <div class="wf-field"><label>Peso (kg)</label><input placeholder="Ex: 450.5"></div>
+              <div class="wf-field">
+                <label>Denominação (prévia)</label>
+                <div style="border:1px solid #d1d5db;border-radius:6px;padding:7px 10px;font-size:12px;background:#f8fafc;color:#6366f1;font-weight:700">Calculado automaticamente</div>
+              </div>
+            </div>
+            <div class="wf-form-check">
+              <input type="checkbox"> <span>Este animal é um reprodutor <strong>(Touro)</strong> — substitui a classificação automática</span>
+            </div>
+            <div class="wf-field" style="margin:12px 0 8px"><label>Observações</label></div>
+            <textarea class="wf-textarea" placeholder="Informações adicionais sobre o animal..."></textarea>
+            <div style="margin-bottom:8px"><label style="font-size:11px;font-weight:600">Foto do Animal</label></div>
+            <div class="wf-photo-drop">Clique aqui ou arraste uma foto<br><small style="color:#94a3b8">Formatos aceitos: JPG, PNG (máx. 2MB)</small></div>
+            <div class="wf-form-actions">
+              <button class="wf-btn wf-btn-outline">Cancelar</button>
+              <button class="wf-btn wf-btn-primary">✅ Cadastrar Animal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ EDITAR -->
+  <div class="section" id="editar">
+    <div class="section-header">5. Ver / Editar Animal</div>
+    <p class="section-desc">Detalhes completos do animal com histórico de pesagens e registros sanitários. Permite editar dados e alterar classificação manualmente (Touro).</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/animais/2370</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar"><div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div><div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div></div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#" class="active">Animais</a><a href="#">Importar</a><a href="#">Mortes</a><a href="#">Sanitário</a><a href="#">Configurações</a></div>
+        <div class="wf-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <div>
+              <div class="wf-page-title">Animal #2370 <span class="badge-denom bd-touro" style="font-size:14px;margin-left:8px">Touro</span></div>
+              <div class="wf-page-sub">Proprietário: Luiz Antonio · Macho · Vivo</div>
+            </div>
+            <button class="wf-btn wf-btn-danger">Registrar Morte</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div class="wf-filters">
+              <div style="font-size:14px;font-weight:700;margin-bottom:14px">Dados do Animal</div>
+              <div class="wf-form-grid">
+                <div class="wf-field"><label>Número</label><input value="-"></div>
+                <div class="wf-field"><label>Proprietário</label><select><option selected>Luiz Antonio</option></select></div>
+                <div class="wf-field"><label>Gênero</label><select><option>Macho</option></select></div>
+                <div class="wf-field"><label>Status</label><select><option>Vivo</option></select></div>
+              </div>
+              <div class="wf-form-grid">
+                <div class="wf-field"><label>Mês Nasc.</label><select><option>Mar</option></select></div>
+                <div class="wf-field"><label>Ano Nasc.</label><select><option>2020</option></select></div>
+                <div class="wf-field" style="grid-column:span 2"><label>Peso (kg)</label><input value="650"></div>
+              </div>
+              <div class="wf-form-check">
+                <input type="checkbox" checked> <span>Reprodutor <strong>(Touro)</strong></span>
+              </div>
+              <div style="margin-top:12px;font-size:12px;color:#6366f1;background:#f5f3ff;padding:8px 12px;border-radius:6px">
+                Denominação automática: <strong>Boi</strong> → Override manual: <strong>Touro</strong>
+              </div>
+              <div class="wf-form-actions" style="margin-top:16px">
+                <button class="wf-btn wf-btn-primary">💾 Salvar Alterações</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="wf-filters" style="margin-bottom:12px">
+                <div style="font-size:14px;font-weight:700;margin-bottom:10px">Histórico de Pesagens</div>
+                <table style="width:100%;font-size:12px">
+                  <thead><tr><th style="padding:6px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Data</th><th style="padding:6px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Peso</th></tr></thead>
+                  <tbody>
+                    <tr><td style="padding:6px 10px">Jan/2026</td><td style="padding:6px 10px">650 kg</td></tr>
+                    <tr><td style="padding:6px 10px">Jul/2025</td><td style="padding:6px 10px">620 kg</td></tr>
+                    <tr><td style="padding:6px 10px">Jan/2025</td><td style="padding:6px 10px">580 kg</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="wf-filters">
+                <div style="font-size:14px;font-weight:700;margin-bottom:10px">Registros Sanitários</div>
+                <table style="width:100%;font-size:12px">
+                  <thead><tr><th style="padding:6px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Data</th><th style="padding:6px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Tipo</th><th style="padding:6px 10px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Produto</th></tr></thead>
+                  <tbody>
+                    <tr><td style="padding:6px 10px">Nov/2025</td><td style="padding:6px 10px">Vacina</td><td style="padding:6px 10px">Aftosa</td></tr>
+                    <tr><td style="padding:6px 10px">Mai/2025</td><td style="padding:6px 10px">Vacina</td><td style="padding:6px 10px">Brucelose</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ IMPORTAR -->
+  <div class="section" id="importar">
+    <div class="section-header">6. Importar Planilha</div>
+    <p class="section-desc">Importação em massa de animais via arquivo Excel (.xlsx) ou CSV. Processo em 3 etapas com validação antes de confirmar.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/importar</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar"><div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div><div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div></div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#">Animais</a><a href="#" class="active">Importar</a><a href="#">Mortes</a><a href="#">Sanitário</a><a href="#">Configurações</a></div>
+        <div class="wf-content">
+          <div class="wf-page-title">Importar Planilha</div>
+          <div class="wf-page-sub">Importe animais em massa via Excel ou CSV</div>
+
+          <div class="wf-import-card">
+            <div class="wf-steps">
+              <div class="wf-step"><div class="wf-step-num">1</div><div class="wf-step-label">Baixar modelo</div></div>
+              <div class="wf-step"><div class="wf-step-num">2</div><div class="wf-step-label">Enviar arquivo</div></div>
+              <div class="wf-step"><div class="wf-step-num inactive">3</div><div class="wf-step-label">Validar dados</div></div>
+              <div class="wf-step"><div class="wf-step-num inactive">4</div><div class="wf-step-label">Confirmar importação</div></div>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <div class="section-sub">Passo 1 — Baixe o modelo de planilha</div>
+              <p style="font-size:13px;color:#475569;margin-bottom:10px">Use o modelo abaixo para preencher os dados dos animais no formato correto.</p>
+              <button class="wf-btn wf-btn-green">⬇️ Baixar Modelo Excel</button>
+            </div>
+
+            <div style="margin-bottom:20px">
+              <div class="section-sub">Passo 2 — Envie o arquivo preenchido</div>
+              <div class="wf-photo-drop" style="border-color:#10b981;color:#065f46">
+                📁 Clique aqui ou arraste o arquivo Excel / CSV<br>
+                <small style="color:#94a3b8">Formatos aceitos: .xlsx, .csv (máx. 10MB)</small>
+              </div>
+            </div>
+
+            <div class="wf-note">
+              A importação calcula automaticamente a denominação de cada animal com base no sexo, data de nascimento e flag de reprodutor — seguindo as regras configuradas no sistema.
+            </div>
+
+            <div>
+              <div class="section-sub">Colunas da planilha</div>
+              <table style="width:100%;font-size:12px">
+                <thead><tr style="background:#f8fafc"><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Coluna</th><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Obrigatório</th><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Valores aceitos</th></tr></thead>
+                <tbody>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">numero</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Não</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Texto livre</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">proprietario</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><strong>Sim</strong></td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Luiz Henrique, Luiz Antonio, Leda</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">genero</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9"><strong>Sim</strong></td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Macho, Fêmea</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">mes_nascimento</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Não</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">1–12</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">ano_nascimento</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Não</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Ex: 2024</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">peso</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Não</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Número (kg)</td></tr>
+                  <tr><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">reprodutor</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">Não</td><td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">sim, não</td></tr>
+                  <tr><td style="padding:7px 12px">observacoes</td><td style="padding:7px 12px">Não</td><td style="padding:7px 12px">Texto livre</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ MORTES -->
+  <div class="section" id="mortes">
+    <div class="section-header">7. Mortes</div>
+    <p class="section-desc">Registro e histórico de óbitos. Ao registrar uma morte, o status do animal é atualizado para "Morto" automaticamente.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/mortes</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar"><div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div><div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div></div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#">Animais</a><a href="#">Importar</a><a href="#" class="active">Mortes</a><a href="#">Sanitário</a><a href="#">Configurações</a></div>
+        <div class="wf-content">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+            <div><div class="wf-page-title">Controle de Mortes</div><div class="wf-page-sub">Registro de óbitos e causas de morte do rebanho</div></div>
+            <button class="wf-btn wf-btn-danger">+ Registrar Morte</button>
+          </div>
+
+          <div class="wf-death-stats">
+            <div class="wf-death-stat"><div class="ds-label">Total de Mortes</div><div class="ds-value">47</div></div>
+            <div class="wf-death-stat"><div class="ds-label">Este Ano (2026)</div><div class="ds-value">3</div></div>
+            <div class="wf-death-stat"><div class="ds-label">Último Mês</div><div class="ds-value">1</div></div>
+          </div>
+
+          <div class="wf-table-wrapper">
+            <div class="wf-table-header"><strong>Histórico de Mortes</strong><button class="wf-btn wf-btn-green wf-btn-sm">📊 Exportar</button></div>
+            <table>
+              <thead><tr><th>Animal</th><th>Proprietário</th><th>Denominação</th><th>Data Óbito</th><th>Causa</th><th>Registrado por</th><th>Ações</th></tr></thead>
+              <tbody>
+                <tr><td>#849</td><td>Leda</td><td><span class="badge-denom bd-vaca">Vaca</span></td><td>12/04/2026</td><td>Doença</td><td>Felippe</td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver</button></td></tr>
+                <tr><td>#230</td><td>Luiz Henrique</td><td><span class="badge-denom bd-bzm">Bezerro Macho</span></td><td>02/03/2026</td><td>-</td><td>Felippe</td><td><button class="wf-btn wf-btn-primary wf-btn-sm">Ver</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ SANITÁRIO -->
+  <div class="section" id="sanitario">
+    <div class="section-header">8. Sanitário</div>
+    <p class="section-desc">Controle de vacinas e medicamentos aplicados por animal ou em lote (vários animais de uma vez).</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/sanitario</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar"><div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div><div class="user">Felippe Lahr <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div></div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#">Animais</a><a href="#">Importar</a><a href="#">Mortes</a><a href="#" class="active">Sanitário</a><a href="#">Configurações</a></div>
+        <div class="wf-content">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+            <div><div class="wf-page-title">Controle Sanitário</div><div class="wf-page-sub">Vacinas e medicamentos aplicados ao rebanho</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="wf-btn wf-btn-primary">+ Registro Individual</button>
+              <button class="wf-btn wf-btn-outline">+ Registro em Lote</button>
+            </div>
+          </div>
+
+          <div class="wf-health-grid">
+            <div class="wf-health-card">
+              <div style="font-size:14px;font-weight:700;margin-bottom:14px">Próximas Vacinações</div>
+              <table style="width:100%;font-size:12px">
+                <thead><tr style="background:#f8fafc"><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Vacina</th><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Previsão</th><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Animais</th></tr></thead>
+                <tbody>
+                  <tr><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">Febre Aftosa</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">Mai/2026</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">Todo rebanho</td></tr>
+                  <tr><td style="padding:7px 10px">Brucelose</td><td style="padding:7px 10px">Jun/2026</td><td style="padding:7px 10px">Fêmeas</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="wf-health-card">
+              <div style="font-size:14px;font-weight:700;margin-bottom:14px">Histórico Recente</div>
+              <table style="width:100%;font-size:12px">
+                <thead><tr style="background:#f8fafc"><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Animal</th><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Produto</th><th style="padding:7px 10px;border-bottom:1px solid #e2e8f0">Data</th></tr></thead>
+                <tbody>
+                  <tr><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">#312</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">Aftosa</td><td style="padding:7px 10px;border-bottom:1px solid #f1f5f9">Nov/2025</td></tr>
+                  <tr><td style="padding:7px 10px">#849</td><td style="padding:7px 10px">Brucelose</td><td style="padding:7px 10px">Out/2025</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ CONFIG -->
+  <div class="section" id="config">
+    <div class="section-header">9. Configurações</div>
+    <p class="section-desc">Gerenciamento das regras de classificação automática (faixas de idade editáveis) e gestão dos usuários do sistema.</p>
+
+    <div class="screen-wrapper">
+      <div class="screen-title-bar">
+        <div class="screen-dot" style="background:#ef4444"></div>
+        <div class="screen-dot" style="background:#f59e0b;margin-left:4px"></div>
+        <div class="screen-dot" style="background:#10b981;margin-left:4px"></div>
+        <span style="margin-left:8px">fazenda.com.br/configuracoes</span>
+      </div>
+      <div class="screen-body">
+        <div class="wf-topbar"><div class="brand">Fazenda Santo Antônio da Barra <small>Sistema de gestão de Bovinos</small></div><div class="user">Felippe Lahr (Admin) <button class="wf-btn wf-btn-danger wf-btn-sm">Sair</button></div></div>
+        <div class="wf-nav"><a href="#">Dashboard</a><a href="#">Animais</a><a href="#">Importar</a><a href="#">Mortes</a><a href="#">Sanitário</a><a href="#" class="active">Configurações</a></div>
+        <div class="wf-content">
+          <div class="wf-page-title">Configurações</div>
+          <div class="wf-page-sub">Regras de classificação automática e usuários — visível apenas para administradores</div>
+
+          <!-- Classificação -->
+          <div class="wf-config-card">
+            <h3>⚙️ Regras de Classificação Automática</h3>
+
+            <div style="font-size:13px;font-weight:600;color:#6366f1;margin-bottom:10px">Fêmeas</div>
+            <div class="wf-config-row">
+              <span class="label">Bezerra Fêmea</span>
+              <span class="badge-denom bd-bzf">Bezerra Fêmea</span>
+              <span class="separator">de</span> <input value="0"> <span class="separator">até</span> <input value="12"> <span class="separator">meses de idade</span>
+            </div>
+            <div class="wf-config-row">
+              <span class="label">Novilha</span>
+              <span class="badge-denom bd-novilha">Novilha</span>
+              <span class="separator">de</span> <input value="13"> <span class="separator">até</span> <input value="30"> <span class="separator">meses de idade</span>
+            </div>
+            <div class="wf-config-row">
+              <span class="label">Vaca</span>
+              <span class="badge-denom bd-vaca">Vaca</span>
+              <span class="separator">acima de</span> <input value="30"> <span class="separator">meses de idade</span>
+            </div>
+
+            <div style="font-size:13px;font-weight:600;color:#6366f1;margin:16px 0 10px">Machos</div>
+            <div class="wf-config-row">
+              <span class="label">Bezerro Macho</span>
+              <span class="badge-denom bd-bzm">Bezerro Macho</span>
+              <span class="separator">de</span> <input value="0"> <span class="separator">até</span> <input value="12"> <span class="separator">meses de idade</span>
+            </div>
+            <div class="wf-config-row">
+              <span class="label">Garrote</span>
+              <span class="badge-denom bd-garrote">Garrote</span>
+              <span class="separator">de</span> <input value="13"> <span class="separator">até</span> <input value="30"> <span class="separator">meses de idade</span>
+            </div>
+            <div class="wf-config-row">
+              <span class="label">Boi</span>
+              <span class="badge-denom bd-boi">Boi</span>
+              <span class="separator">acima de</span> <input value="30"> <span class="separator">meses de idade</span>
+            </div>
+            <div class="wf-config-row" style="background:#f5f3ff;border-radius:6px;padding:10px 12px;margin-top:8px">
+              <span class="label">Touro</span>
+              <span class="badge-denom" style="background:#ede9fe;color:#4c1d95;width:110px;text-align:center">Touro</span>
+              <span style="font-size:12px;color:#6d28d9">Override manual — marcado como "Reprodutor" no cadastro do animal. Substitui Boi independente da idade.</span>
+            </div>
+
+            <div style="margin-top:16px;display:flex;gap:8px">
+              <button class="wf-btn wf-btn-primary">💾 Salvar Regras</button>
+              <button class="wf-btn wf-btn-outline">↩️ Restaurar Padrão</button>
+            </div>
+            <div class="wf-note" style="margin-top:14px;margin-bottom:0">
+              Ao salvar, o sistema recalcula automaticamente a denominação de todos os animais vivos com base nas novas regras.
+            </div>
+          </div>
+
+          <!-- Usuários -->
+          <div class="wf-config-card">
+            <h3>👤 Usuários do Sistema</h3>
+            <table style="width:100%;font-size:13px">
+              <thead><tr style="background:#f8fafc"><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Nome</th><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">E-mail</th><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Papel</th><th style="padding:8px 12px;border-bottom:1px solid #e2e8f0">Ações</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">Luiz Henrique</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">luiz.henrique@fazenda.com.br</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:11px">Admin</span></td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><button class="wf-btn wf-btn-outline wf-btn-sm">Editar Senha</button></td></tr>
+                <tr><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">Luiz Antonio</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9">luiz.antonio@fazenda.com.br</td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;font-size:11px">Sócio</span></td><td style="padding:8px 12px;border-bottom:1px solid #f1f5f9"><button class="wf-btn wf-btn-outline wf-btn-sm">Editar Senha</button></td></tr>
+                <tr><td style="padding:8px 12px">Leda</td><td style="padding:8px 12px">leda@fazenda.com.br</td><td style="padding:8px 12px"><span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px;font-size:11px">Sócio</span></td><td style="padding:8px 12px"><button class="wf-btn wf-btn-outline wf-btn-sm">Editar Senha</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('.section');
+  const links = document.querySelectorAll('.doc-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 60) current = s.id; });
+    links.forEach(l => { l.classList.toggle('active', l.getAttribute('href') === '#' + current); });
+  });
+</script>
+</body>
+</html>
