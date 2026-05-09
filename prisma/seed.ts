@@ -56,6 +56,21 @@ async function main() {
     });
   }
 
+  const tickerValues = [
+    { chave: 'boi_gordo', valor: '343,02' },
+    { chave: 'vaca_gorda', valor: '312,70' },
+    { chave: 'bezerro_8m', valor: '2.795,89' },
+    { chave: 'garrote_18m', valor: '4.075,06' },
+  ];
+
+  for (const t of tickerValues) {
+    await prisma.configGlobal.upsert({
+      where: { chave: t.chave },
+      update: {},
+      create: t,
+    });
+  }
+
   console.log('Seed concluído.');
 }
 
