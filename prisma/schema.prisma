@@ -103,3 +103,10 @@ model RegistroSanitario {
   @@index([animalId])
   @@index([data])
 }
+
+model ConfigGlobal {
+  id        Int      @id @default(autoincrement())
+  chave     String   @unique
+  valor     String
+  updatedAt DateTime @updatedAt
+}
