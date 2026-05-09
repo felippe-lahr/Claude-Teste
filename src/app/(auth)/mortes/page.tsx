@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Plus, Skull, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Skull, Trash2, ChevronLeft, ChevronRight, TrendingDown, CalendarDays, CalendarClock } from 'lucide-react';
 import { MorteDrawer } from '@/components/mortes/morte-drawer';
 import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/ui/stat-card';
@@ -79,7 +79,7 @@ export default function MortesPage() {
         </div>
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
         >
           <Plus size={16} />
           Registrar Morte
@@ -88,9 +88,9 @@ export default function MortesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Total Registrado" value={total} sub="todos os tempos" gradient="from-red-500 to-red-600" />
-        <StatCard label="Este Ano" value={mortesAno} sub={String(new Date().getFullYear())} gradient="from-orange-500 to-orange-600" />
-        <StatCard label="Este Mês" value={mortesMes} sub="mês atual" gradient="from-rose-500 to-rose-600" />
+        <StatCard label="Total Registrado" value={total} sub="todos os tempos" color="#ef4444" icon={TrendingDown} />
+        <StatCard label="Este Ano" value={mortesAno} sub={String(new Date().getFullYear())} color="#f97316" icon={CalendarDays} />
+        <StatCard label="Este Mês" value={mortesMes} sub="mês atual" color="#f43f5e" icon={CalendarClock} />
       </div>
 
       {/* Table */}

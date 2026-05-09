@@ -1,18 +1,20 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
-import { Topbar } from '@/components/layout/topbar';
-import { Nav } from '@/components/layout/nav';
+import { Sidebar } from '@/components/layout/sidebar';
+import { Header } from '@/components/layout/header';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect('/login');
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Topbar />
-      <Nav />
-      <main className="max-w-screen-2xl mx-auto px-4 py-6">{children}</main>
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">{children}</main>
+      </div>
     </div>
   );
 }

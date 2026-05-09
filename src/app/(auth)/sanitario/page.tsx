@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { Plus, Syringe, Trash2, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Plus, Syringe, Trash2, ChevronLeft, ChevronRight, Search, ShieldCheck, Pill } from 'lucide-react';
 import { SanitarioDrawer } from '@/components/sanitario/sanitario-drawer';
 import { TableSkeleton } from '@/components/ui/skeleton';
+import { StatCard } from '@/components/ui/stat-card';
 
 interface RegistroSanitario {
   id: number;
@@ -87,7 +88,7 @@ export default function SanitarioPage() {
         </div>
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
         >
           <Plus size={16} />
           Registro Individual
@@ -96,21 +97,9 @@ export default function SanitarioPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-xs text-slate-500">Total de Registros</p>
-          <p className="text-3xl font-bold text-slate-900 mt-1">{total}</p>
-          <p className="text-xs text-slate-400 mt-1">no filtro atual</p>
-        </div>
-        <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
-          <p className="text-xs text-blue-600">Vacinas (página atual)</p>
-          <p className="text-3xl font-bold text-blue-700 mt-1">{vacinaCount}</p>
-          <p className="text-xs text-blue-400 mt-1">registros de vacina</p>
-        </div>
-        <div className="bg-orange-50 rounded-xl border border-orange-200 p-5">
-          <p className="text-xs text-orange-600">Medicamentos (página atual)</p>
-          <p className="text-3xl font-bold text-orange-700 mt-1">{medicCount}</p>
-          <p className="text-xs text-orange-400 mt-1">registros de medicamento</p>
-        </div>
+        <StatCard label="Total de Registros" value={total} sub="no filtro atual" color="#10b981" icon={Syringe} />
+        <StatCard label="Vacinas" value={vacinaCount} sub="página atual" color="#3b82f6" icon={ShieldCheck} />
+        <StatCard label="Medicamentos" value={medicCount} sub="página atual" color="#f97316" icon={Pill} />
       </div>
 
       {/* Filters */}
@@ -122,13 +111,13 @@ export default function SanitarioPage() {
               placeholder="Produto..."
               value={filters.produto}
               onChange={(e) => handleFilterChange('produto', e.target.value)}
-              className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
           <select
             value={filters.tipo}
             onChange={(e) => handleFilterChange('tipo', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Tipo</option>
             <option value="VACINA">Vacina</option>
@@ -140,7 +129,7 @@ export default function SanitarioPage() {
               type="date"
               value={filters.dataInicio}
               onChange={(e) => handleFilterChange('dataInicio', e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
           <div>
@@ -149,7 +138,7 @@ export default function SanitarioPage() {
               type="date"
               value={filters.dataFim}
               onChange={(e) => handleFilterChange('dataFim', e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
         </div>

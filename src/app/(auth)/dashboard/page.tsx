@@ -4,7 +4,19 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { StatCard } from '@/components/ui/stat-card';
 import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
-import { LayoutDashboard, Beef, Upload, Skull, Syringe, Settings } from 'lucide-react';
+import {
+  Users,
+  Heart,
+  Beef,
+  Shield,
+  Star,
+  Zap,
+  Baby,
+  Settings,
+  Upload,
+  Skull,
+  Syringe,
+} from 'lucide-react';
 import Link from 'next/link';
 
 async function getDashboardData() {
@@ -71,17 +83,17 @@ async function getDashboardData() {
   };
 }
 
-const proprietarioCores: Record<string, string> = {
-  'Luiz Henrique': 'from-blue-500 to-blue-600',
-  'Luiz Antonio': 'from-violet-500 to-violet-600',
-  'Leda': 'from-pink-500 to-pink-600',
+const proprietarioBorderColors: Record<string, string> = {
+  'Luiz Henrique': '#3b82f6',
+  'Luiz Antonio': '#8b5cf6',
+  'Leda': '#ec4899',
 };
 
 const shortcuts = [
-  { href: '/animais', label: 'Animais', icon: Beef, desc: 'Gerenciar rebanho', color: 'bg-blue-50 text-blue-600 group-hover:bg-blue-100' },
-  { href: '/importar', label: 'Importar', icon: Upload, desc: 'Via planilha Excel', color: 'bg-violet-50 text-violet-600 group-hover:bg-violet-100' },
-  { href: '/mortes', label: 'Mortes', icon: Skull, desc: 'Registrar óbitos', color: 'bg-red-50 text-red-600 group-hover:bg-red-100' },
-  { href: '/sanitario', label: 'Sanitário', icon: Syringe, desc: 'Vacinas e remédios', color: 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100' },
+  { href: '/animais', label: 'Animais', icon: Beef, desc: 'Gerenciar rebanho', bg: 'bg-blue-50', text: 'text-blue-600', hover: 'group-hover:bg-blue-100', border: 'group-hover:border-blue-200' },
+  { href: '/importar', label: 'Importar', icon: Upload, desc: 'Via planilha Excel', bg: 'bg-violet-50', text: 'text-violet-600', hover: 'group-hover:bg-violet-100', border: 'group-hover:border-violet-200' },
+  { href: '/mortes', label: 'Mortes', icon: Skull, desc: 'Registrar óbitos', bg: 'bg-red-50', text: 'text-red-600', hover: 'group-hover:bg-red-100', border: 'group-hover:border-red-200' },
+  { href: '/sanitario', label: 'Sanitário', icon: Syringe, desc: 'Vacinas e remédios', bg: 'bg-emerald-50', text: 'text-emerald-600', hover: 'group-hover:bg-emerald-100', border: 'group-hover:border-emerald-200' },
 ];
 
 export default async function DashboardPage() {
@@ -94,75 +106,96 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <LayoutDashboard size={24} className="text-brand-500" />
-          Dashboard
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">Visão geral do rebanho da Fazenda Santo Antônio da Barra</p>
+        <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+        <p className="text-slate-500 text-sm mt-0.5">Visão geral do rebanho da Fazenda Santo Antônio da Barra</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-4">
-        <StatCard label="Total de Animais" value={stats.total} sub="animais vivos" gradient="from-red-500 to-red-600" />
-        <StatCard label="Vacas" value={stats.vaca} sub="fêmeas adultas" gradient="from-cyan-500 to-cyan-600" />
-        <StatCard label="Bois" value={stats.boi} sub="machos adultos" gradient="from-blue-500 to-blue-600" />
-        <StatCard label="Touros" value={stats.touro} sub="reprodutores" gradient="from-emerald-500 to-emerald-600" />
-        <StatCard label="Novilhas" value={stats.novilha} sub="fêmeas jovens" gradient="from-violet-500 to-violet-600" />
-        <StatCard label="Garrotes" value={stats.garrote} sub="machos jovens" gradient="from-amber-500 to-amber-600" />
-        <StatCard label="Bezerra Fêmea" value={stats.bezerraFemea} sub="bezerras" gradient="from-pink-500 to-pink-600" />
-        <StatCard label="Bezerro Macho" value={stats.bezerroMacho} sub="bezerros" gradient="from-orange-500 to-orange-600" />
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="Total de Animais" value={stats.total} sub="animais vivos" color="#ef4444" icon={Users} />
+        <StatCard label="Vacas" value={stats.vaca} sub="fêmeas adultas" color="#06b6d4" icon={Heart} />
+        <StatCard label="Bois" value={stats.boi} sub="machos adultos" color="#3b82f6" icon={Beef} />
+        <StatCard label="Touros" value={stats.touro} sub="reprodutores" color="#10b981" icon={Shield} />
+        <StatCard label="Novilhas" value={stats.novilha} sub="fêmeas jovens" color="#8b5cf6" icon={Star} />
+        <StatCard label="Garrotes" value={stats.garrote} sub="machos jovens" color="#f59e0b" icon={Zap} />
+        <StatCard label="Bezerra Fêmea" value={stats.bezerraFemea} sub="bezerras" color="#ec4899" icon={Baby} />
+        <StatCard label="Bezerro Macho" value={stats.bezerroMacho} sub="bezerros" color="#f97316" icon={Baby} />
       </div>
 
       {/* Charts + Proprietários */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2">
+          {/* Section title */}
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Distribuição do Rebanho</h2>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
           <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} />
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold text-slate-800">Por Proprietário</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Por Proprietário</h2>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+
           {porProprietario.length === 0 ? (
             <div className="rounded-xl bg-white border border-slate-200 p-8 text-center">
               <Beef size={32} className="text-slate-300 mx-auto mb-2" />
               <p className="text-slate-500 text-sm">Nenhum dado disponível</p>
             </div>
           ) : (
-            porProprietario.map((p) => (
-              <div
-                key={p.nome}
-                className={`rounded-xl bg-gradient-to-br ${proprietarioCores[p.nome] ?? 'from-slate-500 to-slate-600'} p-5 text-white shadow-md`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-white/80">{p.nome}</p>
-                    <p className="text-3xl font-bold mt-1">{p.total}</p>
-                    <p className="text-xs text-white/70 mt-1">animais vivos</p>
+            porProprietario.map((p) => {
+              const borderColor = proprietarioBorderColors[p.nome] ?? '#6366f1';
+              return (
+                <div
+                  key={p.nome}
+                  className="rounded-xl bg-white border border-slate-200 shadow-sm p-5"
+                  style={{ borderLeftWidth: '3px', borderLeftColor: borderColor }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-xs font-medium text-slate-500">{p.nome}</p>
+                      <p className="text-2xl font-bold text-slate-900 mt-0.5">{p.total}</p>
+                      <p className="text-xs text-slate-400">animais vivos</p>
+                    </div>
+                    <div
+                      className="rounded-lg px-2.5 py-1 text-sm font-bold"
+                      style={{ backgroundColor: `${borderColor}15`, color: borderColor }}
+                    >
+                      {p.percentual}%
+                    </div>
                   </div>
-                  <div className="bg-white/20 rounded-lg px-3 py-1">
-                    <span className="text-lg font-bold">{p.percentual}%</span>
+                  <div className="bg-slate-100 rounded-full h-1.5">
+                    <div
+                      className="rounded-full h-1.5 transition-all"
+                      style={{ width: `${p.percentual}%`, backgroundColor: borderColor }}
+                    />
                   </div>
                 </div>
-                <div className="mt-3 bg-white/20 rounded-full h-1.5">
-                  <div className="bg-white rounded-full h-1.5" style={{ width: `${p.percentual}%` }} />
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
 
           {/* Mortes resumo */}
-          <div className="rounded-xl bg-white border border-slate-200 p-5 space-y-3">
-            <h3 className="text-sm font-semibold text-slate-800">Mortalidade</h3>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Total registrado</span>
-              <span className="text-sm font-bold text-slate-900">{stats.mortesTotal}</span>
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Mortalidade</h3>
+              <div className="flex-1 h-px bg-slate-100" />
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Este ano</span>
-              <span className="text-sm font-semibold text-orange-600">{stats.mortesAno}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Este mês</span>
-              <span className="text-sm font-semibold text-red-600">{stats.mortesMes}</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500">Total registrado</span>
+                <span className="text-sm font-bold text-slate-900">{stats.mortesTotal}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500">Este ano</span>
+                <span className="text-sm font-semibold text-orange-600">{stats.mortesAno}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500">Este mês</span>
+                <span className="text-sm font-semibold text-red-600">{stats.mortesMes}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -170,7 +203,10 @@ export default async function DashboardPage() {
 
       {/* Shortcuts */}
       <div>
-        <h2 className="text-base font-semibold text-slate-800 mb-4">Acesso Rápido</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Acesso Rápido</h2>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {shortcuts.map((s) => {
             const Icon = s.icon;
@@ -178,10 +214,10 @@ export default async function DashboardPage() {
               <Link
                 key={s.href}
                 href={s.href}
-                className="group rounded-xl bg-white border border-slate-200 p-5 hover:border-brand-300 hover:shadow-md transition-all"
+                className={`group rounded-xl bg-white border border-slate-200 p-5 hover:shadow-md transition-all ${s.border}`}
               >
-                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors mb-3 ${s.color}`}>
-                  <Icon size={20} />
+                <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors mb-3 ${s.bg} ${s.text} ${s.hover}`}>
+                  <Icon size={18} />
                 </div>
                 <p className="text-sm font-semibold text-slate-800">{s.label}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
@@ -191,10 +227,10 @@ export default async function DashboardPage() {
           {session.user.role === 'ADMIN' && (
             <Link
               href="/configuracoes"
-              className="group rounded-xl bg-white border border-slate-200 p-5 hover:border-brand-300 hover:shadow-md transition-all"
+              className="group rounded-xl bg-white border border-slate-200 p-5 hover:shadow-md transition-all group-hover:border-slate-300"
             >
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg transition-colors mb-3 bg-slate-50 text-slate-600 group-hover:bg-slate-100">
-                <Settings size={20} />
+              <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors mb-3 bg-slate-50 text-slate-600 group-hover:bg-slate-100">
+                <Settings size={18} />
               </div>
               <p className="text-sm font-semibold text-slate-800">Configurações</p>
               <p className="text-xs text-slate-500 mt-0.5">Admin do sistema</p>

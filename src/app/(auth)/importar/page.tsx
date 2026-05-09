@@ -91,7 +91,7 @@ export default function ImportarPage() {
     <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Upload size={24} className="text-brand-500" />
+          <Upload size={24} className="text-indigo-500" />
           Importar Planilha
         </h1>
         <p className="text-slate-500 text-sm mt-1">Importe animais em lote via arquivo Excel</p>
@@ -106,8 +106,8 @@ export default function ImportarPage() {
           { n: 4, label: 'Resultado' },
         ].map((s, i) => (
           <div key={s.n} className="flex items-center gap-2">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${step >= s.n ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step > s.n ? 'bg-white text-brand-500' : 'bg-white/30'}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${step >= s.n ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${step > s.n ? 'bg-white text-indigo-500' : 'bg-white/30'}`}>
                 {step > s.n ? '✓' : s.n}
               </span>
               {s.label}
@@ -120,7 +120,7 @@ export default function ImportarPage() {
       {/* Step 1: Download modelo */}
       {step === 1 && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 text-center">
-          <FileSpreadsheet size={48} className="text-brand-300 mx-auto mb-4" />
+          <FileSpreadsheet size={48} className="text-indigo-300 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-slate-800 mb-2">1. Baixe o Modelo</h2>
           <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
             Faça o download do modelo de planilha, preencha com os dados dos animais e faça o upload no próximo passo.
@@ -135,7 +135,7 @@ export default function ImportarPage() {
             </a>
             <button
               onClick={() => setStep(2)}
-              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition"
+              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm transition"
             >
               Já tenho o arquivo
               <ArrowRight size={16} />
@@ -161,7 +161,7 @@ export default function ImportarPage() {
           <p className="text-slate-500 text-sm mb-6">Selecione o arquivo Excel (.xlsx) preenchido</p>
 
           <label className="cursor-pointer inline-block">
-            <div className="border-2 border-dashed border-slate-300 hover:border-brand-400 rounded-xl p-12 transition-colors">
+            <div className="border-2 border-dashed border-slate-300 hover:border-indigo-400 rounded-xl p-12 transition-colors">
               <Upload size={40} className="text-slate-300 mx-auto mb-3" />
               <p className="text-slate-500 text-sm font-medium">Clique para selecionar o arquivo</p>
               <p className="text-slate-400 text-xs mt-1">Somente .xlsx</p>
@@ -175,7 +175,7 @@ export default function ImportarPage() {
             />
           </label>
 
-          {loading && <p className="mt-4 text-sm text-brand-500 font-medium">Processando arquivo...</p>}
+          {loading && <p className="mt-4 text-sm text-indigo-500 font-medium">Processando arquivo...</p>}
 
           <div className="mt-4">
             <button onClick={() => setStep(1)} className="text-sm text-slate-400 hover:text-slate-600 transition">
@@ -234,7 +234,7 @@ export default function ImportarPage() {
             <button
               onClick={handleConfirmar}
               disabled={loading}
-              className="flex-1 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition disabled:opacity-60"
+              className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition disabled:opacity-60"
             >
               {loading ? 'Importando...' : `Confirmar Importação de ${totalRows} Animais`}
             </button>
@@ -287,7 +287,7 @@ export default function ImportarPage() {
             </button>
             <a
               href="/animais"
-              className="px-4 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition"
+              className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
             >
               Ver Animais →
             </a>

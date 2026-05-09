@@ -106,7 +106,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Beef size={24} className="text-brand-500" />
+            <Beef size={24} className="text-indigo-500" />
             Animais
           </h1>
           <p className="text-slate-500 text-sm mt-1">{total} animais cadastrados</p>
@@ -121,7 +121,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
           </a>
           <button
             onClick={() => { setEditAnimal(null); setDrawerOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
           >
             <Plus size={16} />
             Cadastrar Animal
@@ -138,14 +138,14 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
               placeholder="Número..."
               value={filters.numero}
               onChange={(e) => handleFilterChange('numero', e.target.value)}
-              className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
           <select
             value={filters.proprietarioId}
             onChange={(e) => handleFilterChange('proprietarioId', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Proprietário</option>
             {proprietarios.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -154,7 +154,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
           <select
             value={filters.genero}
             onChange={(e) => handleFilterChange('genero', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Gênero</option>
             <option value="MACHO">Macho</option>
@@ -164,7 +164,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
           <select
             value={filters.denominacao}
             onChange={(e) => handleFilterChange('denominacao', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Denominação</option>
             {denominacoes.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -173,7 +173,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
           <select
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Status</option>
             <option value="VIVO">Vivo</option>
@@ -183,7 +183,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
           <select
             value={filters.eraMes}
             onChange={(e) => handleFilterChange('eraMes', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
           >
             <option value="">Mês Nasc.</option>
             {MESES.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
@@ -194,7 +194,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
             placeholder="Ano Nasc."
             value={filters.eraAno}
             onChange={(e) => handleFilterChange('eraAno', e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
       </div>
@@ -245,7 +245,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
                         </Link>
                         <button
                           onClick={() => { setEditAnimal(animal); setDrawerOpen(true); }}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                           title="Editar"
                         >
                           <Pencil size={14} />

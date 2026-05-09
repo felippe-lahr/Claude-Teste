@@ -32,6 +32,12 @@ interface Props {
   onSaved: () => void;
 }
 
+const inputClass =
+  'w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all';
+
+const selectClass =
+  'w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all';
+
 export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [buscaAnimal, setBuscaAnimal] = useState('');
@@ -92,7 +98,7 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
     <Drawer open={open} onClose={onClose} title="Registro Sanitário">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Animal *</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Animal *</label>
           <div className="relative">
             <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -104,7 +110,7 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
                 buscarAnimal(e.target.value);
               }}
               placeholder="Buscar por número do animal..."
-              className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
           </div>
           {buscando && <p className="text-xs text-slate-400 mt-1">Buscando...</p>}
@@ -115,7 +121,7 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
                   key={a.id}
                   type="button"
                   onClick={() => selecionarAnimal(a)}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-slate-50 flex items-center justify-between border-b border-slate-100 last:border-0"
+                  className="w-full text-left px-3 py-2.5 text-sm hover:bg-slate-50 flex items-center justify-between border-b border-slate-100 last:border-0 transition-colors"
                 >
                   <span className="font-medium text-slate-800">
                     {a.numero ? `Nº ${a.numero}` : `#${a.id}`} — {a.denominacao}
@@ -131,7 +137,7 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
 
         {animalSelecionado && (
           <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-xs text-slate-500">Animal selecionado:</p>
+            <p className="text-xs text-slate-500 mb-0.5">Animal selecionado</p>
             <p className="text-sm font-medium text-slate-800">
               {animalSelecionado.numero ? `Nº ${animalSelecionado.numero}` : `#${animalSelecionado.id}`} — {animalSelecionado.denominacao}
             </p>
@@ -140,11 +146,11 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Tipo *</label>
-          <div className="flex gap-3">
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Tipo *</label>
+          <div className="flex gap-4">
             {(['VACINA', 'MEDICAMENTO'] as const).map((t) => (
               <label key={t} className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value={t} {...register('tipo')} className="text-brand-500" />
+                <input type="radio" value={t} {...register('tipo')} className="text-indigo-500 focus:ring-indigo-500" />
                 <span className="text-sm text-slate-700">{t === 'VACINA' ? 'Vacina' : 'Medicamento'}</span>
               </label>
             ))}
@@ -152,48 +158,56 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Produto *</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Produto *</label>
           <input
             {...register('produto')}
             placeholder="Nome do produto/vacina"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className={inputClass}
           />
           {errors.produto && <p className="text-xs text-red-500 mt-1">{errors.produto.message}</p>}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data *</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data *</label>
           <input
             {...register('data')}
             type="date"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className={inputClass}
           />
           {errors.data && <p className="text-xs text-red-500 mt-1">{errors.data.message}</p>}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Dose</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Dose</label>
           <input
             {...register('dose')}
             placeholder="Ex: 5ml, 2 comprimidos"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Observações</label>
           <textarea
             {...register('observacoes')}
             rows={3}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none"
           />
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-all"
+          >
             Cancelar
           </button>
-          <button type="submit" disabled={loading} className="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? 'Salvando...' : 'Salvar Registro'}
           </button>
         </div>

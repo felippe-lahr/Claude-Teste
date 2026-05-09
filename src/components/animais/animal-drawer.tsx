@@ -48,6 +48,12 @@ interface Props {
   onSaved: () => void;
 }
 
+const inputClass =
+  'w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all';
+
+const selectClass =
+  'w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all';
+
 export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [denominacao, setDenominacao] = useState('');
@@ -146,20 +152,17 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Número (opcional)</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Número (opcional)</label>
           <input
             {...register('numero')}
             placeholder="Ex: 001"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Proprietário *</label>
-          <select
-            {...register('proprietarioId')}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
-          >
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Proprietário *</label>
+          <select {...register('proprietarioId')} className={selectClass}>
             <option value="">Selecione...</option>
             {proprietarios.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -169,11 +172,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Gênero *</label>
-          <div className="flex gap-3">
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Gênero *</label>
+          <div className="flex gap-4">
             {(['MACHO', 'FEMEA'] as const).map((g) => (
               <label key={g} className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value={g} {...register('genero')} className="text-brand-500" />
+                <input type="radio" value={g} {...register('genero')} className="text-indigo-500 focus:ring-indigo-500" />
                 <span className="text-sm text-slate-700">{g === 'MACHO' ? 'Macho' : 'Fêmea'}</span>
               </label>
             ))}
@@ -182,11 +185,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status</label>
-          <select
-            {...register('status')}
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
-          >
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Status</label>
+          <select {...register('status')} className={selectClass}>
             <option value="VIVO">Vivo</option>
             <option value="MORTO">Morto</option>
           </select>
@@ -194,11 +194,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Mês de Nascimento</label>
-            <select
-              {...register('eraMes')}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white"
-            >
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Mês de Nascimento</label>
+            <select {...register('eraMes')} className={selectClass}>
               <option value="">--</option>
               {['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].map((m, i) => (
                 <option key={i + 1} value={i + 1}>{m}</option>
@@ -206,26 +203,26 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Ano de Nascimento</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Ano de Nascimento</label>
             <input
               {...register('eraAno')}
               type="number"
               placeholder="Ex: 2022"
               min="2000"
               max={new Date().getFullYear()}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              className={inputClass}
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Peso (kg)</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Peso (kg)</label>
           <input
             {...register('peso')}
             type="number"
             step="0.1"
             placeholder="Ex: 350.5"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            className={inputClass}
           />
         </div>
 
@@ -235,7 +232,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             id="reprodutor"
             {...register('reprodutor')}
             onChange={(e) => setValue('reprodutor', e.target.checked)}
-            className="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500"
+            className="w-4 h-4 text-indigo-500 rounded border-slate-300 focus:ring-indigo-500"
           />
           <label htmlFor="reprodutor" className="text-sm text-slate-700 cursor-pointer">
             Reprodutor (Touro)
@@ -243,12 +240,12 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Observações</label>
           <textarea
             {...register('observacoes')}
             rows={3}
             placeholder="Observações gerais..."
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none"
           />
         </div>
 
@@ -256,14 +253,14 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-all"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition disabled:opacity-60"
+            className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </button>

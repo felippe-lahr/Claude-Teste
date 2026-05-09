@@ -140,7 +140,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
     <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Settings size={24} className="text-brand-500" />
+          <Settings size={24} className="text-indigo-500" />
           Configurações
         </h1>
         <p className="text-slate-500 text-sm mt-1">Gerencie preços, classificações e usuários</p>
@@ -155,7 +155,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
           {tickerFields.map((f) => (
             <div key={f.key}>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                 {f.label}
                 <span className="ml-1 text-slate-400 font-normal">({f.unidade})</span>
               </label>
@@ -166,7 +166,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
                   step="0.01"
                   value={ticker[f.key] ?? ''}
                   onChange={(e) => handleTickerChange(f.key, e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   placeholder="0,00"
                 />
               </div>
@@ -176,7 +176,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         <button
           onClick={salvarTicker}
           disabled={savingTicker}
-          className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
+          className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
         >
           {savingTicker ? 'Salvando...' : 'Salvar Preços'}
         </button>
@@ -185,7 +185,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
       {/* Seção 2: Classificações */}
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
-          <List size={16} className="text-brand-500" />
+          <List size={16} className="text-indigo-500" />
           Regras de Classificação
         </h2>
         <p className="text-xs text-slate-500 mb-5">
@@ -202,26 +202,26 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
             </thead>
             <tbody className="divide-y divide-slate-100">
               {classificacoes.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-800">{c.denominacao}</td>
-                  <td className="px-4 py-3 text-slate-600 text-xs">{GENERO_LABEL[c.genero]}</td>
-                  <td className="px-4 py-3">
+                <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="px-4 py-3.5 font-medium text-slate-800">{c.denominacao}</td>
+                  <td className="px-4 py-3.5 text-slate-500 text-xs">{GENERO_LABEL[c.genero]}</td>
+                  <td className="px-4 py-3.5">
                     <input
                       type="number"
                       min="0"
                       value={c.idadeMinMeses ?? ''}
                       onChange={(e) => handleClassifChange(c.id, 'idadeMinMeses', e.target.value)}
-                      className="w-24 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-24 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <input
                       type="number"
                       min="0"
                       value={c.idadeMaxMeses ?? ''}
                       onChange={(e) => handleClassifChange(c.id, 'idadeMaxMeses', e.target.value)}
                       placeholder="Sem limite"
-                      className="w-28 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-28 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                     />
                   </td>
                 </tr>
@@ -232,7 +232,7 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         <button
           onClick={salvarClassificacoes}
           disabled={savingClassif}
-          className="px-5 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition disabled:opacity-60"
+          className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
         >
           {savingClassif ? 'Salvando e recalculando...' : 'Salvar Regras'}
         </button>
@@ -246,9 +246,9 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         </h2>
         <div className="space-y-3">
           {usuarios.map((u) => (
-            <div key={u.id} className="flex items-center justify-between p-4 rounded-lg bg-slate-50 border border-slate-200">
+            <div key={u.id} className="flex items-center justify-between p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 transition-colors">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-sm font-bold">
+                <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {u.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -257,12 +257,12 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'ADMIN' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-600'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${u.role === 'ADMIN' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
                   {ROLE_LABEL[u.role] ?? u.role}
                 </span>
                 <button
                   onClick={() => abrirSenha(u)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-slate-600 text-xs font-medium hover:bg-white transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50 transition-all"
                 >
                   <Key size={12} />
                   Editar Senha
@@ -277,30 +277,30 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
       <Drawer open={senhaDrawer} onClose={() => setSenhaDrawer(false)} title={`Alterar Senha — ${senhaUserName}`} width="max-w-sm">
         <form onSubmit={handleSubmit(salvarSenha)} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Nova Senha</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Nova Senha</label>
             <input
               {...register('novaSenha')}
               type="password"
               placeholder="Mínimo 6 caracteres"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
             {errors.novaSenha && <p className="text-xs text-red-500 mt-1">{errors.novaSenha.message}</p>}
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirmar Senha</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Confirmar Senha</label>
             <input
               {...register('confirmarSenha')}
               type="password"
               placeholder="Repita a senha"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
             {errors.confirmarSenha && <p className="text-xs text-red-500 mt-1">{errors.confirmarSenha.message}</p>}
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setSenhaDrawer(false)} className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition">
+            <button type="button" onClick={() => setSenhaDrawer(false)} className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 transition-all">
               Cancelar
             </button>
-            <button type="submit" disabled={savingSenha} className="flex-1 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition disabled:opacity-60">
+            <button type="submit" disabled={savingSenha} className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50">
               {savingSenha ? 'Salvando...' : 'Salvar Senha'}
             </button>
           </div>
