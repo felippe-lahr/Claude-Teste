@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SOCIO
+}
+
+enum Genero {
+  MACHO
+  FEMEA
+}
+
+enum StatusAnimal {
+  VIVO
+  MORTO
+}
+
+enum TipoSanitario {
+  VACINA
+  MEDICAMENTO
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(SOCIO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  animais         Animal[]
+  mortesRegistradas Morte[] @relation("RegistradoPor")
+}
+
+model Animal {
+  id             Int          @id @default(autoincrement())
+  numero         String?
+  genero         Genero
+  eraMes         Int?
+  eraAno         Int?
+  peso           Float?
+  reprodutor     Boolean      @default(false)
+  status         StatusAnimal @default(VIVO)
+  denominacao   String
+  observacoes    String?
+  fotoUrl        String?
+  proprietarioId Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  proprietario     User                @relation(fields: [proprietarioId], references: [id])
+  morte            Morte?
+  registrosSanitarios RegistroSanitario[]
+
+  @@index([proprietarioId])
+  @@index([status])
+  @@index([denominacao])
+}
+
+model ClassificacaoConfig {
+  id              Int      @id @default(autoincrement())
+  denominacao     String   @unique
+  genero          Genero
+  idadeMinMeses   Int
+  idadeMaxMeses   Int?
+  ordem           Int
+  updatedAt       DateTime @updatedAt
+}
+
+model Morte {
+  id            Int      @id @default(autoincrement())
+  animalId      Int      @unique
+  dataObito     DateTime
+  causa         String?
+  observacoes   String?
+  registradoPorId Int
+  createdAt     DateTime @default(now())
+
+  animal        Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  registradoPor User   @relation("RegistradoPor", fields: [registradoPorId], references: [id])
+}
+
+model RegistroSanitario {
+  id          Int           @id @default(autoincrement())
+  animalId    Int
+  tipo        TipoSanitario
+  produto     String
+  data        DateTime
+  dose        String?
+  observacoes String?
+  createdAt   DateTime      @default(now())
+
+  animal      Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@index([animalId])
+  @@index([data])
+}
