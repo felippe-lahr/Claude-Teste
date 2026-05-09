@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import {
   LayoutDashboard,
-  Cow,
+  Beef,
   Upload,
   Skull,
   Syringe,
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/animais', label: 'Animais', icon: Cow },
+  { href: '/animais', label: 'Animais', icon: Beef },
   { href: '/importar', label: 'Importar', icon: Upload },
   { href: '/mortes', label: 'Mortes', icon: Skull },
   { href: '/sanitario', label: 'Sanitário', icon: Syringe },
