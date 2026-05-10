@@ -22,6 +22,12 @@ export default async function AnimalDetailPage({ params }: Props) {
         proprietario: { select: { id: true, name: true } },
         morte: true,
         registrosSanitarios: { orderBy: { data: 'desc' } },
+        reproducao: {
+          include: {
+            estacaoMonta: true,
+            semen: true,
+          },
+        },
       },
     }),
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
@@ -43,6 +49,20 @@ export default async function AnimalDetailPage({ params }: Props) {
       ...r,
       data: r.data.toISOString(),
     })),
+    reproducao: animalRaw.reproducao
+      ? {
+          ...animalRaw.reproducao,
+          dataToque: animalRaw.reproducao.dataToque?.toISOString() ?? null,
+          dataInseminacao: animalRaw.reproducao.dataInseminacao?.toISOString() ?? null,
+          estacaoMonta: animalRaw.reproducao.estacaoMonta
+            ? {
+                ...animalRaw.reproducao.estacaoMonta,
+                dataInicio: animalRaw.reproducao.estacaoMonta.dataInicio.toISOString(),
+                dataFim: animalRaw.reproducao.estacaoMonta.dataFim.toISOString(),
+              }
+            : null,
+        }
+      : null,
   };
 
   return <AnimalDetailClient animal={animal} proprietarios={proprietarios} />;

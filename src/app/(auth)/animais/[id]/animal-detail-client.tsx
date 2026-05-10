@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { ArrowLeft, Skull, Syringe, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Skull, Syringe, Plus, Trash2, HeartPulse } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Drawer } from '@/components/ui/drawer';
 
@@ -53,6 +53,16 @@ interface Morte {
   observacoes: string | null;
 }
 
+interface Reproducao {
+  statusReprodutivo: string | null;
+  dataToque: string | null;
+  dataInseminacao: string | null;
+  inseminada: boolean;
+  observacoes: string | null;
+  estacaoMonta: { nome: string } | null;
+  semen: { codigo: string; touro: string | null } | null;
+}
+
 interface Animal {
   id: number;
   numero: string | null;
@@ -69,6 +79,7 @@ interface Animal {
   proprietario: { id: number; name: string };
   morte: Morte | null;
   registrosSanitarios: RegistroSanitario[];
+  reproducao: Reproducao | null;
 }
 
 interface Props {
@@ -331,6 +342,79 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Reprodução */}
+      {animal.genero === 'FEMEA' && animal.reproducao && (
+        <div className="bg-pink-50 border border-pink-200 rounded-xl p-6">
+          <h2 className="text-base font-semibold text-pink-800 mb-4 flex items-center gap-2">
+            <HeartPulse size={16} />
+            Reprodução
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            {animal.reproducao.statusReprodutivo && (
+              <div>
+                <p className="text-xs text-pink-600 font-medium mb-1">Status Reprodutivo</p>
+                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  animal.reproducao.statusReprodutivo === 'CHEIA'        ? 'bg-green-100 text-green-800' :
+                  animal.reproducao.statusReprodutivo === 'VAZIA'        ? 'bg-red-100 text-red-800' :
+                  animal.reproducao.statusReprodutivo === 'PARIDA'       ? 'bg-blue-100 text-blue-800' :
+                  'bg-purple-100 text-purple-800'
+                }`}>
+                  {{ CHEIA: 'Cheia', VAZIA: 'Vazia', PARIDA: 'Parida', BEZERRO_NO_PE: 'Bezerro no Pé' }[animal.reproducao.statusReprodutivo] ?? animal.reproducao.statusReprodutivo}
+                </span>
+              </div>
+            )}
+            {animal.reproducao.dataToque && (
+              <div>
+                <p className="text-xs text-pink-600 font-medium mb-1">Data do Toque</p>
+                <p className="text-pink-900">{formatDate(animal.reproducao.dataToque)}</p>
+              </div>
+            )}
+            {animal.reproducao.estacaoMonta && (
+              <div>
+                <p className="text-xs text-pink-600 font-medium mb-1">Estação de Monta</p>
+                <p className="text-pink-900">{animal.reproducao.estacaoMonta.nome}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-xs text-pink-600 font-medium mb-1">Inseminação</p>
+              <p className="text-pink-900">{animal.reproducao.inseminada ? 'Sim' : 'Não'}</p>
+            </div>
+            {animal.reproducao.inseminada && animal.reproducao.dataInseminacao && (
+              <div>
+                <p className="text-xs text-pink-600 font-medium mb-1">Data da Inseminação</p>
+                <p className="text-pink-900">{formatDate(animal.reproducao.dataInseminacao)}</p>
+              </div>
+            )}
+            {animal.reproducao.inseminada && animal.reproducao.semen && (
+              <div>
+                <p className="text-xs text-pink-600 font-medium mb-1">Sêmen Utilizado</p>
+                <p className="text-pink-900">
+                  {animal.reproducao.semen.codigo}
+                  {animal.reproducao.semen.touro ? ` — ${animal.reproducao.semen.touro}` : ''}
+                </p>
+              </div>
+            )}
+            {animal.reproducao.observacoes && (
+              <div className="md:col-span-4">
+                <p className="text-xs text-pink-600 font-medium mb-1">Observações</p>
+                <p className="text-pink-900">{animal.reproducao.observacoes}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Reprodução — fêmea sem registro */}
+      {animal.genero === 'FEMEA' && !animal.reproducao && (
+        <div className="bg-pink-50 border border-pink-200 rounded-xl p-6">
+          <h2 className="text-base font-semibold text-pink-800 mb-2 flex items-center gap-2">
+            <HeartPulse size={16} />
+            Reprodução
+          </h2>
+          <p className="text-sm text-pink-600">Nenhum dado reprodutivo registrado. Edite o animal para preencher.</p>
         </div>
       )}
 
