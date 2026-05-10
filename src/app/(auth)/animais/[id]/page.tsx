@@ -32,6 +32,7 @@ export default async function AnimalDetailPage({ params }: Props) {
   // Serialize Dates to strings for client component
   const animal = {
     ...animalRaw,
+    dataVenda: animalRaw.dataVenda ? animalRaw.dataVenda.toISOString() : null,
     morte: animalRaw.morte
       ? {
           ...animalRaw.morte,

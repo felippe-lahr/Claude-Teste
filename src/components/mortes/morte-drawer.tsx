@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ const schema = z.object({
   animalId: z.string().min(1, 'Animal obrigatório'),
   dataObito: z.string().min(1, 'Data obrigatória'),
   causa: z.string().optional(),
+  causaCustom: z.string().optional(),
   observacoes: z.string().optional(),
 });
 
@@ -22,6 +23,11 @@ interface AnimalBusca {
   numero: string | null;
   denominacao: string;
   proprietario: { name: string };
+}
+
+interface CausaMorte {
+  id: number;
+  nome: string;
 }
 
 interface Props {
@@ -40,11 +46,21 @@ export function MorteDrawer({ open, onClose, onSaved, preAnimalId }: Props) {
   const [animaisBusca, setAnimaisBusca] = useState<AnimalBusca[]>([]);
   const [animalSelecionado, setAnimalSelecionado] = useState<AnimalBusca | null>(null);
   const [buscando, setBuscando] = useState(false);
+  const [causas, setCausas] = useState<CausaMorte[]>([]);
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { animalId: preAnimalId ? String(preAnimalId) : '' },
   });
+
+  useEffect(() => {
+    fetch('/api/causas-morte')
+      .then((r) => r.json())
+      .then((data) => setCausas(Array.isArray(data) ? data : []))
+      .catch(() => setCausas([]));
+  }, []);
+
+  const causaSelecionada = watch('causa');
 
   async function buscarAnimal(q: string) {
     if (!q || q.length < 1) { setAnimaisBusca([]); return; }
@@ -71,10 +87,16 @@ export function MorteDrawer({ open, onClose, onSaved, preAnimalId }: Props) {
   async function onSubmit(data: FormData) {
     setLoading(true);
     try {
+      const causaFinal = data.causa === '__outra__' ? (data.causaCustom ?? '') : (data.causa ?? '');
       const res = await fetch('/api/mortes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          animalId: data.animalId,
+          dataObito: data.dataObito,
+          causa: causaFinal || null,
+          observacoes: data.observacoes || null,
+        }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
       toast.success('Morte registrada com sucesso!');
@@ -143,22 +165,34 @@ export function MorteDrawer({ open, onClose, onSaved, preAnimalId }: Props) {
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data do Óbito *</label>
-          <input
-            {...register('dataObito')}
-            type="date"
-            className={inputClass}
-          />
+          <input {...register('dataObito')} type="date" className={inputClass} />
           {errors.dataObito && <p className="text-xs text-red-500 mt-1">{errors.dataObito.message}</p>}
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Causa</label>
-          <input
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Causa da Morte</label>
+          <select
             {...register('causa')}
-            placeholder="Ex: Doença respiratória"
-            className={inputClass}
-          />
+            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+          >
+            <option value="">Selecione a causa...</option>
+            {causas.map((c) => (
+              <option key={c.id} value={c.nome}>{c.nome}</option>
+            ))}
+            <option value="__outra__">Outra (digitar)</option>
+          </select>
         </div>
+
+        {causaSelecionada === '__outra__' && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Descreva a causa</label>
+            <input
+              {...register('causaCustom')}
+              placeholder="Ex: Intoxicação por planta"
+              className={inputClass}
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Observações</label>

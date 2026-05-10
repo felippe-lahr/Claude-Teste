@@ -21,9 +21,10 @@ interface Animal {
   eraMes: number | null;
   eraAno: number | null;
   peso: number | null;
-  status: 'VIVO' | 'MORTO';
+  status: 'VIVO' | 'MORTO' | 'VENDIDO';
   reprodutor: boolean;
   observacoes: string | null;
+  dataVenda: string | null;
   proprietarioId: number;
   proprietario: { id: number; name: string };
 }
@@ -178,6 +179,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
             <option value="">Status</option>
             <option value="VIVO">Vivo</option>
             <option value="MORTO">Morto</option>
+            <option value="VENDIDO">Vendido</option>
           </select>
 
           <select
@@ -232,7 +234,7 @@ export function AnimaisClient({ proprietarios, denominacoes }: Props) {
                     <td className="px-4 py-3 text-slate-600 text-xs">{formatEra(animal.eraMes, animal.eraAno)}</td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{animal.peso ? `${animal.peso} kg` : '—'}</td>
                     <td className="px-4 py-3">
-                      <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : 'Morto'}</Badge>
+                      <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">

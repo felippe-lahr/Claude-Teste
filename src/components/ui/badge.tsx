@@ -25,6 +25,7 @@ export function Badge({ children, variant = 'default', value, className }: Badge
   } else if (variant === 'status') {
     if (value === 'VIVO') colorClass = 'bg-emerald-100 text-emerald-800';
     else if (value === 'MORTO') colorClass = 'bg-red-100 text-red-800';
+    else if (value === 'VENDIDO') colorClass = 'bg-amber-100 text-amber-800';
   }
 
   return (

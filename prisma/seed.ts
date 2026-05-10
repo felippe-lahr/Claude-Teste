@@ -71,6 +71,24 @@ async function main() {
     });
   }
 
+  const causasMorte = [
+    { nome: 'Doença respiratória', ordem: 1 },
+    { nome: 'Doença digestiva', ordem: 2 },
+    { nome: 'Acidente/Trauma', ordem: 3 },
+    { nome: 'Predação', ordem: 4 },
+    { nome: 'Desnutrição', ordem: 5 },
+    { nome: 'Idade avançada', ordem: 6 },
+    { nome: 'Causa desconhecida', ordem: 7 },
+  ];
+
+  for (const c of causasMorte) {
+    await prisma.causaMortePredefinida.upsert({
+      where: { nome: c.nome },
+      update: {},
+      create: c,
+    });
+  }
+
   console.log('Seed concluído.');
 }
 

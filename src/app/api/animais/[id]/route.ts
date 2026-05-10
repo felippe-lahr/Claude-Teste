@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas } = body;
 
   const denominacao = await classificarAnimal({
     genero: genero as Genero,
@@ -49,6 +49,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       status: status as StatusAnimal,
       denominacao,
       observacoes: observacoes || null,
+      dataVenda: dataVenda ? new Date(dataVenda) : null,
       proprietarioId: parseInt(proprietarioId),
     },
     include: {
@@ -57,6 +58,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       registrosSanitarios: { orderBy: { data: 'desc' } },
     },
   });
+
+  if (Array.isArray(vacinas) && vacinas.length > 0) {
+    await prisma.registroSanitario.createMany({
+      data: vacinas
+        .filter((v: { produto?: string; data?: string }) => v.produto && v.data)
+        .map((v: { produto: string; data: string; dose?: string }) => ({
+          animalId: animal.id,
+          tipo: 'VACINA' as const,
+          produto: v.produto,
+          data: new Date(v.data),
+          dose: v.dose || null,
+        })),
+    });
+  }
 
   return NextResponse.json(animal);
 }

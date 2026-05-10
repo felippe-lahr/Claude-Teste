@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
 
   const animais = await prisma.animal.findMany({
     where,
-    include: { proprietario: { select: { name: true } } },
+    include: {
+      proprietario: { select: { name: true } },
+      morte: true,
+    },
     orderBy: [{ proprietarioId: 'asc' }, { denominacao: 'asc' }],
   });
 
@@ -34,6 +37,9 @@ export async function GET(req: NextRequest) {
     'Peso (kg)': a.peso ?? '',
     Reprodutor: a.reprodutor ? 'Sim' : 'Não',
     Status: a.status,
+    'Data Venda': a.dataVenda ? a.dataVenda.toLocaleDateString('pt-BR') : '',
+    'Causa Morte': a.morte?.causa ?? '',
+    'Data Óbito': a.morte?.dataObito ? a.morte.dataObito.toLocaleDateString('pt-BR') : '',
     Observações: a.observacoes ?? '',
     'Cadastrado em': a.createdAt.toLocaleDateString('pt-BR'),
   }));
