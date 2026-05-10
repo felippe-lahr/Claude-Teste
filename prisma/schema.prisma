@@ -69,7 +69,7 @@ model Animal {
   proprietario        User                @relation(fields: [proprietarioId], references: [id])
   morte               Morte?
   registrosSanitarios RegistroSanitario[]
-  reproducao          ReproducaoAnimal?
+  reproducoes         ReproducaoAnimal[]
 
   @@index([proprietarioId])
   @@index([status])
@@ -152,7 +152,7 @@ model Semen {
 
 model ReproducaoAnimal {
   id                Int                @id @default(autoincrement())
-  animalId          Int                @unique
+  animalId          Int
   statusReprodutivo StatusReprodutivo?
   dataToque         DateTime?
   estacaoMontaId    Int?

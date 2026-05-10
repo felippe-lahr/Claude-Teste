@@ -22,11 +22,9 @@ export default async function AnimalDetailPage({ params }: Props) {
         proprietario: { select: { id: true, name: true } },
         morte: true,
         registrosSanitarios: { orderBy: { data: 'desc' } },
-        reproducao: {
-          include: {
-            estacaoMonta: true,
-            semen: true,
-          },
+        reproducoes: {
+          orderBy: { createdAt: 'desc' as const },
+          include: { estacaoMonta: true, semen: true },
         },
       },
     }),
@@ -49,20 +47,16 @@ export default async function AnimalDetailPage({ params }: Props) {
       ...r,
       data: r.data.toISOString(),
     })),
-    reproducao: animalRaw.reproducao
-      ? {
-          ...animalRaw.reproducao,
-          dataToque: animalRaw.reproducao.dataToque?.toISOString() ?? null,
-          dataInseminacao: animalRaw.reproducao.dataInseminacao?.toISOString() ?? null,
-          estacaoMonta: animalRaw.reproducao.estacaoMonta
-            ? {
-                ...animalRaw.reproducao.estacaoMonta,
-                dataInicio: animalRaw.reproducao.estacaoMonta.dataInicio.toISOString(),
-                dataFim: animalRaw.reproducao.estacaoMonta.dataFim.toISOString(),
-              }
-            : null,
-        }
-      : null,
+    reproducoes: animalRaw.reproducoes.map((r) => ({
+      ...r,
+      dataToque: r.dataToque?.toISOString() ?? null,
+      dataInseminacao: r.dataInseminacao?.toISOString() ?? null,
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+      estacaoMonta: r.estacaoMonta
+        ? { ...r.estacaoMonta, dataInicio: r.estacaoMonta.dataInicio.toISOString(), dataFim: r.estacaoMonta.dataFim.toISOString() }
+        : null,
+    })),
   };
 
   return <AnimalDetailClient animal={animal} proprietarios={proprietarios} />;

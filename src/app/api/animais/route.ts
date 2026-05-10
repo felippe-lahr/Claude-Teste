@@ -102,29 +102,29 @@ export async function POST(req: NextRequest) {
 
   if (genero === 'FEMEA' && reproducao) {
     const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, observacoesRepro } = reproducao;
-
-    let estacaoMontaId: number | null = null;
-    if (dataToque) {
-      const dt = new Date(dataToque);
-      const estacao = await prisma.estacaoMonta.findFirst({
-        where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
+    if (statusReprodutivo || dataToque) {
+      let estacaoMontaId: number | null = null;
+      if (dataToque) {
+        const dt = new Date(dataToque);
+        const estacao = await prisma.estacaoMonta.findFirst({
+          where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
+        });
+        estacaoMontaId = estacao?.id ?? null;
+      }
+      await prisma.reproducaoAnimal.create({
+        data: {
+          animalId: animal.id,
+          statusReprodutivo: (statusReprodutivo as StatusReprodutivo) ?? null,
+          dataToque: dataToque ? new Date(dataToque) : null,
+          estacaoMontaId,
+          inseminada: inseminada ?? false,
+          dataInseminacao: dataInseminacao ? new Date(dataInseminacao) : null,
+          semenId: semenId ? parseInt(semenId) : null,
+          observacoes: observacoesRepro ?? null,
+          registradoPorId: parseInt(session.user.id),
+        },
       });
-      estacaoMontaId = estacao?.id ?? null;
     }
-
-    await prisma.reproducaoAnimal.create({
-      data: {
-        animalId: animal.id,
-        statusReprodutivo: statusReprodutivo as StatusReprodutivo | null ?? null,
-        dataToque: dataToque ? new Date(dataToque) : null,
-        estacaoMontaId,
-        inseminada: inseminada ?? false,
-        dataInseminacao: dataInseminacao ? new Date(dataInseminacao) : null,
-        semenId: semenId ? parseInt(semenId) : null,
-        observacoes: observacoesRepro ?? null,
-        registradoPorId: parseInt(session.user.id),
-      },
-    });
   }
 
   return NextResponse.json(animal, { status: 201 });

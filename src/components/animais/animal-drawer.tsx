@@ -57,14 +57,15 @@ interface SemenItem {
   touro: string | null;
 }
 
-interface ReproducaoExistente {
+interface ReproducaoHistorico {
+  id: number;
   statusReprodutivo: string | null;
   dataToque: string | null;
-  estacaoMontaId: number | null;
   inseminada: boolean;
   dataInseminacao: string | null;
-  semenId: number | null;
   observacoes: string | null;
+  estacaoMonta: { nome: string } | null;
+  semen: { codigo: string; touro: string | null } | null;
 }
 
 interface Proprietario {
@@ -114,6 +115,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   // Reprodução
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
   const [semens, setSemens] = useState<SemenItem[]>([]);
+  const [reproducoes, setReproducoes] = useState<ReproducaoHistorico[]>([]);
   const [reproStatus, setReproStatus] = useState('');
   const [dataToque, setDataToque] = useState('');
   const [estacaoDetectada, setEstacaoDetectada] = useState<EstacaoMonta | null>(null);
@@ -145,6 +147,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   useEffect(() => {
     if (open) {
       setVacinasExistentes([]);
+      setReproducoes([]);
       setJaTemMorte(false);
       setReproStatus('');
       setDataToque('');
@@ -181,15 +184,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 dose: v.dose,
               })));
               if (data.morte) setJaTemMorte(true);
-              const repro: ReproducaoExistente | null = data.reproducao ?? null;
-              if (repro) {
-                setReproStatus(repro.statusReprodutivo ?? '');
-                setDataToque(repro.dataToque ? repro.dataToque.slice(0, 10) : '');
-                setInseminada(repro.inseminada);
-                setDataInseminacao(repro.dataInseminacao ? repro.dataInseminacao.slice(0, 10) : '');
-                setSemenId(repro.semenId ? String(repro.semenId) : '');
-                setObservacoesRepro(repro.observacoes ?? '');
-              }
+              setReproducoes(data.reproducoes ?? []);
             })
             .catch(() => {});
         }
@@ -439,96 +434,96 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         {/* Reprodução — apenas para Fêmea */}
         {genero === 'FEMEA' && (
-          <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 space-y-3">
-            <p className="text-xs font-semibold text-pink-700 uppercase tracking-wide flex items-center gap-1.5">
-              <HeartPulse size={13} />
-              Reprodução
-            </p>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
-              <select
-                value={reproStatus}
-                onChange={(e) => setReproStatus(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">Selecione...</option>
-                <option value="CHEIA">Cheia (Prenha)</option>
-                <option value="VAZIA">Vazia</option>
-                <option value="PARIDA">Parida</option>
-                <option value="BEZERRO_NO_PE">Bezerro no Pé</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
-              <input
-                type="date"
-                value={dataToque}
-                onChange={(e) => setDataToque(e.target.value)}
-                className={inputClass}
-              />
-              {dataToque && (
-                <p className="text-xs mt-1">
-                  {estacaoDetectada
-                    ? <span className="text-green-700 font-medium">Estação: {estacaoDetectada.nome}</span>
-                    : <span className="text-amber-600">Nenhuma estação de monta encontrada para esta data</span>
-                  }
-                </p>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="inseminada"
-                checked={inseminada}
-                onChange={(e) => setInseminada(e.target.checked)}
-                className="w-4 h-4 text-pink-500 rounded border-slate-300"
-              />
-              <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">
-                Foi inseminada artificialmente
-              </label>
-            </div>
-
-            {inseminada && (
-              <>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
-                  <input
-                    type="date"
-                    value={dataInseminacao}
-                    onChange={(e) => setDataInseminacao(e.target.value)}
-                    className={inputClass}
-                  />
+          <div className="space-y-3">
+            {/* Histórico de registros reprodutivos */}
+            {reproducoes.length > 0 && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                  <HeartPulse size={12} className="text-pink-500" />
+                  Registros reprodutivos anteriores
+                </label>
+                <div className="space-y-1">
+                  {reproducoes.map((r) => {
+                    const statusLabel: Record<string, string> = { CHEIA: 'Cheia', VAZIA: 'Vazia', PARIDA: 'Parida', BEZERRO_NO_PE: 'Bezerro no Pé' };
+                    return (
+                      <div key={r.id} className="bg-pink-50 border border-pink-100 rounded-lg px-3 py-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-pink-800">
+                            {r.statusReprodutivo ? statusLabel[r.statusReprodutivo] ?? r.statusReprodutivo : '—'}
+                          </span>
+                          <span className="text-pink-500">
+                            {r.dataToque ? formatData(r.dataToque) : ''}
+                          </span>
+                        </div>
+                        <div className="text-pink-600 mt-0.5 space-x-2">
+                          {r.estacaoMonta && <span>{r.estacaoMonta.nome}</span>}
+                          {r.inseminada && <span>· IA{r.semen ? `: ${r.semen.codigo}` : ''}</span>}
+                          {r.dataInseminacao && <span>· {formatData(r.dataInseminacao)}</span>}
+                          {r.observacoes && <span>· {r.observacoes}</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
-                  <select
-                    value={semenId}
-                    onChange={(e) => setSemenId(e.target.value)}
-                    className={selectClass}
-                  >
-                    <option value="">Selecione...</option>
-                    {semens.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.codigo}{s.touro ? ` — ${s.touro}` : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
+              </div>
             )}
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações Reprodutivas</label>
-              <textarea
-                value={observacoesRepro}
-                onChange={(e) => setObservacoesRepro(e.target.value)}
-                rows={2}
-                placeholder="Observações sobre reprodução..."
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
-              />
+            {/* Novo registro reprodutivo */}
+            <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 space-y-3">
+              <p className="text-xs font-semibold text-pink-700 uppercase tracking-wide flex items-center gap-1.5">
+                <HeartPulse size={13} />
+                {reproducoes.length > 0 ? 'Novo Registro Reprodutivo' : 'Reprodução'}
+              </p>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
+                <select value={reproStatus} onChange={(e) => setReproStatus(e.target.value)} className={selectClass}>
+                  <option value="">Selecione...</option>
+                  <option value="CHEIA">Cheia (Prenha)</option>
+                  <option value="VAZIA">Vazia</option>
+                  <option value="PARIDA">Parida</option>
+                  <option value="BEZERRO_NO_PE">Bezerro no Pé</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
+                <input type="date" value={dataToque} onChange={(e) => setDataToque(e.target.value)} className={inputClass} />
+                {dataToque && (
+                  <p className="text-xs mt-1">
+                    {estacaoDetectada
+                      ? <span className="text-green-700 font-medium">Estação: {estacaoDetectada.nome}</span>
+                      : <span className="text-amber-600">Nenhuma estação encontrada para esta data</span>
+                    }
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => setInseminada(e.target.checked)} className="w-4 h-4 text-pink-500 rounded border-slate-300" />
+                <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">Foi inseminada artificialmente</label>
+              </div>
+
+              {inseminada && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
+                    <input type="date" value={dataInseminacao} onChange={(e) => setDataInseminacao(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
+                    <select value={semenId} onChange={(e) => setSemenId(e.target.value)} className={selectClass}>
+                      <option value="">Selecione...</option>
+                      {semens.map((s) => <option key={s.id} value={s.id}>{s.codigo}{s.touro ? ` — ${s.touro}` : ''}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
+                <textarea value={observacoesRepro} onChange={(e) => setObservacoesRepro(e.target.value)} rows={2} placeholder="Observações sobre reprodução..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none" />
+              </div>
             </div>
           </div>
         )}
