@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, X, Syringe } from 'lucide-react';
+import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
 
@@ -42,6 +42,29 @@ interface VacinaExistente {
 interface CausaMorte {
   id: number;
   nome: string;
+}
+
+interface EstacaoMonta {
+  id: number;
+  nome: string;
+  dataInicio: string;
+  dataFim: string;
+}
+
+interface SemenItem {
+  id: number;
+  codigo: string;
+  touro: string | null;
+}
+
+interface ReproducaoExistente {
+  statusReprodutivo: string | null;
+  dataToque: string | null;
+  estacaoMontaId: number | null;
+  inseminada: boolean;
+  dataInseminacao: string | null;
+  semenId: number | null;
+  observacoes: string | null;
 }
 
 interface Proprietario {
@@ -88,23 +111,48 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [causas, setCausas] = useState<CausaMorte[]>([]);
   const [jaTemMorte, setJaTemMorte] = useState(false);
 
+  // Reprodução
+  const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
+  const [semens, setSemens] = useState<SemenItem[]>([]);
+  const [reproStatus, setReproStatus] = useState('');
+  const [dataToque, setDataToque] = useState('');
+  const [estacaoDetectada, setEstacaoDetectada] = useState<EstacaoMonta | null>(null);
+  const [inseminada, setInseminada] = useState(false);
+  const [dataInseminacao, setDataInseminacao] = useState('');
+  const [semenId, setSemenId] = useState('');
+  const [observacoesRepro, setObservacoesRepro] = useState('');
+
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { status: 'VIVO', reprodutor: false },
   });
 
-  // Fetch causas de morte once
   useEffect(() => {
     fetch('/api/causas-morte')
       .then((r) => r.json())
       .then((data) => setCausas(Array.isArray(data) ? data : []))
       .catch(() => setCausas([]));
+    fetch('/api/estacoes-monta')
+      .then((r) => r.json())
+      .then((data) => setEstacoes(Array.isArray(data) ? data : []))
+      .catch(() => setEstacoes([]));
+    fetch('/api/semen')
+      .then((r) => r.json())
+      .then((data) => setSemens(Array.isArray(data) ? data : []))
+      .catch(() => setSemens([]));
   }, []);
 
   useEffect(() => {
     if (open) {
       setVacinasExistentes([]);
       setJaTemMorte(false);
+      setReproStatus('');
+      setDataToque('');
+      setEstacaoDetectada(null);
+      setInseminada(false);
+      setDataInseminacao('');
+      setSemenId('');
+      setObservacoesRepro('');
       if (animal) {
         reset({
           numero: animal.numero ?? '',
@@ -132,8 +180,15 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 data: v.data,
                 dose: v.dose,
               })));
-              if (data.morte) {
-                setJaTemMorte(true);
+              if (data.morte) setJaTemMorte(true);
+              const repro: ReproducaoExistente | null = data.reproducao ?? null;
+              if (repro) {
+                setReproStatus(repro.statusReprodutivo ?? '');
+                setDataToque(repro.dataToque ? repro.dataToque.slice(0, 10) : '');
+                setInseminada(repro.inseminada);
+                setDataInseminacao(repro.dataInseminacao ? repro.dataInseminacao.slice(0, 10) : '');
+                setSemenId(repro.semenId ? String(repro.semenId) : '');
+                setObservacoesRepro(repro.observacoes ?? '');
               }
             })
             .catch(() => {});
@@ -173,6 +228,13 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
     return () => clearTimeout(timer);
   }, [genero, eraMes, eraAno, reprodutor]);
 
+  useEffect(() => {
+    if (!dataToque) { setEstacaoDetectada(null); return; }
+    const dt = new Date(dataToque);
+    const found = estacoes.find((e) => new Date(e.dataInicio) <= dt && new Date(e.dataFim) >= dt);
+    setEstacaoDetectada(found ?? null);
+  }, [dataToque, estacoes]);
+
   function addVacina() {
     setVacinas((prev) => [...prev, { produto: '', data: '', dose: '' }]);
   }
@@ -193,6 +255,15 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
       const vacinasValidas = vacinas.filter((v) => v.produto.trim() && v.data);
 
+      const reproPayload = data.genero === 'FEMEA' ? {
+        statusReprodutivo: reproStatus || null,
+        dataToque: dataToque || null,
+        inseminada,
+        dataInseminacao: inseminada && dataInseminacao ? dataInseminacao : null,
+        semenId: inseminada && semenId ? semenId : null,
+        observacoesRepro: observacoesRepro || null,
+      } : undefined;
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -202,6 +273,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           dataObito: data.status === 'MORTO' && data.dataObito ? data.dataObito : null,
           causaMorte: data.status === 'MORTO' ? (data.causaMorte ?? null) : null,
           vacinas: vacinasValidas.length > 0 ? vacinasValidas : undefined,
+          reproducao: reproPayload,
         }),
       });
 
@@ -364,6 +436,102 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
           />
         </div>
+
+        {/* Reprodução — apenas para Fêmea */}
+        {genero === 'FEMEA' && (
+          <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 space-y-3">
+            <p className="text-xs font-semibold text-pink-700 uppercase tracking-wide flex items-center gap-1.5">
+              <HeartPulse size={13} />
+              Reprodução
+            </p>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
+              <select
+                value={reproStatus}
+                onChange={(e) => setReproStatus(e.target.value)}
+                className={selectClass}
+              >
+                <option value="">Selecione...</option>
+                <option value="CHEIA">Cheia (Prenha)</option>
+                <option value="VAZIA">Vazia</option>
+                <option value="PARIDA">Parida</option>
+                <option value="BEZERRO_NO_PE">Bezerro no Pé</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
+              <input
+                type="date"
+                value={dataToque}
+                onChange={(e) => setDataToque(e.target.value)}
+                className={inputClass}
+              />
+              {dataToque && (
+                <p className="text-xs mt-1">
+                  {estacaoDetectada
+                    ? <span className="text-green-700 font-medium">Estação: {estacaoDetectada.nome}</span>
+                    : <span className="text-amber-600">Nenhuma estação de monta encontrada para esta data</span>
+                  }
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="inseminada"
+                checked={inseminada}
+                onChange={(e) => setInseminada(e.target.checked)}
+                className="w-4 h-4 text-pink-500 rounded border-slate-300"
+              />
+              <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">
+                Foi inseminada artificialmente
+              </label>
+            </div>
+
+            {inseminada && (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
+                  <input
+                    type="date"
+                    value={dataInseminacao}
+                    onChange={(e) => setDataInseminacao(e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
+                  <select
+                    value={semenId}
+                    onChange={(e) => setSemenId(e.target.value)}
+                    className={selectClass}
+                  >
+                    <option value="">Selecione...</option>
+                    {semens.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.codigo}{s.touro ? ` — ${s.touro}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações Reprodutivas</label>
+              <textarea
+                value={observacoesRepro}
+                onChange={(e) => setObservacoesRepro(e.target.value)}
+                rows={2}
+                placeholder="Observações sobre reprodução..."
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Vacinas existentes (somente leitura) */}
         {vacinasExistentes.length > 0 && (

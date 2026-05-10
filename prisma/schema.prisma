@@ -28,6 +28,13 @@ enum TipoSanitario {
   MEDICAMENTO
 }
 
+enum StatusReprodutivo {
+  CHEIA
+  VAZIA
+  PARIDA
+  BEZERRO_NO_PE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -37,8 +44,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  animais         Animal[]
-  mortesRegistradas Morte[] @relation("RegistradoPor")
+  animais              Animal[]
+  mortesRegistradas    Morte[]            @relation("RegistradoPor")
+  reproducoes          ReproducaoAnimal[] @relation("RegistroReproducao")
 }
 
 model Animal {
@@ -58,9 +66,10 @@ model Animal {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  proprietario     User                @relation(fields: [proprietarioId], references: [id])
-  morte            Morte?
+  proprietario        User                @relation(fields: [proprietarioId], references: [id])
+  morte               Morte?
   registrosSanitarios RegistroSanitario[]
+  reproducao          ReproducaoAnimal?
 
   @@index([proprietarioId])
   @@index([status])
@@ -118,4 +127,49 @@ model ConfigGlobal {
   chave     String   @unique
   valor     String
   updatedAt DateTime @updatedAt
+}
+
+model EstacaoMonta {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  dataInicio DateTime
+  dataFim    DateTime
+  ativo      Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  reproducoes ReproducaoAnimal[]
+}
+
+model Semen {
+  id      Int     @id @default(autoincrement())
+  codigo  String  @unique
+  touro   String?
+  ativo   Boolean @default(true)
+  ordem   Int     @default(0)
+
+  reproducoes ReproducaoAnimal[]
+}
+
+model ReproducaoAnimal {
+  id                Int                @id @default(autoincrement())
+  animalId          Int                @unique
+  statusReprodutivo StatusReprodutivo?
+  dataToque         DateTime?
+  estacaoMontaId    Int?
+  inseminada        Boolean            @default(false)
+  dataInseminacao   DateTime?
+  semenId           Int?
+  observacoes       String?
+  registradoPorId   Int
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  animal        Animal        @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  estacaoMonta  EstacaoMonta? @relation(fields: [estacaoMontaId], references: [id])
+  semen         Semen?        @relation(fields: [semenId], references: [id])
+  registradoPor User          @relation("RegistroReproducao", fields: [registradoPorId], references: [id])
+
+  @@index([animalId])
+  @@index([estacaoMontaId])
+  @@index([statusReprodutivo])
 }
