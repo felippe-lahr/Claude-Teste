@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte } = body;
 
   const denominacao = await classificarAnimal({
     genero: genero as Genero,
@@ -58,6 +58,18 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       registrosSanitarios: { orderBy: { data: 'desc' } },
     },
   });
+
+  // Create Morte record if status changed to MORTO and none exists yet
+  if (status === 'MORTO' && !animal.morte) {
+    await prisma.morte.create({
+      data: {
+        animalId: animal.id,
+        dataObito: dataObito ? new Date(dataObito) : new Date(),
+        causa: causaMorte && causaMorte !== '__outra__' ? causaMorte : null,
+        registradoPorId: parseInt(session.user.id),
+      },
+    });
+  }
 
   if (Array.isArray(vacinas) && vacinas.length > 0) {
     await prisma.registroSanitario.createMany({
