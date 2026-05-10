@@ -20,6 +20,7 @@ enum Genero {
 enum StatusAnimal {
   VIVO
   MORTO
+  VENDIDO
 }
 
 enum TipoSanitario {
@@ -52,6 +53,7 @@ model Animal {
   denominacao   String
   observacoes    String?
   fotoUrl        String?
+  dataVenda      DateTime?
   proprietarioId Int
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -102,6 +104,13 @@ model RegistroSanitario {
 
   @@index([animalId])
   @@index([data])
+}
+
+model CausaMortePredefinida {
+  id    Int     @id @default(autoincrement())
+  nome  String  @unique
+  ativo Boolean @default(true)
+  ordem Int     @default(0)
 }
 
 model ConfigGlobal {

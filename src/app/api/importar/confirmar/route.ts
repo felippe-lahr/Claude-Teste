@@ -54,7 +54,15 @@ export async function POST(req: NextRequest) {
         reprodutor,
       });
 
-      await prisma.animal.create({
+      const statusStr = String(row['Status'] ?? 'VIVO').toUpperCase();
+      const status = (['VIVO', 'MORTO', 'VENDIDO'] as const).includes(statusStr as 'VIVO' | 'MORTO' | 'VENDIDO')
+        ? (statusStr as 'VIVO' | 'MORTO' | 'VENDIDO')
+        : 'VIVO';
+
+      const dataVendaStr = row['Data Venda'] ? String(row['Data Venda']) : null;
+      const dataVenda = dataVendaStr ? new Date(dataVendaStr) : null;
+
+      const animal = await prisma.animal.create({
         data: {
           numero: row['Número'] || row['Numero'] ? String(row['Número'] ?? row['Numero']) : null,
           genero,
@@ -62,12 +70,26 @@ export async function POST(req: NextRequest) {
           eraAno: eraAno ? parseInt(String(eraAno)) : null,
           peso: row['Peso'] ? parseFloat(String(row['Peso'])) : null,
           reprodutor,
-          status: 'VIVO',
+          status,
           denominacao,
           observacoes: row['Observações'] || row['Observacoes'] ? String(row['Observações'] ?? row['Observacoes']) : null,
+          dataVenda: status === 'VENDIDO' && dataVenda ? dataVenda : null,
           proprietarioId: usuario.id,
         },
       });
+
+      const vacinas = [];
+      for (let v = 1; v <= 2; v++) {
+        const produto = row[`Vacina ${v} - Produto`] ? String(row[`Vacina ${v} - Produto`]).trim() : null;
+        const dataVac = row[`Vacina ${v} - Data`] ? String(row[`Vacina ${v} - Data`]).trim() : null;
+        const dose = row[`Vacina ${v} - Dose`] ? String(row[`Vacina ${v} - Dose`]).trim() : null;
+        if (produto && dataVac) {
+          vacinas.push({ animalId: animal.id, tipo: 'VACINA' as const, produto, data: new Date(dataVac), dose: dose || null });
+        }
+      }
+      if (vacinas.length > 0) {
+        await prisma.registroSanitario.createMany({ data: vacinas });
+      }
 
       importados++;
     } catch (e) {

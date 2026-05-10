@@ -15,7 +15,7 @@ const schema = z.object({
   numero: z.string().optional(),
   proprietarioId: z.string().min(1),
   genero: z.enum(['MACHO', 'FEMEA']),
-  status: z.enum(['VIVO', 'MORTO']),
+  status: z.enum(['VIVO', 'MORTO', 'VENDIDO']),
   eraMes: z.string().optional(),
   eraAno: z.string().optional(),
   peso: z.string().optional(),
@@ -61,7 +61,8 @@ interface Animal {
   eraMes: number | null;
   eraAno: number | null;
   peso: number | null;
-  status: 'VIVO' | 'MORTO';
+  status: 'VIVO' | 'MORTO' | 'VENDIDO';
+  dataVenda: string | null;
   reprodutor: boolean;
   observacoes: string | null;
   proprietarioId: number;
@@ -177,7 +178,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
               Animal #{animal.id}{animal.numero ? ` — Nº ${animal.numero}` : ''}
             </h1>
             <Badge variant="denominacao" value={animal.denominacao}>{animal.denominacao}</Badge>
-            <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : 'Morto'}</Badge>
+            <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
           </div>
           <p className="text-slate-500 text-sm mt-1">Proprietário: {animal.proprietario.name}</p>
         </div>
@@ -236,6 +237,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
               >
                 <option value="VIVO">Vivo</option>
                 <option value="MORTO">Morto</option>
+                <option value="VENDIDO">Vendido</option>
               </select>
             </div>
 

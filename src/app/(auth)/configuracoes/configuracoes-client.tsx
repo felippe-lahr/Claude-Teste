@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Settings, TrendingUp, List, Users, Key } from 'lucide-react';
+import { Settings, TrendingUp, List, Users, Key, Skull, Trash2 } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 
 interface ClassificacaoConfig {
@@ -24,10 +24,16 @@ interface Usuario {
   role: string;
 }
 
+interface CausaMorte {
+  id: number;
+  nome: string;
+}
+
 interface Props {
   ticker: Record<string, string>;
   classificacoes: ClassificacaoConfig[];
   usuarios: Usuario[];
+  causasMorte: CausaMorte[];
 }
 
 const senhaSchema = z.object({
@@ -40,9 +46,12 @@ const senhaSchema = z.object({
 
 type SenhaData = z.infer<typeof senhaSchema>;
 
-export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios }: Props) {
+export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios, causasMorte: initialCausas }: Props) {
   const [ticker, setTicker] = useState(initialTicker);
   const [classificacoes, setClassificacoes] = useState(initialClassificacoes);
+  const [causasMorte, setCausasMorte] = useState(initialCausas);
+  const [novaCausa, setNovaCausa] = useState('');
+  const [savingCausa, setSavingCausa] = useState(false);
   const [savingTicker, setSavingTicker] = useState(false);
   const [savingClassif, setSavingClassif] = useState(false);
   const [senhaDrawer, setSenhaDrawer] = useState(false);
@@ -123,6 +132,38 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
       toast.error(e instanceof Error ? e.message : 'Erro ao alterar senha');
     } finally {
       setSavingSenha(false);
+    }
+  }
+
+  async function adicionarCausa() {
+    if (!novaCausa.trim()) return;
+    setSavingCausa(true);
+    try {
+      const res = await fetch('/api/causas-morte', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: novaCausa.trim() }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const nova = await res.json();
+      setCausasMorte((prev) => [...prev, nova]);
+      setNovaCausa('');
+      toast.success('Causa adicionada!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao adicionar');
+    } finally {
+      setSavingCausa(false);
+    }
+  }
+
+  async function removerCausa(id: number) {
+    try {
+      const res = await fetch(`/api/causas-morte/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao remover');
+      setCausasMorte((prev) => prev.filter((c) => c.id !== id));
+      toast.success('Causa removida!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao remover');
     }
   }
 
@@ -238,7 +279,52 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         </button>
       </section>
 
-      {/* Seção 3: Usuários */}
+      {/* Seção 3: Causas de Morte */}
+      <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
+          <Skull size={16} className="text-rose-500" />
+          Causas de Morte Predefinidas
+        </h2>
+        <p className="text-xs text-slate-500 mb-5">
+          Estas opções aparecem no formulário de registro de morte. Você pode adicionar ou remover causas.
+        </p>
+        <div className="space-y-2 mb-5">
+          {causasMorte.map((c) => (
+            <div key={c.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
+              <span className="text-sm text-slate-700">{c.nome}</span>
+              <button
+                onClick={() => removerCausa(c.id)}
+                className="text-slate-400 hover:text-red-500 transition-colors"
+                title="Remover causa"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+          {causasMorte.length === 0 && (
+            <p className="text-xs text-slate-400 italic">Nenhuma causa cadastrada.</p>
+          )}
+        </div>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={novaCausa}
+            onChange={(e) => setNovaCausa(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && adicionarCausa()}
+            placeholder="Nova causa de morte..."
+            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <button
+            onClick={adicionarCausa}
+            disabled={savingCausa || !novaCausa.trim()}
+            className="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold transition disabled:opacity-60"
+          >
+            {savingCausa ? 'Adicionando...' : 'Adicionar'}
+          </button>
+        </div>
+      </section>
+
+      {/* Seção 4: Usuários */}
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-5">
           <Users size={16} className="text-violet-500" />

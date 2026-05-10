@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   if (denominacao) where.denominacao = denominacao;
 
   const status = searchParams.get('status');
-  if (status && (status === 'VIVO' || status === 'MORTO')) where.status = status as StatusAnimal;
+  if (status && (['VIVO', 'MORTO', 'VENDIDO'] as string[]).includes(status)) where.status = status as StatusAnimal;
 
   const eraMes = searchParams.get('eraMes');
   if (eraMes) where.eraMes = parseInt(eraMes);
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas } = body;
 
   if (!genero || !proprietarioId) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
@@ -80,10 +80,25 @@ export async function POST(req: NextRequest) {
       status: (status as StatusAnimal) ?? 'VIVO',
       denominacao,
       observacoes: observacoes || null,
+      dataVenda: dataVenda ? new Date(dataVenda) : null,
       proprietarioId: parseInt(proprietarioId),
     },
     include: { proprietario: { select: { id: true, name: true } } },
   });
+
+  if (Array.isArray(vacinas) && vacinas.length > 0) {
+    await prisma.registroSanitario.createMany({
+      data: vacinas
+        .filter((v: { produto?: string; data?: string }) => v.produto && v.data)
+        .map((v: { produto: string; data: string; dose?: string }) => ({
+          animalId: animal.id,
+          tipo: 'VACINA' as const,
+          produto: v.produto,
+          data: new Date(v.data),
+          dose: v.dose || null,
+        })),
+    });
+  }
 
   return NextResponse.json(animal, { status: 201 });
 }
