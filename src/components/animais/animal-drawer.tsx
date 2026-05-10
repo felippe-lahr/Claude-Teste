@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Syringe } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
 
@@ -20,6 +20,8 @@ const schema = z.object({
   reprodutor: z.boolean().default(false),
   observacoes: z.string().optional(),
   dataVenda: z.string().optional(),
+  dataObito: z.string().optional(),
+  causaMorte: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -28,6 +30,18 @@ interface VacinaInput {
   produto: string;
   data: string;
   dose: string;
+}
+
+interface VacinaExistente {
+  id: number;
+  produto: string;
+  data: string;
+  dose: string | null;
+}
+
+interface CausaMorte {
+  id: number;
+  nome: string;
 }
 
 interface Proprietario {
@@ -63,19 +77,34 @@ const inputClass =
 const selectClass =
   'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white';
 
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
 export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [denominacao, setDenominacao] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
   const [vacinas, setVacinas] = useState<VacinaInput[]>([]);
+  const [vacinasExistentes, setVacinasExistentes] = useState<VacinaExistente[]>([]);
+  const [causas, setCausas] = useState<CausaMorte[]>([]);
+  const [jaTemMorte, setJaTemMorte] = useState(false);
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { status: 'VIVO', reprodutor: false },
   });
 
+  // Fetch causas de morte once
+  useEffect(() => {
+    fetch('/api/causas-morte')
+      .then((r) => r.json())
+      .then((data) => setCausas(Array.isArray(data) ? data : []))
+      .catch(() => setCausas([]));
+  }, []);
+
   useEffect(() => {
     if (open) {
+      setVacinasExistentes([]);
+      setJaTemMorte(false);
       if (animal) {
         reset({
           numero: animal.numero ?? '',
@@ -89,6 +118,26 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           observacoes: animal.observacoes ?? '',
           dataVenda: animal.dataVenda ? animal.dataVenda.slice(0, 10) : '',
         });
+        // Fetch existing sanitário records and morte data
+        if (animal.id) {
+          fetch(`/api/animais/${animal.id}`)
+            .then((r) => r.json())
+            .then((data) => {
+              const vacinas = (data.registrosSanitarios ?? []).filter(
+                (r: { tipo: string }) => r.tipo === 'VACINA'
+              );
+              setVacinasExistentes(vacinas.map((v: { id: number; produto: string; data: string; dose: string | null }) => ({
+                id: v.id,
+                produto: v.produto,
+                data: v.data,
+                dose: v.dose,
+              })));
+              if (data.morte) {
+                setJaTemMorte(true);
+              }
+            })
+            .catch(() => {});
+        }
       } else {
         reset({ status: 'VIVO', reprodutor: false });
         setDenominacao('');
@@ -150,6 +199,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         body: JSON.stringify({
           ...data,
           dataVenda: data.status === 'VENDIDO' && data.dataVenda ? data.dataVenda : null,
+          dataObito: data.status === 'MORTO' && data.dataObito ? data.dataObito : null,
+          causaMorte: data.status === 'MORTO' ? (data.causaMorte ?? null) : null,
           vacinas: vacinasValidas.length > 0 ? vacinasValidas : undefined,
         }),
       });
@@ -166,6 +217,15 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       toast.error(e instanceof Error ? e.message : 'Erro ao salvar');
     } finally {
       setLoading(false);
+    }
+  }
+
+  function formatData(isoString: string) {
+    try {
+      const d = new Date(isoString);
+      return `${MESES[d.getUTCMonth()]}/${d.getUTCFullYear()}`;
+    } catch {
+      return isoString;
     }
   }
 
@@ -219,6 +279,33 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             <option value="VENDIDO">Vendido</option>
           </select>
         </div>
+
+        {/* Campos de morte — aparecem quando status=MORTO e ainda não tem registro de morte */}
+        {status === 'MORTO' && !jaTemMorte && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+            <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Óbito</label>
+              <input {...register('dataObito')} type="date" className={inputClass} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Causa da Morte</label>
+              <select {...register('causaMorte')} className={selectClass}>
+                <option value="">Selecione a causa...</option>
+                {causas.map((c) => (
+                  <option key={c.id} value={c.nome}>{c.nome}</option>
+                ))}
+                <option value="__outra__">Outra</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {status === 'MORTO' && jaTemMorte && (
+          <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <p className="text-xs text-red-600">Este animal já possui registro de óbito cadastrado.</p>
+          </div>
+        )}
 
         {status === 'VENDIDO' && (
           <div>
@@ -278,10 +365,30 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           />
         </div>
 
-        {/* Vacinas */}
+        {/* Vacinas existentes (somente leitura) */}
+        {vacinasExistentes.length > 0 && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+              <Syringe size={12} />
+              Vacinas já registradas
+            </label>
+            <div className="space-y-1">
+              {vacinasExistentes.map((v) => (
+                <div key={v.id} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs">
+                  <span className="font-medium text-blue-800">{v.produto}</span>
+                  <span className="text-blue-600">{formatData(v.data)}{v.dose ? ` · ${v.dose}` : ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Adicionar novas vacinas */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-xs font-semibold text-slate-700">Vacinas Aplicadas</label>
+            <label className="block text-xs font-semibold text-slate-700">
+              {vacinasExistentes.length > 0 ? 'Adicionar mais vacinas' : 'Vacinas Aplicadas'}
+            </label>
             <button
               type="button"
               onClick={addVacina}
@@ -291,13 +398,13 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               Adicionar Vacina
             </button>
           </div>
-          {vacinas.length === 0 && (
+          {vacinas.length === 0 && vacinasExistentes.length === 0 && (
             <p className="text-xs text-slate-400 italic">Nenhuma vacina adicionada.</p>
           )}
           {vacinas.map((v, i) => (
             <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-2 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500">Vacina {i + 1}</span>
+                <span className="text-xs font-semibold text-slate-500">Nova vacina {i + 1}</span>
                 <button
                   type="button"
                   onClick={() => removeVacina(i)}
