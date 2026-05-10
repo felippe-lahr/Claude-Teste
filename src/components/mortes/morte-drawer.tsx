@@ -165,7 +165,7 @@ export function MorteDrawer({ open, onClose, onSaved, preAnimalId }: Props) {
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data do Óbito *</label>
-          <input {...register('dataObito')} type="date" className={inputClass} />
+          <input {...register('dataObito')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
           {errors.dataObito && <p className="text-xs text-red-500 mt-1">{errors.dataObito.message}</p>}
         </div>
 

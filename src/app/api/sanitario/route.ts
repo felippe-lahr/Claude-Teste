@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { TipoSanitario } from '@prisma/client';
+import { parseDateBR } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -28,8 +29,8 @@ export async function GET(req: NextRequest) {
   const dataFim = searchParams.get('dataFim');
   if (dataInicio || dataFim) {
     const dataFilter: Record<string, Date> = {};
-    if (dataInicio) dataFilter.gte = new Date(dataInicio);
-    if (dataFim) dataFilter.lte = new Date(dataFim);
+    if (dataInicio) dataFilter.gte = parseDateBR(dataInicio) ?? new Date(dataInicio);
+    if (dataFim) dataFilter.lte = parseDateBR(dataFim) ?? new Date(dataFim);
     where.data = dataFilter;
   }
 
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       animalId: parseInt(animalId),
       tipo: tipo as TipoSanitario,
       produto,
-      data: new Date(data),
+      data: parseDateBR(data) ?? new Date(data),
       dose: dose || null,
       observacoes: observacoes || null,
     },

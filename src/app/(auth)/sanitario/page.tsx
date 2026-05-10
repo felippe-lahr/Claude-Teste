@@ -127,7 +127,8 @@ export default function SanitarioPage() {
           <div>
             <label className="block text-xs text-slate-500 mb-1">De</label>
             <input
-              type="date"
+              type="text"
+              placeholder="dd/mm/aaaa"
               value={filters.dataInicio}
               onChange={(e) => handleFilterChange('dataInicio', e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
@@ -136,7 +137,8 @@ export default function SanitarioPage() {
           <div>
             <label className="block text-xs text-slate-500 mb-1">Até</label>
             <input
-              type="date"
+              type="text"
+              placeholder="dd/mm/aaaa"
               value={filters.dataFim}
               onChange={(e) => handleFilterChange('dataFim', e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"

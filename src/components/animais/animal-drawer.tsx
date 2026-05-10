@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
+import { parseDateBR, formatDateBR } from '@/lib/utils';
 
 const schema = z.object({
   numero: z.string().optional(),
@@ -167,7 +168,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           peso: animal.peso ? String(animal.peso) : '',
           reprodutor: animal.reprodutor,
           observacoes: animal.observacoes ?? '',
-          dataVenda: animal.dataVenda ? animal.dataVenda.slice(0, 10) : '',
+          dataVenda: animal.dataVenda ? formatDateBR(animal.dataVenda) : '',
         });
         // Fetch existing sanitário records and morte data
         if (animal.id) {
@@ -225,7 +226,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
   useEffect(() => {
     if (!dataToque) { setEstacaoDetectada(null); return; }
-    const dt = new Date(dataToque);
+    const dt = parseDateBR(dataToque) ?? new Date(dataToque);
     const found = estacoes.find((e) => new Date(e.dataInicio) <= dt && new Date(e.dataFim) >= dt);
     setEstacaoDetectada(found ?? null);
   }, [dataToque, estacoes]);
@@ -353,7 +354,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Óbito</label>
-              <input {...register('dataObito')} type="date" className={inputClass} />
+              <input {...register('dataObito')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Causa da Morte</label>
@@ -377,7 +378,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {status === 'VENDIDO' && (
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Venda</label>
-            <input {...register('dataVenda')} type="date" className={inputClass} />
+            <input {...register('dataVenda')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
           </div>
         )}
 
@@ -488,7 +489,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
-                <input type="date" value={dataToque} onChange={(e) => setDataToque(e.target.value)} className={inputClass} />
+                <input type="text" placeholder="dd/mm/aaaa" value={dataToque} onChange={(e) => setDataToque(e.target.value)} className={inputClass} />
                 {dataToque && (
                   <p className="text-xs mt-1">
                     {estacaoDetectada
@@ -508,7 +509,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 <>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
-                    <input type="date" value={dataInseminacao} onChange={(e) => setDataInseminacao(e.target.value)} className={inputClass} />
+                    <input type="text" placeholder="dd/mm/aaaa" value={dataInseminacao} onChange={(e) => setDataInseminacao(e.target.value)} className={inputClass} />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
@@ -587,7 +588,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 <div>
                   <label className="block text-xs text-slate-500 mb-1">Data de Aplicação</label>
                   <input
-                    type="date"
+                    type="text"
+                    placeholder="dd/mm/aaaa"
                     value={v.data}
                     onChange={(e) => updateVacina(i, 'data', e.target.value)}
                     className={inputClass}

@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
+import { parseDateBR } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
       status: (status as StatusAnimal) ?? 'VIVO',
       denominacao,
       observacoes: observacoes || null,
-      dataVenda: dataVenda ? new Date(dataVenda) : null,
+      dataVenda: dataVenda ? (parseDateBR(dataVenda) ?? new Date(dataVenda)) : null,
       proprietarioId: parseInt(proprietarioId),
     },
     include: { proprietario: { select: { id: true, name: true } } },
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
           animalId: animal.id,
           tipo: 'VACINA' as const,
           produto: v.produto,
-          data: new Date(v.data),
+          data: parseDateBR(v.data) ?? new Date(v.data),
           dose: v.dose || null,
         })),
     });
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
     if (statusReprodutivo || dataToque) {
       let estacaoMontaId: number | null = null;
       if (dataToque) {
-        const dt = new Date(dataToque);
+        const dt = parseDateBR(dataToque) ?? new Date(dataToque);
         const estacao = await prisma.estacaoMonta.findFirst({
           where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
         });
@@ -115,10 +116,10 @@ export async function POST(req: NextRequest) {
         data: {
           animalId: animal.id,
           statusReprodutivo: (statusReprodutivo as StatusReprodutivo) ?? null,
-          dataToque: dataToque ? new Date(dataToque) : null,
+          dataToque: dataToque ? (parseDateBR(dataToque) ?? new Date(dataToque)) : null,
           estacaoMontaId,
           inseminada: inseminada ?? false,
-          dataInseminacao: dataInseminacao ? new Date(dataInseminacao) : null,
+          dataInseminacao: dataInseminacao ? (parseDateBR(dataInseminacao) ?? new Date(dataInseminacao)) : null,
           semenId: semenId ? parseInt(semenId) : null,
           observacoes: observacoesRepro ?? null,
           registradoPorId: parseInt(session.user.id),

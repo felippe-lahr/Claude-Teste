@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { parseDateBR } from '@/lib/utils';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
     prisma.morte.create({
       data: {
         animalId: parseInt(animalId),
-        dataObito: new Date(dataObito),
+        dataObito: parseDateBR(dataObito) ?? new Date(dataObito),
         causa: causa || null,
         observacoes: observacoes || null,
         registradoPorId: parseInt(session.user.id),

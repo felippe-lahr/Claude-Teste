@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { parseDateBR } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
   }
 
   const estacao = await prisma.estacaoMonta.create({
-    data: { nome, dataInicio: new Date(dataInicio), dataFim: new Date(dataFim) },
+    data: { nome, dataInicio: parseDateBR(dataInicio) ?? new Date(dataInicio), dataFim: parseDateBR(dataFim) ?? new Date(dataFim) },
   });
 
   return NextResponse.json(estacao, { status: 201 });

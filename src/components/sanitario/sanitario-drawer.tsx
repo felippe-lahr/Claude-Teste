@@ -171,7 +171,8 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data *</label>
           <input
             {...register('data')}
-            type="date"
+            type="text"
+            placeholder="dd/mm/aaaa"
             className={inputClass}
           />
           {errors.data && <p className="text-xs text-red-500 mt-1">{errors.data.message}</p>}
