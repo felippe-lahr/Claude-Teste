@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
-import { Genero, StatusAnimal } from '@prisma/client';
+import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, reproducao } = body;
 
   if (!genero || !proprietarioId) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
@@ -97,6 +97,33 @@ export async function POST(req: NextRequest) {
           data: new Date(v.data),
           dose: v.dose || null,
         })),
+    });
+  }
+
+  if (genero === 'FEMEA' && reproducao) {
+    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, observacoesRepro } = reproducao;
+
+    let estacaoMontaId: number | null = null;
+    if (dataToque) {
+      const dt = new Date(dataToque);
+      const estacao = await prisma.estacaoMonta.findFirst({
+        where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
+      });
+      estacaoMontaId = estacao?.id ?? null;
+    }
+
+    await prisma.reproducaoAnimal.create({
+      data: {
+        animalId: animal.id,
+        statusReprodutivo: statusReprodutivo as StatusReprodutivo | null ?? null,
+        dataToque: dataToque ? new Date(dataToque) : null,
+        estacaoMontaId,
+        inseminada: inseminada ?? false,
+        dataInseminacao: dataInseminacao ? new Date(dataInseminacao) : null,
+        semenId: semenId ? parseInt(semenId) : null,
+        observacoes: observacoesRepro ?? null,
+        registradoPorId: parseInt(session.user.id),
+      },
     });
   }
 
