@@ -4,6 +4,13 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import * as XLSX from 'xlsx';
 
+export const dynamic = 'force-dynamic';
+
+function fmtDate(d: Date | null | undefined): string {
+  if (!d) return '';
+  return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
@@ -22,27 +29,42 @@ export async function GET(req: NextRequest) {
     include: {
       proprietario: { select: { name: true } },
       morte: true,
+      reproducoes: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        include: { semen: true, estacaoMonta: true },
+      },
     },
     orderBy: [{ proprietarioId: 'asc' }, { denominacao: 'asc' }],
   });
 
-  const rows = animais.map((a) => ({
-    ID: a.id,
-    Número: a.numero ?? '',
-    Proprietário: a.proprietario.name,
-    Gênero: a.genero,
-    Denominação: a.denominacao,
-    'Mês Nasc': a.eraMes ?? '',
-    'Ano Nasc': a.eraAno ?? '',
-    'Peso (kg)': a.peso ?? '',
-    Reprodutor: a.reprodutor ? 'Sim' : 'Não',
-    Status: a.status,
-    'Data Venda': a.dataVenda ? a.dataVenda.toLocaleDateString('pt-BR') : '',
-    'Causa Morte': a.morte?.causa ?? '',
-    'Data Óbito': a.morte?.dataObito ? a.morte.dataObito.toLocaleDateString('pt-BR') : '',
-    Observações: a.observacoes ?? '',
-    'Cadastrado em': a.createdAt.toLocaleDateString('pt-BR'),
-  }));
+  const rows = animais.map((a) => {
+    const repro = a.reproducoes[0] ?? null;
+    return {
+      ID: a.id,
+      Número: a.numero ?? '',
+      Proprietário: a.proprietario.name,
+      Gênero: a.genero,
+      Denominação: a.denominacao,
+      'Mês Nasc': a.eraMes ?? '',
+      'Ano Nasc': a.eraAno ?? '',
+      'Peso (kg)': a.peso ?? '',
+      Reprodutor: a.reprodutor ? 'Sim' : 'Não',
+      Status: a.status,
+      'Data Venda': fmtDate(a.dataVenda),
+      'Status Reprodutivo': repro?.statusReprodutivo ?? '',
+      'Data do Toque': fmtDate(repro?.dataToque),
+      'Estação de Monta': repro?.estacaoMonta?.nome ?? '',
+      Inseminada: repro ? (repro.inseminada ? 'Sim' : 'Não') : '',
+      'Data Inseminação': fmtDate(repro?.dataInseminacao),
+      'Sêmen': repro?.semen?.codigo ?? '',
+      'Obs. Reprodução': repro?.observacoes ?? '',
+      'Causa Morte': a.morte?.causa ?? '',
+      'Data Óbito': fmtDate(a.morte?.dataObito),
+      Observações: a.observacoes ?? '',
+      'Cadastrado em': fmtDate(a.createdAt),
+    };
+  });
 
   const ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols'] = Object.keys(rows[0] ?? {}).map(() => ({ wch: 18 }));
@@ -51,7 +73,7 @@ export async function GET(req: NextRequest) {
   XLSX.utils.book_append_sheet(wb, ws, 'Animais');
 
   const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
   return new NextResponse(buf, {
     headers: {

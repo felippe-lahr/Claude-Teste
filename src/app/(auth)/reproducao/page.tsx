@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { HeartPulse, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from '@/components/ui/skeleton';
+import { formatDateBR } from '@/lib/utils';
 
 interface EstacaoMonta {
   id: number;
@@ -52,11 +53,6 @@ const STATUS_COLOR: Record<string, string> = {
   BEZERRO_NO_PE: 'bg-purple-100 text-purple-800',
 };
 
-function formatDate(iso: string | null) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('pt-BR');
-}
 
 export default function ReproducaoPage() {
   const [reproducoes, setReproducoes] = useState<ReproducaoItem[]>([]);
@@ -215,7 +211,7 @@ export default function ReproducaoPage() {
                         </span>
                       ) : '—'}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDate(r.dataToque)}</td>
+                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataToque)}</td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{r.estacaoMonta?.nome ?? '—'}</td>
                     <td className="px-4 py-3 text-xs">
                       <span className={r.inseminada ? 'text-green-700 font-semibold' : 'text-slate-400'}>
@@ -225,7 +221,7 @@ export default function ReproducaoPage() {
                     <td className="px-4 py-3 text-slate-600 text-xs">
                       {r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : '—'}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDate(r.dataInseminacao)}</td>
+                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataInseminacao)}</td>
                   </tr>
                 ))}
               </tbody>

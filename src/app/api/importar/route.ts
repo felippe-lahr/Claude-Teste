@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     peso: row['Peso'] ?? null,
     reprodutor: String(row['Reprodutor'] ?? 'Não').toLowerCase() === 'sim',
     proprietario: String(row['Proprietário'] ?? row['Proprietario'] ?? ''),
+    status: String(row['Status'] ?? 'VIVO'),
+    statusReprodutivo: String(row['Status Reprodutivo'] ?? ''),
+    inseminada: String(row['Inseminada'] ?? 'Não').toLowerCase() === 'sim',
+    causaMorte: String(row['Causa da Morte'] ?? ''),
     observacoes: String(row['Observações'] ?? row['Observacoes'] ?? ''),
   }));
 

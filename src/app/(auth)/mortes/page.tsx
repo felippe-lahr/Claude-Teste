@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Plus, Skull, Trash2, ChevronLeft, ChevronRight, TrendingDown, CalendarDays, CalendarClock } from 'lucide-react';
 import { MorteDrawer } from '@/components/mortes/morte-drawer';
+import { formatDateBR } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/ui/stat-card';
 import { TableSkeleton } from '@/components/ui/skeleton';
@@ -124,7 +125,7 @@ export default function MortesPage() {
                       <Badge variant="denominacao" value={morte.animal.denominacao}>{morte.animal.denominacao}</Badge>
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {new Date(morte.dataObito).toLocaleDateString('pt-BR')}
+                      {formatDateBR(morte.dataObito)}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{morte.causa ?? '—'}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">{morte.registradoPor.name}</td>

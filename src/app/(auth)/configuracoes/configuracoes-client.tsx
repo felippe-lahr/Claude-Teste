@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
+import { formatDateBR } from '@/lib/utils';
 
 interface ClassificacaoConfig {
   id: number;
@@ -260,11 +261,6 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
     }
   }
 
-  function formatDateBR(iso: string | Date) {
-    try {
-      return new Date(iso).toLocaleDateString('pt-BR');
-    } catch { return String(iso); }
-  }
 
   const GENERO_LABEL: Record<string, string> = { MACHO: 'Macho', FEMEA: 'Fêmea' };
   const ROLE_LABEL: Record<string, string> = { ADMIN: 'Admin', SOCIO: 'Sócio' };

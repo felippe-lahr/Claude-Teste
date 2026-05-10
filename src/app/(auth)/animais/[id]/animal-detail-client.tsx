@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { ArrowLeft, Skull, Syringe, Plus, Trash2, HeartPulse } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { formatDateBR } from '@/lib/utils';
 import { Drawer } from '@/components/ui/drawer';
 
 const schema = z.object({
@@ -173,9 +174,6 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
     }
   }
 
-  function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('pt-BR');
-  }
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -329,7 +327,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div>
               <p className="text-xs text-red-600 font-medium">Data do Óbito</p>
-              <p className="text-red-900">{formatDate(animal.morte.dataObito)}</p>
+              <p className="text-red-900">{formatDateBR(animal.morte.dataObito)}</p>
             </div>
             {animal.morte.causa && (
               <div>
@@ -381,10 +379,10 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
                             ? <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${statusColor[r.statusReprodutivo] ?? 'bg-slate-100 text-slate-700'}`}>{statusLabel[r.statusReprodutivo] ?? r.statusReprodutivo}</span>
                             : <span className="text-slate-400">—</span>}
                         </td>
-                        <td className="px-3 py-2 text-slate-600">{r.dataToque ? formatDate(r.dataToque) : '—'}</td>
+                        <td className="px-3 py-2 text-slate-600">{r.dataToque ? formatDateBR(r.dataToque) : '—'}</td>
                         <td className="px-3 py-2 text-slate-600">{r.estacaoMonta?.nome ?? '—'}</td>
                         <td className="px-3 py-2 text-xs">{r.inseminada ? <span className="text-green-700 font-semibold">Sim</span> : <span className="text-slate-400">Não</span>}</td>
-                        <td className="px-3 py-2 text-slate-600">{r.dataInseminacao ? formatDate(r.dataInseminacao) : '—'}</td>
+                        <td className="px-3 py-2 text-slate-600">{r.dataInseminacao ? formatDateBR(r.dataInseminacao) : '—'}</td>
                         <td className="px-3 py-2 text-slate-600">{r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : '—'}</td>
                         <td className="px-3 py-2 text-slate-500 max-w-xs truncate">{r.observacoes ?? '—'}</td>
                       </tr>
@@ -437,7 +435,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
                       </span>
                     </td>
                     <td className="px-3 py-2 text-slate-700 font-medium">{r.produto}</td>
-                    <td className="px-3 py-2 text-slate-600">{formatDate(r.data)}</td>
+                    <td className="px-3 py-2 text-slate-600">{formatDateBR(r.data)}</td>
                     <td className="px-3 py-2 text-slate-600">{r.dose ?? '—'}</td>
                     <td className="px-3 py-2 text-slate-500 max-w-xs truncate">{r.observacoes ?? '—'}</td>
                     <td className="px-3 py-2">

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Plus, Syringe, Trash2, ChevronLeft, ChevronRight, Search, ShieldCheck, Pill } from 'lucide-react';
 import { SanitarioDrawer } from '@/components/sanitario/sanitario-drawer';
+import { formatDateBR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/ui/stat-card';
 
@@ -178,7 +179,7 @@ export default function SanitarioPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-slate-700 font-medium">{r.produto}</td>
-                    <td className="px-4 py-3 text-slate-600">{new Date(r.data).toLocaleDateString('pt-BR')}</td>
+                    <td className="px-4 py-3 text-slate-600">{formatDateBR(r.data)}</td>
                     <td className="px-4 py-3 text-slate-600">{r.dose ?? '—'}</td>
                     <td className="px-4 py-3 text-slate-500 max-w-xs truncate">{r.observacoes ?? '—'}</td>
                     <td className="px-4 py-3">
