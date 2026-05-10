@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Settings, TrendingUp, List, Users, Key, Skull, Trash2 } from 'lucide-react';
+import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 
 interface ClassificacaoConfig {
@@ -29,11 +29,26 @@ interface CausaMorte {
   nome: string;
 }
 
+interface EstacaoMonta {
+  id: number;
+  nome: string;
+  dataInicio: string | Date;
+  dataFim: string | Date;
+}
+
+interface SemenItem {
+  id: number;
+  codigo: string;
+  touro: string | null;
+}
+
 interface Props {
   ticker: Record<string, string>;
   classificacoes: ClassificacaoConfig[];
   usuarios: Usuario[];
   causasMorte: CausaMorte[];
+  estacoes: EstacaoMonta[];
+  semens: SemenItem[];
 }
 
 const senhaSchema = z.object({
@@ -46,7 +61,7 @@ const senhaSchema = z.object({
 
 type SenhaData = z.infer<typeof senhaSchema>;
 
-export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios, causasMorte: initialCausas }: Props) {
+export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios, causasMorte: initialCausas, estacoes: initialEstacoes, semens: initialSemens }: Props) {
   const [ticker, setTicker] = useState(initialTicker);
   const [classificacoes, setClassificacoes] = useState(initialClassificacoes);
   const [causasMorte, setCausasMorte] = useState(initialCausas);
@@ -54,6 +69,17 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
   const [savingCausa, setSavingCausa] = useState(false);
   const [savingTicker, setSavingTicker] = useState(false);
   const [savingClassif, setSavingClassif] = useState(false);
+
+  const [estacoes, setEstacoes] = useState(initialEstacoes);
+  const [novaEstacaoNome, setNovaEstacaoNome] = useState('');
+  const [novaEstacaoInicio, setNovaEstacaoInicio] = useState('');
+  const [novaEstacaoFim, setNovaEstacaoFim] = useState('');
+  const [savingEstacao, setSavingEstacao] = useState(false);
+
+  const [semens, setSemens] = useState(initialSemens);
+  const [novoSemenCodigo, setNovoSemenCodigo] = useState('');
+  const [novoSemenTouro, setNovoSemenTouro] = useState('');
+  const [savingSemen, setSavingSemen] = useState(false);
   const [senhaDrawer, setSenhaDrawer] = useState(false);
   const [senhaUserId, setSenhaUserId] = useState<number | null>(null);
   const [senhaUserName, setSenhaUserName] = useState('');
@@ -165,6 +191,79 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao remover');
     }
+  }
+
+  async function adicionarEstacao() {
+    if (!novaEstacaoNome.trim() || !novaEstacaoInicio || !novaEstacaoFim) return;
+    setSavingEstacao(true);
+    try {
+      const res = await fetch('/api/estacoes-monta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: novaEstacaoNome.trim(), dataInicio: novaEstacaoInicio, dataFim: novaEstacaoFim }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const nova = await res.json();
+      setEstacoes((prev) => [nova, ...prev]);
+      setNovaEstacaoNome('');
+      setNovaEstacaoInicio('');
+      setNovaEstacaoFim('');
+      toast.success('Estação de monta adicionada!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao adicionar');
+    } finally {
+      setSavingEstacao(false);
+    }
+  }
+
+  async function removerEstacao(id: number) {
+    try {
+      const res = await fetch(`/api/estacoes-monta/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao remover');
+      setEstacoes((prev) => prev.filter((e) => e.id !== id));
+      toast.success('Estação removida!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao remover');
+    }
+  }
+
+  async function adicionarSemen() {
+    if (!novoSemenCodigo.trim()) return;
+    setSavingSemen(true);
+    try {
+      const res = await fetch('/api/semen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo: novoSemenCodigo.trim(), touro: novoSemenTouro.trim() || null }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error);
+      const novo = await res.json();
+      setSemens((prev) => [...prev, novo]);
+      setNovoSemenCodigo('');
+      setNovoSemenTouro('');
+      toast.success('Sêmen adicionado!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao adicionar');
+    } finally {
+      setSavingSemen(false);
+    }
+  }
+
+  async function removerSemen(id: number) {
+    try {
+      const res = await fetch(`/api/semen/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao remover');
+      setSemens((prev) => prev.filter((s) => s.id !== id));
+      toast.success('Sêmen removido!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao remover');
+    }
+  }
+
+  function formatDateBR(iso: string | Date) {
+    try {
+      return new Date(iso).toLocaleDateString('pt-BR');
+    } catch { return String(iso); }
   }
 
   const GENERO_LABEL: Record<string, string> = { MACHO: 'Macho', FEMEA: 'Fêmea' };
@@ -324,7 +423,120 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         </div>
       </section>
 
-      {/* Seção 4: Usuários */}
+      {/* Seção 4: Estações de Monta */}
+      <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
+          <Calendar size={16} className="text-teal-500" />
+          Estações de Monta
+        </h2>
+        <p className="text-xs text-slate-500 mb-5">
+          Defina os períodos de cada estação. O toque de uma fêmea associará automaticamente o animal à estação correspondente.
+        </p>
+        <div className="space-y-2 mb-5">
+          {estacoes.map((e) => (
+            <div key={e.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
+              <div>
+                <span className="text-sm font-medium text-slate-700">{e.nome}</span>
+                <span className="ml-3 text-xs text-slate-400">{formatDateBR(e.dataInicio)} → {formatDateBR(e.dataFim)}</span>
+              </div>
+              <button
+                onClick={() => removerEstacao(e.id)}
+                className="text-slate-400 hover:text-red-500 transition-colors"
+                title="Remover estação"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+          {estacoes.length === 0 && (
+            <p className="text-xs text-slate-400 italic">Nenhuma estação cadastrada.</p>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            type="text"
+            value={novaEstacaoNome}
+            onChange={(e) => setNovaEstacaoNome(e.target.value)}
+            placeholder="Nome (ex: EM 2024/2025)"
+            className="md:col-span-2 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <input
+            type="date"
+            value={novaEstacaoInicio}
+            onChange={(e) => setNovaEstacaoInicio(e.target.value)}
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <input
+            type="date"
+            value={novaEstacaoFim}
+            onChange={(e) => setNovaEstacaoFim(e.target.value)}
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+        </div>
+        <button
+          onClick={adicionarEstacao}
+          disabled={savingEstacao || !novaEstacaoNome.trim() || !novaEstacaoInicio || !novaEstacaoFim}
+          className="mt-3 px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-white text-sm font-semibold transition disabled:opacity-60"
+        >
+          {savingEstacao ? 'Adicionando...' : 'Adicionar Estação'}
+        </button>
+      </section>
+
+      {/* Seção 5: Catálogo de Sêmen */}
+      <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
+          <FlaskConical size={16} className="text-indigo-500" />
+          Catálogo de Sêmen
+        </h2>
+        <p className="text-xs text-slate-500 mb-5">
+          Sêmens disponíveis para seleção ao registrar inseminação artificial de uma fêmea.
+        </p>
+        <div className="space-y-2 mb-5">
+          {semens.map((s) => (
+            <div key={s.id} className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-slate-50 border border-slate-200">
+              <div>
+                <span className="text-sm font-medium text-slate-700">{s.codigo}</span>
+                {s.touro && <span className="ml-3 text-xs text-slate-400">Touro: {s.touro}</span>}
+              </div>
+              <button
+                onClick={() => removerSemen(s.id)}
+                className="text-slate-400 hover:text-red-500 transition-colors"
+                title="Remover sêmen"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))}
+          {semens.length === 0 && (
+            <p className="text-xs text-slate-400 italic">Nenhum sêmen cadastrado.</p>
+          )}
+        </div>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={novoSemenCodigo}
+            onChange={(e) => setNovoSemenCodigo(e.target.value)}
+            placeholder="Código (ex: TOURO-ABC-LT01)"
+            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <input
+            type="text"
+            value={novoSemenTouro}
+            onChange={(e) => setNovoSemenTouro(e.target.value)}
+            placeholder="Nome do touro (opcional)"
+            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <button
+            onClick={adicionarSemen}
+            disabled={savingSemen || !novoSemenCodigo.trim()}
+            className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition disabled:opacity-60"
+          >
+            {savingSemen ? 'Adicionando...' : 'Adicionar'}
+          </button>
+        </div>
+      </section>
+
+      {/* Seção 6: Usuários */}
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-5">
           <Users size={16} className="text-violet-500" />

@@ -9,6 +9,7 @@ import {
   Upload,
   Skull,
   Syringe,
+  HeartPulse,
   Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,7 @@ const navItems = [
   { href: '/importar', label: 'Importar', icon: Upload },
   { href: '/mortes', label: 'Mortes', icon: Skull },
   { href: '/sanitario', label: 'Sanitário', icon: Syringe },
+  { href: '/reproducao', label: 'Reprodução', icon: HeartPulse },
 ];
 
 export function Nav() {

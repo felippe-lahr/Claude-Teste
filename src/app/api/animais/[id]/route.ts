@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
-import { Genero, StatusAnimal } from '@prisma/client';
+import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -15,6 +15,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       proprietario: { select: { id: true, name: true } },
       morte: true,
       registrosSanitarios: { orderBy: { data: 'desc' } },
+      reproducao: true,
     },
   });
 
@@ -28,7 +29,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
 
   const denominacao = await classificarAnimal({
     genero: genero as Genero,
@@ -82,6 +83,36 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           data: new Date(v.data),
           dose: v.dose || null,
         })),
+    });
+  }
+
+  if (genero === 'FEMEA' && reproducao) {
+    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, observacoesRepro } = reproducao;
+
+    let estacaoMontaId: number | null = null;
+    if (dataToque) {
+      const dt = new Date(dataToque);
+      const estacao = await prisma.estacaoMonta.findFirst({
+        where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
+      });
+      estacaoMontaId = estacao?.id ?? null;
+    }
+
+    const reproData = {
+      statusReprodutivo: statusReprodutivo as StatusReprodutivo | null ?? null,
+      dataToque: dataToque ? new Date(dataToque) : null,
+      estacaoMontaId,
+      inseminada: inseminada ?? false,
+      dataInseminacao: dataInseminacao ? new Date(dataInseminacao) : null,
+      semenId: semenId ? parseInt(semenId) : null,
+      observacoes: observacoesRepro ?? null,
+      registradoPorId: parseInt(session.user.id),
+    };
+
+    await prisma.reproducaoAnimal.upsert({
+      where: { animalId: parseInt(params.id) },
+      update: reproData,
+      create: { animalId: parseInt(params.id), ...reproData },
     });
   }
 
