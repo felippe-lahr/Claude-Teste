@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Plus, Syringe, Trash2, ChevronLeft, ChevronRight, Search, ShieldCheck, Pill } from 'lucide-react';
 import { SanitarioDrawer } from '@/components/sanitario/sanitario-drawer';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { formatDateBR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/ui/stat-card';
@@ -126,21 +127,17 @@ export default function SanitarioPage() {
           </select>
           <div>
             <label className="block text-xs text-slate-500 mb-1">De</label>
-            <input
-              type="text"
-              placeholder="dd/mm/aaaa"
-              value={filters.dataInicio}
-              onChange={(e) => handleFilterChange('dataInicio', e.target.value)}
+            <DatePickerBR
+              value={filters.dataInicio || null}
+              onChange={(v) => handleFilterChange('dataInicio', v ?? '')}
               className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
           <div>
             <label className="block text-xs text-slate-500 mb-1">Até</label>
-            <input
-              type="text"
-              placeholder="dd/mm/aaaa"
-              value={filters.dataFim}
-              onChange={(e) => handleFilterChange('dataFim', e.target.value)}
+            <DatePickerBR
+              value={filters.dataFim || null}
+              onChange={(v) => handleFilterChange('dataFim', v ?? '')}
               className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>

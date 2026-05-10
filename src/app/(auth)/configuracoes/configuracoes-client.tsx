@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { formatDateBR } from '@/lib/utils';
 
 interface ClassificacaoConfig {
@@ -456,18 +457,16 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
             placeholder="Nome (ex: EM 2024/2025)"
             className="md:col-span-2 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
-          <input
-            type="text"
-            placeholder="Início (dd/mm/aaaa)"
-            value={novaEstacaoInicio}
-            onChange={(e) => setNovaEstacaoInicio(e.target.value)}
+          <DatePickerBR
+            value={novaEstacaoInicio || null}
+            onChange={(v) => setNovaEstacaoInicio(v ?? '')}
+            placeholder="Início"
             className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
-          <input
-            type="text"
-            placeholder="Fim (dd/mm/aaaa)"
-            value={novaEstacaoFim}
-            onChange={(e) => setNovaEstacaoFim(e.target.value)}
+          <DatePickerBR
+            value={novaEstacaoFim || null}
+            onChange={(v) => setNovaEstacaoFim(v ?? '')}
+            placeholder="Fim"
             className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>

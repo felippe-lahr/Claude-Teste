@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { parseDateBR, formatDateBR } from '@/lib/utils';
 
 const schema = z.object({
@@ -354,7 +355,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Óbito</label>
-              <input {...register('dataObito')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
+              <DatePickerBR
+                value={watch('dataObito') || null}
+                onChange={(v) => setValue('dataObito', v ?? '')}
+                className={inputClass}
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">Causa da Morte</label>
@@ -378,7 +383,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {status === 'VENDIDO' && (
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Venda</label>
-            <input {...register('dataVenda')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
+            <DatePickerBR
+              value={watch('dataVenda') || null}
+              onChange={(v) => setValue('dataVenda', v ?? '')}
+              className={inputClass}
+            />
           </div>
         )}
 
@@ -489,7 +498,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
-                <input type="text" placeholder="dd/mm/aaaa" value={dataToque} onChange={(e) => setDataToque(e.target.value)} className={inputClass} />
+                <DatePickerBR
+                  value={dataToque || null}
+                  onChange={(v) => setDataToque(v ?? '')}
+                  className={inputClass}
+                />
                 {dataToque && (
                   <p className="text-xs mt-1">
                     {estacaoDetectada
@@ -509,7 +522,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 <>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
-                    <input type="text" placeholder="dd/mm/aaaa" value={dataInseminacao} onChange={(e) => setDataInseminacao(e.target.value)} className={inputClass} />
+                    <DatePickerBR
+                      value={dataInseminacao || null}
+                      onChange={(v) => setDataInseminacao(v ?? '')}
+                      className={inputClass}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
@@ -587,11 +604,9 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs text-slate-500 mb-1">Data de Aplicação</label>
-                  <input
-                    type="text"
-                    placeholder="dd/mm/aaaa"
-                    value={v.data}
-                    onChange={(e) => updateVacina(i, 'data', e.target.value)}
+                  <DatePickerBR
+                    value={v.data || null}
+                    onChange={(val) => updateVacina(i, 'data', val ?? '')}
                     className={inputClass}
                   />
                 </div>

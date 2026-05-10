@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Search } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 
 const schema = z.object({
   animalId: z.string().min(1, 'Animal obrigatório'),
@@ -165,7 +166,11 @@ export function MorteDrawer({ open, onClose, onSaved, preAnimalId }: Props) {
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data do Óbito *</label>
-          <input {...register('dataObito')} type="text" placeholder="dd/mm/aaaa" className={inputClass} />
+          <DatePickerBR
+            value={watch('dataObito') || null}
+            onChange={(v) => setValue('dataObito', v ?? '')}
+            className={inputClass}
+          />
           {errors.dataObito && <p className="text-xs text-red-500 mt-1">{errors.dataObito.message}</p>}
         </div>
 

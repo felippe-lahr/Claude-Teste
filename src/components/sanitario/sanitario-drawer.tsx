@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Search } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 
 const schema = z.object({
   animalId: z.string().min(1, 'Animal obrigatório'),
@@ -45,7 +46,7 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
   const [animalSelecionado, setAnimalSelecionado] = useState<AnimalBusca | null>(null);
   const [buscando, setBuscando] = useState(false);
 
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { tipo: 'VACINA' },
   });
@@ -169,10 +170,9 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
 
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data *</label>
-          <input
-            {...register('data')}
-            type="text"
-            placeholder="dd/mm/aaaa"
+          <DatePickerBR
+            value={watch('data') || null}
+            onChange={(v) => setValue('data', v ?? '')}
             className={inputClass}
           />
           {errors.data && <p className="text-xs text-red-500 mt-1">{errors.data.message}</p>}

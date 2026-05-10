@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { ArrowLeft, Skull, Syringe, Plus, Trash2, HeartPulse } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { formatDateBR } from '@/lib/utils';
 import { Drawer } from '@/components/ui/drawer';
 
@@ -112,7 +113,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
     },
   });
 
-  const { register: regS, handleSubmit: handleS, reset: resetS, formState: { errors: errS } } = useForm<SanitarioData>({
+  const { register: regS, handleSubmit: handleS, watch: watchS, setValue: setValueS, reset: resetS, formState: { errors: errS } } = useForm<SanitarioData>({
     resolver: zodResolver(sanitarioSchema),
     defaultValues: { tipo: 'VACINA' },
   });
@@ -478,10 +479,9 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data *</label>
-            <input
-              {...regS('data')}
-              type="text"
-              placeholder="dd/mm/aaaa"
+            <DatePickerBR
+              value={watchS('data') || null}
+              onChange={(v) => setValueS('data', v ?? '')}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
