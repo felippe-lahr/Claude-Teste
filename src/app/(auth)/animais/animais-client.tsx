@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   Plus, Search, ChevronLeft, ChevronRight, Beef, Eye, Pencil, Trash2,
-  Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList,
+  Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList, Package,
 } from 'lucide-react';
+import { NovoLoteWizard } from '@/components/lotes/novo-lote-wizard';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +54,7 @@ function idxToYearMonth(idx: number) {
   return { year: Math.floor(idx / 12), month: (idx % 12) + 1 };
 }
 
-type BatchModal = null | 'morto' | 'vendido' | 'delete';
+type BatchModal = null | 'morto' | 'vendido' | 'delete' | 'lote';
 
 export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, causasMorte }: Props) {
   const sliderMin = minAno * 12;
@@ -417,6 +418,10 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
             <button onClick={() => executeBatch('VIVO')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition disabled:opacity-50">Vivo</button>
             <button onClick={() => { setBatchModal('morto'); }} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition disabled:opacity-50">Morto</button>
             <button onClick={() => { setBatchModal('vendido'); }} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition disabled:opacity-50">Vendido</button>
+            <button onClick={() => setBatchModal('lote')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition disabled:opacity-50 flex items-center gap-1.5">
+              <Package size={12} />
+              Criar Lote
+            </button>
             <button onClick={() => setBatchModal('delete')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold transition disabled:opacity-50">
               <Trash2 size={13} />
             </button>
@@ -508,6 +513,14 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
             </div>
           </div>
         </div>
+      )}
+
+      {batchModal === 'lote' && (
+        <NovoLoteWizard
+          initialSelectedIds={Array.from(selectedIds)}
+          onClose={() => setBatchModal(null)}
+          onSaved={() => { setBatchModal(null); setSelectedIds(new Set()); fetchAnimais(); }}
+        />
       )}
     </div>
   );
