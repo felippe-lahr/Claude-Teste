@@ -19,42 +19,9 @@ export async function GET() {
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Sistema Fazenda';
 
-  // Hidden sheet with dropdown source data
-  const listas = wb.addWorksheet('_listas');
-  listas.state = 'hidden';
-
-  listas.getCell('A1').value = 'Proprietários';
-  proprietarios.forEach((p, i) => { listas.getCell(`A${i + 2}`).value = p.name; });
-
-  listas.getCell('B1').value = 'Gênero';
-  ['MACHO', 'FEMEA'].forEach((v, i) => { listas.getCell(`B${i + 2}`).value = v; });
-
-  listas.getCell('C1').value = 'Reprodutor';
-  ['Não', 'Sim'].forEach((v, i) => { listas.getCell(`C${i + 2}`).value = v; });
-
-  listas.getCell('D1').value = 'Status';
-  ['VIVO', 'VENDIDO', 'MORTO'].forEach((v, i) => { listas.getCell(`D${i + 2}`).value = v; });
-
-  listas.getCell('E1').value = 'Status Reprodutivo';
-  ['CHEIA', 'VAZIA', 'PARIDA', 'BEZERRO_NO_PE'].forEach((v, i) => { listas.getCell(`E${i + 2}`).value = v; });
-
-  listas.getCell('F1').value = 'Inseminada';
-  ['Não', 'Sim'].forEach((v, i) => { listas.getCell(`F${i + 2}`).value = v; });
-
-  listas.getCell('G1').value = 'Sêmen';
-  semens.forEach((s, i) => { listas.getCell(`G${i + 2}`).value = s.codigo; });
-
-  listas.getCell('H1').value = 'Causa da Morte';
-  causasMorte.forEach((c, i) => { listas.getCell(`H${i + 2}`).value = c.nome; });
-
-  const propEnd = Math.max(proprietarios.length + 1, 2);
-  const semenEnd = Math.max(semens.length + 1, 2);
-  const causaEnd = Math.max(causasMorte.length + 1, 2);
-
-  // Main sheet
+  // ── 1. Main sheet FIRST so it opens as the active tab ──────────────────────
   const ws = wb.addWorksheet('Animais');
 
-  // Column A=1 … X=24
   ws.columns = [
     { header: 'Número', key: 'a', width: 12 },
     { header: 'Proprietário', key: 'b', width: 22 },
@@ -91,15 +58,47 @@ export async function GET() {
   });
   ws.getRow(1).height = 36;
 
-  // Example rows
+  // Example rows (text dates to avoid Excel serial number problem)
   ws.addRow(['001', proprietarios[0]?.name ?? 'Proprietário', 'MACHO', 'Não', 3, 2022, 350, 'VIVO', '', '', '', '', '', '', '', '', '', '', 'Aftosa', '15/01/2024', '2ml', '', '', '']);
   ws.addRow(['002', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 6, 2021, 280, 'VIVO', '', '', 'CHEIA', '10/03/2025', 'Sim', '10/03/2025', semens[0]?.codigo ?? '', '', '', '', '', '', '', '', '', '']);
 
-  // Freeze header row
+  // Freeze header row and mark Animais as the active tab (tabSelected: true)
   ws.views = [{ state: 'frozen', ySplit: 1 }];
   ws.autoFilter = { from: 'A1', to: 'X1' };
 
-  // Apply data validations rows 2–501
+  // ── 2. Hidden helper sheet SECOND ──────────────────────────────────────────
+  const listas = wb.addWorksheet('_listas');
+  listas.state = 'veryHidden'; // veryHidden = not shown even in "Unhide" dialog
+
+  listas.getCell('A1').value = 'Proprietários';
+  proprietarios.forEach((p, i) => { listas.getCell(`A${i + 2}`).value = p.name; });
+
+  listas.getCell('B1').value = 'Gênero';
+  ['MACHO', 'FEMEA'].forEach((v, i) => { listas.getCell(`B${i + 2}`).value = v; });
+
+  listas.getCell('C1').value = 'Reprodutor';
+  ['Não', 'Sim'].forEach((v, i) => { listas.getCell(`C${i + 2}`).value = v; });
+
+  listas.getCell('D1').value = 'Status';
+  ['VIVO', 'VENDIDO', 'MORTO'].forEach((v, i) => { listas.getCell(`D${i + 2}`).value = v; });
+
+  listas.getCell('E1').value = 'Status Reprodutivo';
+  ['CHEIA', 'VAZIA', 'PARIDA', 'BEZERRO_NO_PE'].forEach((v, i) => { listas.getCell(`E${i + 2}`).value = v; });
+
+  listas.getCell('F1').value = 'Inseminada';
+  ['Não', 'Sim'].forEach((v, i) => { listas.getCell(`F${i + 2}`).value = v; });
+
+  listas.getCell('G1').value = 'Sêmen';
+  semens.forEach((s, i) => { listas.getCell(`G${i + 2}`).value = s.codigo; });
+
+  listas.getCell('H1').value = 'Causa da Morte';
+  causasMorte.forEach((c, i) => { listas.getCell(`H${i + 2}`).value = c.nome; });
+
+  const propEnd = Math.max(proprietarios.length + 1, 2);
+  const semenEnd = Math.max(semens.length + 1, 2);
+  const causaEnd = Math.max(causasMorte.length + 1, 2);
+
+  // ── 3. Data validations (referencing _listas) ──────────────────────────────
   for (let r = 2; r <= 501; r++) {
     ws.getCell(`B${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$A$2:$A$${propEnd}`] };
     ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$B$2:$B$3'] };
