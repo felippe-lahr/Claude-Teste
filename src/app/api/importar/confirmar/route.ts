@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   const [usuarios, semens] = await Promise.all([
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-    prisma.semen.findMany({ select: { id: true, codigo: true } }),
+    prisma.semen.findMany({ select: { id: true, codigo: true, touro: true } }),
   ]);
 
   let importados = 0;
@@ -144,21 +144,27 @@ export async function POST(req: NextRequest) {
           : null;
 
         const dataToque = parseDate(col(row, 'Data do Toque (dd/mm/aaaa)', 'Data do Toque', 'Data Toque'));
-        const inseminada = parseStr(col(row, 'Inseminada')).toLowerCase() === 'sim';
         const dataInseminacao = parseDate(col(row, 'Data Inseminação (dd/mm/aaaa)', 'Data Inseminacao (dd/mm/aaaa)', 'Data Inseminação', 'Data Inseminacao'));
         const semenCodigo = parseStr(col(row, 'Sêmen (código)', 'Semen (codigo)', 'Sêmen', 'Semen'));
         const semenId = semenCodigo
-          ? (semens.find((s) => s.codigo.toLowerCase() === semenCodigo.toLowerCase())?.id ?? null)
+          ? (semens.find((s) => s.codigo.toLowerCase() === semenCodigo.toLowerCase())?.id
+              ?? semens.find((s) => s.touro?.toLowerCase() === semenCodigo.toLowerCase())?.id
+              ?? null)
           : null;
+        // Infer inseminada=true when insemination date or semen is present even if cell blank
+        const inseminadaCell = parseStr(col(row, 'Inseminada')).toLowerCase();
+        const inseminada = inseminadaCell === 'sim' || (!inseminadaCell && (!!dataInseminacao || !!semenId));
         const observacoesRepro = parseStr(col(row, 'Obs. Reprodução', 'Obs Reproducao')) || null;
 
         if (statusReprodutivo || dataToque) {
+          // Resolve estação from dataToque first, fall back to dataInseminacao
           let estacaoMontaId: number | null = null;
-          if (dataToque) {
+          for (const candidateDate of [dataToque, dataInseminacao]) {
+            if (!candidateDate) continue;
             const estacao = await prisma.estacaoMonta.findFirst({
-              where: { ativo: true, dataInicio: { lte: dataToque }, dataFim: { gte: dataToque } },
+              where: { ativo: true, dataInicio: { lte: candidateDate }, dataFim: { gte: candidateDate } },
             });
-            estacaoMontaId = estacao?.id ?? null;
+            if (estacao) { estacaoMontaId = estacao.id; break; }
           }
 
           await prisma.reproducaoAnimal.create({
