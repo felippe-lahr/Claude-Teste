@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
 import { Genero, StatusReprodutivo } from '@prisma/client';
 import * as XLSX from 'xlsx';
+import { createHash } from 'crypto';
 import { parseDateBR } from '@/lib/utils';
+import { registrarLog } from '@/lib/log';
 
 function parseDate(value: unknown): Date | null {
   if (!value) return null;
@@ -57,14 +59,26 @@ export async function POST(req: NextRequest) {
   if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 });
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const fileHash = createHash('sha256').update(buffer).digest('hex');
+
+  // Block re-upload of an identical file
+  const logDuplicado = await prisma.logAlteracao.findFirst({ where: { fileHash, tipo: 'IMPORTACAO' } });
+  if (logDuplicado) {
+    return NextResponse.json({
+      error: `Este arquivo já foi importado em ${new Date(logDuplicado.createdAt).toLocaleString('pt-BR')} por ${logDuplicado.userName}. Importe um arquivo diferente.`,
+    }, { status: 409 });
+  }
+
   const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
 
-  const [usuarios, semens] = await Promise.all([
+  const [usuarios, semens, numerosExistentes] = await Promise.all([
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     prisma.semen.findMany({ select: { id: true, codigo: true, touro: true } }),
+    prisma.animal.findMany({ where: { numero: { not: null } }, select: { numero: true } }),
   ]);
+  const numerosSet = new Set(numerosExistentes.map((a) => a.numero!.toLowerCase().trim()));
 
   let importados = 0;
   const erros: string[] = [];
@@ -80,6 +94,16 @@ export async function POST(req: NextRequest) {
       if (!usuario) {
         erros.push(`Linha ${rowNum}: Proprietário "${nomeProprietario}" não encontrado`);
         continue;
+      }
+
+      const numeroRaw = parseStr(col(row, 'Número', 'Numero'));
+      if (numeroRaw) {
+        const numeroKey = numeroRaw.toLowerCase().trim();
+        if (numerosSet.has(numeroKey)) {
+          erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" já existe no sistema`);
+          continue;
+        }
+        numerosSet.add(numeroKey); // prevent duplicate within same file
       }
 
       const generoStr = parseStr(col(row, 'Gênero', 'Genero')).toUpperCase();
@@ -202,6 +226,18 @@ export async function POST(req: NextRequest) {
       erros.push(`Linha ${rowNum}: ${e instanceof Error ? e.message : 'Erro desconhecido'}`);
     }
   }
+
+  await registrarLog({
+    tipo: 'IMPORTACAO',
+    descricao: `${importados} animal(is) importado(s), ${erros.length} erro(s)`,
+    userId: parseInt(session.user.id),
+    userName: session.user.name ?? session.user.email ?? 'Usuário',
+    origem: `Importação: ${file.name}`,
+    fileHash,
+    fileName: file.name,
+    importTotal: rows.length,
+    importErros: erros.length,
+  });
 
   return NextResponse.json({ importados, erros, total: rows.length });
 }

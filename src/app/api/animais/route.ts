@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { calcularDenominacao, classificarAnimal } from '@/lib/classificacao';
+import { registrarLog } from '@/lib/log';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
 
@@ -99,6 +100,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
   }
 
+  // Block global duplicate number
+  if (numero) {
+    const existing = await prisma.animal.findFirst({ where: { numero: { equals: String(numero).trim(), mode: 'insensitive' } } });
+    if (existing) return NextResponse.json({ error: `Animal nº "${numero}" já existe no sistema` }, { status: 409 });
+  }
+
   const denominacao = await classificarAnimal({
     genero: genero as Genero,
     eraMes: eraMes ? parseInt(eraMes) : null,
@@ -163,6 +170,17 @@ export async function POST(req: NextRequest) {
       });
     }
   }
+
+  const proprietarioNome = animal.proprietario.name;
+  await registrarLog({
+    tipo: 'CADASTRO',
+    descricao: `Animal cadastrado: ${denominacao}, ${animal.genero === 'MACHO' ? 'Macho' : 'Fêmea'}, Status: ${animal.status}`,
+    userId: parseInt(session.user.id),
+    userName: session.user.name ?? session.user.email ?? 'Usuário',
+    animalId: animal.id,
+    animalNumero: animal.numero,
+    proprietario: proprietarioNome,
+  });
 
   return NextResponse.json(animal, { status: 201 });
 }

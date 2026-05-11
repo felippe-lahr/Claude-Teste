@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
+import { registrarLog } from '@/lib/log';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -34,6 +35,20 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const body = await req.json();
   const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
+
+  // Block changing to a number that already exists on another animal
+  if (numero) {
+    const conflict = await prisma.animal.findFirst({
+      where: { numero: { equals: String(numero).trim(), mode: 'insensitive' }, id: { not: parseInt(params.id) } },
+    });
+    if (conflict) return NextResponse.json({ error: `Animal nº "${numero}" já existe no sistema` }, { status: 409 });
+  }
+
+  // Fetch before state for change description
+  const before = await prisma.animal.findUnique({
+    where: { id: parseInt(params.id) },
+    include: { proprietario: { select: { name: true } } },
+  });
 
   const denominacao = await classificarAnimal({
     genero: genero as Genero,
@@ -114,8 +129,37 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           registradoPorId: parseInt(session.user.id),
         },
       });
+
+      await registrarLog({
+        tipo: 'REPRODUCAO',
+        descricao: `Status reprodutivo: ${statusReprodutivo ?? '—'}${dataToque ? ` | Toque: ${dataToque}` : ''}${inseminada ? ' | Inseminada: Sim' : ''}`,
+        userId: parseInt(session.user.id),
+        userName: session.user.name ?? session.user.email ?? 'Usuário',
+        animalId: animal.id,
+        animalNumero: animal.numero,
+        proprietario: animal.proprietario.name,
+      });
     }
   }
+
+  // Build change description from diff
+  const changes: string[] = [];
+  if (before) {
+    if (before.status !== status) changes.push(`Status: ${before.status} → ${status}`);
+    if (before.peso !== (peso !== undefined && peso !== '' ? parseFloat(peso) : null)) changes.push(`Peso: ${before.peso ?? '—'} → ${peso || '—'} kg`);
+    if (before.denominacao !== denominacao) changes.push(`Denominação: ${before.denominacao} → ${denominacao}`);
+    if ((before.numero ?? '') !== (numero || '')) changes.push(`Número: ${before.numero ?? '—'} → ${numero || '—'}`);
+  }
+
+  await registrarLog({
+    tipo: 'EDICAO',
+    descricao: changes.length > 0 ? changes.join(' | ') : 'Dados atualizados',
+    userId: parseInt(session.user.id),
+    userName: session.user.name ?? session.user.email ?? 'Usuário',
+    animalId: animal.id,
+    animalNumero: animal.numero,
+    proprietario: animal.proprietario.name,
+  });
 
   return NextResponse.json(animal);
 }
@@ -127,6 +171,21 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
   }
+
+  const animal = await prisma.animal.findUnique({
+    where: { id: parseInt(params.id) },
+    include: { proprietario: { select: { name: true } } },
+  });
+
+  await registrarLog({
+    tipo: 'EXCLUSAO',
+    descricao: `Animal excluído: ${animal?.denominacao ?? ''}, ${animal?.genero === 'MACHO' ? 'Macho' : 'Fêmea'}`,
+    userId: parseInt(session.user.id),
+    userName: session.user.name ?? session.user.email ?? 'Usuário',
+    animalId: parseInt(params.id),
+    animalNumero: animal?.numero,
+    proprietario: animal?.proprietario.name,
+  });
 
   await prisma.animal.delete({ where: { id: parseInt(params.id) } });
 

@@ -47,6 +47,7 @@ model User {
   animais              Animal[]
   mortesRegistradas    Morte[]            @relation("RegistradoPor")
   reproducoes          ReproducaoAnimal[] @relation("RegistroReproducao")
+  logs                 LogAlteracao[]
 }
 
 model Animal {
@@ -172,4 +173,28 @@ model ReproducaoAnimal {
   @@index([animalId])
   @@index([estacaoMontaId])
   @@index([statusReprodutivo])
+}
+
+model LogAlteracao {
+  id           Int      @id @default(autoincrement())
+  tipo         String   // IMPORTACAO | CADASTRO | EDICAO | EXCLUSAO | REPRODUCAO | SANITARIO | LOTE
+  animalId     Int?
+  animalNumero String?
+  proprietario String?
+  descricao    String
+  userId       Int
+  userName     String
+  origem       String?  // "Manual" | "Importação: arquivo.xlsx" | "Lote"
+  fileHash     String?  // SHA-256 of imported file (anti-duplicate check)
+  fileName     String?
+  importTotal  Int?
+  importErros  Int?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([tipo])
+  @@index([animalId])
+  @@index([createdAt])
+  @@index([fileHash])
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   Plus, Search, ChevronLeft, ChevronRight, Beef, Eye, Pencil, Trash2,
-  Download, CheckSquare, X, AlertTriangle, Calendar,
+  Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList,
 } from 'lucide-react';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -186,6 +186,13 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
           <p className="text-slate-500 text-sm mt-1">{total} animais cadastrados</p>
         </div>
         <div className="flex gap-2">
+          <Link
+            href="/log?tipo=CADASTRO,EDICAO,EXCLUSAO,LOTE"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+          >
+            <ClipboardList size={16} />
+            Ver Log
+          </Link>
           <a
             href="/api/exportar"
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"

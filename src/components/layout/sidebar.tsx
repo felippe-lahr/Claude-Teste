@@ -11,6 +11,7 @@ import {
   Skull,
   Syringe,
   HeartPulse,
+  ClipboardList,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/mortes', label: 'Mortes', icon: Skull },
   { href: '/sanitario', label: 'Sanitário', icon: Syringe },
   { href: '/reproducao', label: 'Reprodução', icon: HeartPulse },
+  { href: '/log', label: 'Log', icon: ClipboardList },
 ];
 
 export function Sidebar() {

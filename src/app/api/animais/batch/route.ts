@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { parseDateBR } from '@/lib/utils';
+import { registrarLog } from '@/lib/log';
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -22,8 +23,30 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Nenhum animal selecionado' }, { status: 400 });
   }
 
+  const userId = parseInt(session.user.id);
+  const userName = session.user.name ?? session.user.email ?? 'Usuário';
+
+  const animais = await prisma.animal.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, numero: true, proprietario: { select: { name: true } } },
+  });
+
   if (action === 'delete') {
     await prisma.animal.deleteMany({ where: { id: { in: ids } } });
+
+    await prisma.logAlteracao.createMany({
+      data: animais.map((a) => ({
+        tipo: 'EXCLUSAO',
+        descricao: `Excluído em lote`,
+        userId,
+        userName,
+        animalId: a.id,
+        animalNumero: a.numero,
+        proprietario: a.proprietario.name,
+        origem: 'Lote',
+      })),
+    });
+
     return NextResponse.json({ ok: true, count: ids.length });
   }
 
@@ -41,9 +64,7 @@ export async function PATCH(req: NextRequest) {
 
   if (status === 'MORTO' && dataObito) {
     const dtObito = parseDateBR(dataObito) ?? new Date(dataObito);
-    const registradoPorId = parseInt(session.user.id);
-
-    // Upsert morte record for each animal (skip if date is invalid)
+    const registradoPorId = userId;
     if (!isNaN(dtObito.getTime())) {
       for (const animalId of ids) {
         await prisma.morte.upsert({
@@ -54,6 +75,25 @@ export async function PATCH(req: NextRequest) {
       }
     }
   }
+
+  const descricaoLote = status === 'MORTO'
+    ? `Status → MORTO${causaMorte ? ` | Causa: ${causaMorte}` : ''}${dataObito ? ` | Óbito: ${dataObito}` : ''}`
+    : status === 'VENDIDO'
+    ? `Status → VENDIDO${dataVenda ? ` | Data venda: ${dataVenda}` : ''}`
+    : `Status → ${status}`;
+
+  await prisma.logAlteracao.createMany({
+    data: animais.map((a) => ({
+      tipo: 'LOTE',
+      descricao: descricaoLote,
+      userId,
+      userName,
+      animalId: a.id,
+      animalNumero: a.numero,
+      proprietario: a.proprietario.name,
+      origem: 'Lote',
+    })),
+  });
 
   return NextResponse.json({ ok: true, count: ids.length });
 }
