@@ -38,6 +38,22 @@ export async function GET(req: NextRequest) {
   const eraAno = searchParams.get('eraAno');
   if (eraAno) where.eraAno = parseInt(eraAno);
 
+  const eraMin = searchParams.get('eraMin');
+  const eraMax = searchParams.get('eraMax');
+  if (eraMin && eraMax) {
+    const minIdx = parseInt(eraMin); // year*12 + (month-1)
+    const maxIdx = parseInt(eraMax);
+    const minYear = Math.floor(minIdx / 12);
+    const minMonth = (minIdx % 12) + 1;
+    const maxYear = Math.floor(maxIdx / 12);
+    const maxMonth = (maxIdx % 12) + 1;
+    (where as Record<string, unknown>).AND = [
+      { eraAno: { not: null } },
+      { OR: [{ eraAno: { gt: minYear } }, { AND: [{ eraAno: minYear }, { OR: [{ eraMes: null }, { eraMes: { gte: minMonth } }] }] }] },
+      { OR: [{ eraAno: { lt: maxYear } }, { AND: [{ eraAno: maxYear }, { OR: [{ eraMes: null }, { eraMes: { lte: maxMonth } }] }] }] },
+    ];
+  }
+
   const [animais, total, regras] = await Promise.all([
     prisma.animal.findMany({
       where,
