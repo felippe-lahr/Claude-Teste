@@ -257,27 +257,37 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
           </div>
 
           {sliderActive && (
-            <div className="px-3">
+            <div className="px-2 pb-1">
               <Slider
                 range
                 min={sliderMin}
                 max={sliderMax}
                 value={sliderRange}
                 onChange={(v) => { setSliderRange(v as [number, number]); setPage(1); }}
-                marks={Object.fromEntries(
-                  Array.from({ length: maxAno - minAno + 1 }, (_, i) => [
-                    (minAno + i) * 12,
-                    { label: String(minAno + i), style: { fontSize: '10px', color: '#64748b', whiteSpace: 'nowrap' } },
-                  ])
-                )}
                 step={1}
+                dots={false}
                 styles={{
-                  track: { backgroundColor: '#6366f1', height: 4 },
-                  rail: { backgroundColor: '#e2e8f0', height: 4 },
-                  handle: { borderColor: '#6366f1', width: 16, height: 16, marginTop: -6, backgroundColor: '#fff', opacity: 1, boxShadow: '0 1px 4px rgba(0,0,0,.2)' },
+                  track: { backgroundColor: '#6366f1', height: 6, borderRadius: 3 },
+                  rail: { backgroundColor: '#e2e8f0', height: 6, borderRadius: 3 },
+                  handle: { borderColor: '#6366f1', borderWidth: 2, width: 18, height: 18, marginTop: -6, backgroundColor: '#fff', opacity: 1, boxShadow: '0 2px 6px rgba(99,102,241,.4)', cursor: 'pointer' },
                 }}
               />
-              <div className="mt-6" />
+              {/* Manual year labels — no rc-slider marks to avoid dark-band artifact */}
+              <div className="relative mt-3 h-4">
+                {Array.from({ length: maxAno - minAno + 1 }, (_, i) => {
+                  const year = minAno + i;
+                  const pct = ((year * 12 - sliderMin) / (sliderMax - sliderMin)) * 100;
+                  return (
+                    <span
+                      key={year}
+                      style={{ left: `${pct}%`, transform: 'translateX(-50%)' }}
+                      className="absolute text-[10px] text-slate-400 select-none"
+                    >
+                      {year}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
