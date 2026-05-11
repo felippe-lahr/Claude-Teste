@@ -9,12 +9,19 @@ import { parseDateBR } from '@/lib/utils';
 
 function parseDate(value: unknown): Date | null {
   if (!value) return null;
+  // JS Date object (from cellDates:true in xlsx)
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+  // Excel numeric serial
+  if (typeof value === 'number') {
+    const d = new Date(Math.round((value - 25569) * 86400 * 1000));
+    return isNaN(d.getTime()) ? null : d;
+  }
   const str = String(value).trim();
   if (!str) return null;
-  // dd/mm/aaaa format
+  // dd/mm/aaaa
   const byBR = parseDateBR(str);
   if (byBR) return byBR;
-  // ISO or Excel numeric serial
+  // ISO fallback
   const d = new Date(str);
   return isNaN(d.getTime()) ? null : d;
 }
