@@ -257,7 +257,8 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
           </div>
 
           {sliderActive && (
-            <div className="px-2 pb-1">
+            <div className="px-2 pb-1" style={{ '--rc-slider-dot-border-color': 'transparent' } as React.CSSProperties}>
+              <style>{`.rc-slider-dot { display: none !important; } .rc-slider-mark { display: none !important; }`}</style>
               <Slider
                 range
                 min={sliderMin}
@@ -272,7 +273,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                   handle: { borderColor: '#6366f1', borderWidth: 2, width: 18, height: 18, marginTop: -6, backgroundColor: '#fff', opacity: 1, boxShadow: '0 2px 6px rgba(99,102,241,.4)', cursor: 'pointer' },
                 }}
               />
-              {/* Manual year labels — no rc-slider marks to avoid dark-band artifact */}
+              {/* Manual year labels */}
               <div className="relative mt-3 h-4">
                 {Array.from({ length: maxAno - minAno + 1 }, (_, i) => {
                   const year = minAno + i;
@@ -280,7 +281,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                   return (
                     <span
                       key={year}
-                      style={{ left: `${pct}%`, transform: 'translateX(-50%)' }}
+                      style={{ left: `${Math.min(98, Math.max(2, pct))}%`, transform: 'translateX(-50%)' }}
                       className="absolute text-[10px] text-slate-400 select-none"
                     >
                       {year}

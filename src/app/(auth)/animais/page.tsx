@@ -16,8 +16,12 @@ export default async function AnimaisPage() {
   ]);
 
   const hoje = new Date();
-  const minAno = anoRange._min.eraAno ?? hoje.getFullYear() - 5;
-  const maxAno = anoRange._max.eraAno ?? hoje.getFullYear();
+  const currentYear = hoje.getFullYear();
+  // Clamp to a sane range — bad imports can produce eraAno values like 176 or 1603
+  const rawMin = anoRange._min.eraAno;
+  const rawMax = anoRange._max.eraAno;
+  const minAno = rawMin && rawMin >= 1990 && rawMin <= currentYear + 2 ? rawMin : currentYear - 5;
+  const maxAno = rawMax && rawMax >= 1990 && rawMax <= currentYear + 2 ? rawMax : currentYear;
 
   return (
     <AnimaisClient
