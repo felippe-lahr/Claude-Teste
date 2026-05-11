@@ -12,6 +12,7 @@ import {
   Syringe,
   HeartPulse,
   ClipboardList,
+  Package,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/mortes', label: 'Mortes', icon: Skull },
   { href: '/sanitario', label: 'Sanitário', icon: Syringe },
   { href: '/reproducao', label: 'Reprodução', icon: HeartPulse },
+  { href: '/lotes', label: 'Lotes', icon: Package },
   { href: '/log', label: 'Log', icon: ClipboardList },
 ];
 

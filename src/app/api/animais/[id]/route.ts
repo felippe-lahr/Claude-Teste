@@ -21,6 +21,11 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         orderBy: { createdAt: 'desc' },
         include: { estacaoMonta: true, semen: true },
       },
+      loteItems: {
+        include: { lote: { select: { nome: true, status: true, comprador: true, dataFechamento: true } } },
+        take: 1,
+        orderBy: { id: 'desc' },
+      },
     },
   });
 

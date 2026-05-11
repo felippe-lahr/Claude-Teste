@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StatusLote {
+  ABERTO
+  EM_NEGOCIACAO
+  VENDIDO
+}
+
 enum Role {
   ADMIN
   SOCIO
@@ -48,6 +54,7 @@ model User {
   mortesRegistradas    Morte[]            @relation("RegistradoPor")
   reproducoes          ReproducaoAnimal[] @relation("RegistroReproducao")
   logs                 LogAlteracao[]
+  lotesCriados         LoteAnimal[]
 }
 
 model Animal {
@@ -72,6 +79,7 @@ model Animal {
   morte               Morte?
   registrosSanitarios RegistroSanitario[]
   reproducoes         ReproducaoAnimal[]
+  loteItems           LoteAnimalItem[]
 
   @@index([proprietarioId])
   @@index([status])
@@ -200,4 +208,38 @@ model LogAlteracao {
   @@index([animalId])
   @@index([createdAt])
   @@index([fileHash])
+}
+
+model LoteAnimal {
+  id             Int        @id @default(autoincrement())
+  nome           String
+  status         StatusLote @default(ABERTO)
+  dataFechamento DateTime?
+  comprador      String?
+  valorTotal     Float?
+  pesoTotal      Float?
+  notaFiscal     String?
+  gta            String?
+  observacoes    String?
+  criadoPorId    Int
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  criadoPor User           @relation(fields: [criadoPorId], references: [id])
+  animais   LoteAnimalItem[]
+
+  @@index([status])
+  @@index([criadoPorId])
+}
+
+model LoteAnimalItem {
+  id       Int @id @default(autoincrement())
+  loteId   Int
+  animalId Int
+
+  lote   LoteAnimal @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  animal Animal     @relation(fields: [animalId], references: [id])
+
+  @@unique([loteId, animalId])
+  @@index([animalId])
 }

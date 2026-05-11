@@ -117,6 +117,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [vacinasExistentes, setVacinasExistentes] = useState<VacinaExistente[]>([]);
   const [causas, setCausas] = useState<CausaMorte[]>([]);
   const [jaTemMorte, setJaTemMorte] = useState(false);
+  const [loteInfo, setLoteInfo] = useState<{ nome: string; status: string; comprador: string | null; dataFechamento: string | null } | null>(null);
 
   // Reprodução
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
@@ -158,6 +159,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setVacinasExistentes([]);
       setReproducoes([]);
       setJaTemMorte(false);
+      setLoteInfo(null);
       setReproStatus('');
       setDataToque('');
       setEstacaoDetectada(null);
@@ -198,6 +200,10 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               })));
               if (data.morte) setJaTemMorte(true);
               setReproducoes(data.reproducoes ?? []);
+              if (data.loteItems && data.loteItems.length > 0) {
+                const item = data.loteItems[0];
+                setLoteInfo(item.lote ?? null);
+              }
             })
             .catch(() => {});
         }
@@ -408,6 +414,20 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               onChange={(v) => setValue('dataVenda', v ?? '')}
               className={inputClass}
             />
+          </div>
+        )}
+
+        {loteInfo && (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 space-y-0.5">
+            <p className="text-xs font-semibold text-indigo-700 flex items-center gap-1.5">
+              <span>📦</span> Lote de Venda
+            </p>
+            <p className="text-sm font-medium text-indigo-900">{loteInfo.nome}</p>
+            <div className="flex gap-3 text-xs text-indigo-600 flex-wrap">
+              <span>Status: {loteInfo.status === 'VENDIDO' ? 'Vendido' : loteInfo.status === 'EM_NEGOCIACAO' ? 'Em Negociação' : 'Aberto'}</span>
+              {loteInfo.comprador && <span>Comprador: {loteInfo.comprador}</span>}
+              {loteInfo.dataFechamento && <span>Data: {formatDateBR(loteInfo.dataFechamento)}</span>}
+            </div>
           </div>
         )}
 
