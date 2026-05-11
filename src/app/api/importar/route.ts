@@ -23,10 +23,12 @@ export async function POST(req: NextRequest) {
     eraAno: row['Ano Nasc'] ?? null,
     peso: row['Peso'] ?? null,
     reprodutor: String(row['Reprodutor'] ?? 'Não').toLowerCase() === 'sim',
+    descarte: String(row['Descarte'] ?? 'Não').toLowerCase() === 'sim',
     proprietario: String(row['Proprietário'] ?? row['Proprietario'] ?? ''),
     status: String(row['Status'] ?? 'VIVO'),
     statusReprodutivo: String(row['Status Reprodutivo'] ?? ''),
     inseminada: String(row['Inseminada'] ?? 'Não').toLowerCase() === 'sim',
+    montaNatural: String(row['Monta Natural'] ?? 'Não').toLowerCase() === 'sim',
     causaMorte: String(row['Causa da Morte'] ?? ''),
     observacoes: String(row['Observações'] ?? row['Observacoes'] ?? ''),
   }));

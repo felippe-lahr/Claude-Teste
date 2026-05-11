@@ -180,12 +180,15 @@ export async function POST(req: NextRequest) {
         // Infer inseminada=true when insemination date or semen is present even if cell blank
         const inseminadaCell = parseStr(col(row, 'Inseminada')).toLowerCase();
         const inseminada = inseminadaCell === 'sim' || (!inseminadaCell && (!!dataInseminacao || !!semenId));
+        const montaNaturalCell = parseStr(col(row, 'Monta Natural')).toLowerCase();
+        const montaNatural = montaNaturalCell === 'sim';
+        const dataMontaNatural = montaNatural ? parseDate(col(row, 'Data Monta Natural (dd/mm/aaaa)', 'Data Monta Natural')) : null;
         const observacoesRepro = parseStr(col(row, 'Obs. Reprodução', 'Obs Reproducao')) || null;
 
-        if (statusReprodutivo || dataToque) {
-          // Resolve estação from dataToque first, fall back to dataInseminacao
+        if (statusReprodutivo || dataToque || montaNatural) {
+          // Resolve estação from dataToque, dataInseminacao or dataMontaNatural
           let estacaoMontaId: number | null = null;
-          for (const candidateDate of [dataToque, dataInseminacao]) {
+          for (const candidateDate of [dataToque, dataInseminacao, dataMontaNatural]) {
             if (!candidateDate) continue;
             const estacao = await prisma.estacaoMonta.findFirst({
               where: { ativo: true, dataInicio: { lte: candidateDate }, dataFim: { gte: candidateDate } },
@@ -199,9 +202,11 @@ export async function POST(req: NextRequest) {
               statusReprodutivo,
               dataToque,
               estacaoMontaId,
-              inseminada,
-              dataInseminacao: inseminada ? dataInseminacao : null,
-              semenId: inseminada ? semenId : null,
+              inseminada: inseminada && !montaNatural,
+              dataInseminacao: inseminada && !montaNatural ? dataInseminacao : null,
+              semenId: inseminada && !montaNatural ? semenId : null,
+              montaNatural,
+              dataMontaNatural,
               observacoes: observacoesRepro,
               registradoPorId: parseInt(session.user.id),
             },
