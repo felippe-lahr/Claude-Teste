@@ -58,6 +58,7 @@ model Animal {
   eraAno         Int?
   peso           Float?
   reprodutor     Boolean      @default(false)
+  descarte       Boolean      @default(false)
   status         StatusAnimal @default(VIVO)
   denominacao   String
   observacoes    String?
@@ -160,6 +161,8 @@ model ReproducaoAnimal {
   inseminada        Boolean            @default(false)
   dataInseminacao   DateTime?
   semenId           Int?
+  montaNatural      Boolean            @default(false)
+  dataMontaNatural  DateTime?
   observacoes       String?
   registradoPorId   Int
   createdAt         DateTime           @default(now())

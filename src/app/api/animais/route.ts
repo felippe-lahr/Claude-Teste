@@ -33,6 +33,10 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get('status');
   if (status && (['VIVO', 'MORTO', 'VENDIDO'] as string[]).includes(status)) where.status = status as StatusAnimal;
 
+  const descarteFilter = searchParams.get('descarte');
+  if (descarteFilter === 'true') where.descarte = true;
+  else if (descarteFilter === 'false') where.descarte = false;
+
   const eraMes = searchParams.get('eraMes');
   if (eraMes) where.eraMes = parseInt(eraMes);
 
@@ -94,7 +98,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, reproducao } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, reproducao } = body;
 
   if (!genero || !proprietarioId) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
@@ -121,6 +125,7 @@ export async function POST(req: NextRequest) {
       eraAno: eraAno ? parseInt(eraAno) : null,
       peso: peso ? parseFloat(peso) : null,
       reprodutor: reprodutor ?? false,
+      descarte: descarte ?? false,
       status: (status as StatusAnimal) ?? 'VIVO',
       denominacao,
       observacoes: observacoes || null,
@@ -145,11 +150,12 @@ export async function POST(req: NextRequest) {
   }
 
   if (genero === 'FEMEA' && reproducao) {
-    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, observacoesRepro } = reproducao;
-    if (statusReprodutivo || dataToque) {
+    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, observacoesRepro } = reproducao;
+    if (statusReprodutivo || dataToque || dataMontaNatural) {
       let estacaoMontaId: number | null = null;
-      if (dataToque) {
-        const dt = parseDateBR(dataToque) ?? new Date(dataToque);
+      const refDate = dataToque ?? dataMontaNatural;
+      if (refDate) {
+        const dt = parseDateBR(refDate) ?? new Date(refDate);
         const estacao = await prisma.estacaoMonta.findFirst({
           where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
         });
@@ -164,6 +170,8 @@ export async function POST(req: NextRequest) {
           inseminada: inseminada ?? false,
           dataInseminacao: dataInseminacao ? (parseDateBR(dataInseminacao) ?? new Date(dataInseminacao)) : null,
           semenId: semenId ? parseInt(semenId) : null,
+          montaNatural: montaNatural ?? false,
+          dataMontaNatural: dataMontaNatural ? (parseDateBR(dataMontaNatural) ?? new Date(dataMontaNatural)) : null,
           observacoes: observacoesRepro ?? null,
           registradoPorId: parseInt(session.user.id),
         },

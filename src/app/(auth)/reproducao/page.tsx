@@ -22,6 +22,8 @@ interface ReproducaoItem {
   dataToque: string | null;
   inseminada: boolean;
   dataInseminacao: string | null;
+  montaNatural: boolean;
+  dataMontaNatural: string | null;
   estacaoMonta: { id: number; nome: string } | null;
   semen: { codigo: string; touro: string | null } | null;
   animal: {
@@ -189,7 +191,7 @@ export default function ReproducaoPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  {['Animal', 'Proprietário', 'Status', 'Data Toque', 'Estação de Monta', 'Inseminada', 'Sêmen', 'Data Inseminação'].map((h) => (
+                  {['Animal', 'Proprietário', 'Status', 'Data Toque', 'Estação de Monta', 'Cobertura', 'Sêmen / Data Monta'].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -214,14 +216,21 @@ export default function ReproducaoPage() {
                     <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataToque)}</td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{r.estacaoMonta?.nome ?? '—'}</td>
                     <td className="px-4 py-3 text-xs">
-                      <span className={r.inseminada ? 'text-green-700 font-semibold' : 'text-slate-400'}>
-                        {r.inseminada ? 'Sim' : 'Não'}
-                      </span>
+                      {r.inseminada
+                        ? <span className="text-blue-700 font-semibold">IA</span>
+                        : r.montaNatural
+                          ? <span className="text-green-700 font-semibold">Monta Natural</span>
+                          : <span className="text-slate-400">—</span>
+                      }
                     </td>
                     <td className="px-4 py-3 text-slate-600 text-xs">
-                      {r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : '—'}
+                      {r.inseminada
+                        ? (r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : (r.dataInseminacao ? formatDateBR(r.dataInseminacao) : '—'))
+                        : r.montaNatural
+                          ? (r.dataMontaNatural ? formatDateBR(r.dataMontaNatural) : '—')
+                          : '—'
+                      }
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataInseminacao)}</td>
                   </tr>
                 ))}
               </tbody>

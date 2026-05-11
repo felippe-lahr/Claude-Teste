@@ -112,6 +112,7 @@ export async function POST(req: NextRequest) {
       const eraMes = col(row, 'Mês Nasc', 'Mes Nasc');
       const eraAno = col(row, 'Ano Nasc');
       const reprodutor = parseStr(col(row, 'Reprodutor')).toLowerCase() === 'sim';
+      const descarte = parseStr(col(row, 'Descarte')).toLowerCase() === 'sim';
 
       const denominacao = await classificarAnimal({
         genero,
@@ -135,6 +136,7 @@ export async function POST(req: NextRequest) {
           eraAno: eraAno ? parseInt(String(eraAno)) : null,
           peso: col(row, 'Peso (kg)', 'Peso') ? parseFloat(String(col(row, 'Peso (kg)', 'Peso'))) : null,
           reprodutor,
+          descarte,
           status,
           denominacao,
           observacoes: parseStr(col(row, 'Observações', 'Observacoes')) || null,

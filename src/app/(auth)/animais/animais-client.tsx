@@ -26,6 +26,7 @@ interface Animal {
   peso: number | null;
   status: 'VIVO' | 'MORTO' | 'VENDIDO';
   reprodutor: boolean;
+  descarte?: boolean;
   observacoes: string | null;
   dataVenda: string | null;
   proprietarioId: number;
@@ -67,7 +68,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
 
   const [filters, setFilters] = useState({
-    numero: '', proprietarioId: '', genero: '', denominacao: '', status: '',
+    numero: '', proprietarioId: '', genero: '', denominacao: '', status: '', descarte: '',
   });
 
   // Slider state — null means not active
@@ -241,6 +242,11 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
             <option value="MORTO">Morto</option>
             <option value="VENDIDO">Vendido</option>
           </select>
+          <select value={filters.descarte} onChange={(e) => handleFilterChange('descarte', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <option value="">Descarte</option>
+            <option value="true">Somente Descarte</option>
+            <option value="false">Sem Descarte</option>
+          </select>
         </div>
 
         {/* Birth range slider */}
@@ -355,6 +361,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                     <td className="px-4 py-3 text-slate-600 text-xs">{animal.peso ? `${animal.peso} kg` : '—'}</td>
                     <td className="px-4 py-3">
                       <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
+                      {animal.descarte && <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Descarte</span>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">

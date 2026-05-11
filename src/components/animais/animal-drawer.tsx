@@ -20,6 +20,7 @@ const schema = z.object({
   eraAno: z.string().optional(),
   peso: z.string().optional(),
   reprodutor: z.boolean().default(false),
+  descarte: z.boolean().default(false),
   observacoes: z.string().optional(),
   dataVenda: z.string().optional(),
   dataObito: z.string().optional(),
@@ -65,6 +66,8 @@ interface ReproducaoHistorico {
   dataToque: string | null;
   inseminada: boolean;
   dataInseminacao: string | null;
+  montaNatural: boolean;
+  dataMontaNatural: string | null;
   observacoes: string | null;
   estacaoMonta: { nome: string } | null;
   semen: { codigo: string; touro: string | null } | null;
@@ -85,6 +88,7 @@ interface AnimalData {
   eraAno?: number | null;
   peso?: number | null;
   reprodutor: boolean;
+  descarte?: boolean;
   observacoes?: string | null;
   dataVenda?: string | null;
 }
@@ -124,11 +128,14 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [inseminada, setInseminada] = useState(false);
   const [dataInseminacao, setDataInseminacao] = useState('');
   const [semenId, setSemenId] = useState('');
+  const [montaNatural, setMontaNatural] = useState(false);
+  const [dataMontaNatural, setDataMontaNatural] = useState('');
+  const [estacaoMontaNatural, setEstacaoMontaNatural] = useState<EstacaoMonta | null>(null);
   const [observacoesRepro, setObservacoesRepro] = useState('');
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { status: 'VIVO', reprodutor: false },
+    defaultValues: { status: 'VIVO', reprodutor: false, descarte: false },
   });
 
   useEffect(() => {
@@ -157,6 +164,9 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setInseminada(false);
       setDataInseminacao('');
       setSemenId('');
+      setMontaNatural(false);
+      setDataMontaNatural('');
+      setEstacaoMontaNatural(null);
       setObservacoesRepro('');
       if (animal) {
         reset({
@@ -168,6 +178,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           eraAno: animal.eraAno ? String(animal.eraAno) : '',
           peso: animal.peso ? String(animal.peso) : '',
           reprodutor: animal.reprodutor,
+          descarte: animal.descarte ?? false,
           observacoes: animal.observacoes ?? '',
           dataVenda: animal.dataVenda ? formatDateBR(animal.dataVenda) : '',
         });
@@ -191,7 +202,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             .catch(() => {});
         }
       } else {
-        reset({ status: 'VIVO', reprodutor: false });
+        reset({ status: 'VIVO', reprodutor: false, descarte: false });
         setDenominacao('');
         setVacinas([]);
       }
@@ -232,6 +243,13 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
     setEstacaoDetectada(found ?? null);
   }, [dataToque, estacoes]);
 
+  useEffect(() => {
+    if (!dataMontaNatural) { setEstacaoMontaNatural(null); return; }
+    const dt = parseDateBR(dataMontaNatural) ?? new Date(dataMontaNatural);
+    const found = estacoes.find((e) => new Date(e.dataInicio) <= dt && new Date(e.dataFim) >= dt);
+    setEstacaoMontaNatural(found ?? null);
+  }, [dataMontaNatural, estacoes]);
+
   function addVacina() {
     setVacinas((prev) => [...prev, { produto: '', data: '', dose: '' }]);
   }
@@ -258,6 +276,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         inseminada,
         dataInseminacao: inseminada && dataInseminacao ? dataInseminacao : null,
         semenId: inseminada && semenId ? semenId : null,
+        montaNatural,
+        dataMontaNatural: montaNatural && dataMontaNatural ? dataMontaNatural : null,
         observacoesRepro: observacoesRepro || null,
       } : undefined;
 
@@ -432,6 +452,19 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           </label>
         </div>
 
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="descarte"
+            {...register('descarte')}
+            onChange={(e) => setValue('descarte', e.target.checked)}
+            className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
+          />
+          <label htmlFor="descarte" className="text-sm text-slate-700 cursor-pointer">
+            Animal de Descarte
+          </label>
+        </div>
+
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
           <textarea
@@ -469,6 +502,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                           {r.estacaoMonta && <span>{r.estacaoMonta.nome}</span>}
                           {r.inseminada && <span>· IA{r.semen ? `: ${r.semen.codigo}` : ''}</span>}
                           {r.dataInseminacao && <span>· {formatData(r.dataInseminacao)}</span>}
+                          {r.montaNatural && <span>· Monta Natural{r.dataMontaNatural ? `: ${formatData(r.dataMontaNatural)}` : ''}</span>}
                           {r.observacoes && <span>· {r.observacoes}</span>}
                         </div>
                       </div>
@@ -514,8 +548,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => setInseminada(e.target.checked)} className="w-4 h-4 text-pink-500 rounded border-slate-300" />
-                <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">Foi inseminada artificialmente</label>
+                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => { setInseminada(e.target.checked); if (e.target.checked) setMontaNatural(false); }} className="w-4 h-4 text-pink-500 rounded border-slate-300" />
+                <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">Inseminação Artificial (IA)</label>
               </div>
 
               {inseminada && (
@@ -536,6 +570,30 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                     </select>
                   </div>
                 </>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input type="checkbox" id="montaNatural" checked={montaNatural} onChange={(e) => { setMontaNatural(e.target.checked); if (e.target.checked) setInseminada(false); }} className="w-4 h-4 text-green-600 rounded border-slate-300" />
+                <label htmlFor="montaNatural" className="text-sm text-slate-700 cursor-pointer">Monta Natural</label>
+              </div>
+
+              {montaNatural && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data de Início da Monta</label>
+                  <DatePickerBR
+                    value={dataMontaNatural || null}
+                    onChange={(v) => setDataMontaNatural(v ?? '')}
+                    className={inputClass}
+                  />
+                  {dataMontaNatural && (
+                    <p className="text-xs mt-1">
+                      {estacaoMontaNatural
+                        ? <span className="text-green-700 font-medium">Estação: {estacaoMontaNatural.nome}</span>
+                        : <span className="text-amber-600">Nenhuma estação encontrada para esta data</span>
+                      }
+                    </p>
+                  )}
+                </div>
               )}
 
               <div>

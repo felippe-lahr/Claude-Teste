@@ -24,6 +24,10 @@ export async function GET(req: NextRequest) {
   const proprietarioId = searchParams.get('proprietarioId');
   if (proprietarioId) where.proprietarioId = parseInt(proprietarioId);
 
+  const descarteParam = searchParams.get('descarte');
+  if (descarteParam === 'true') where.descarte = true;
+  else if (descarteParam === 'false') where.descarte = false;
+
   const animais = await prisma.animal.findMany({
     where,
     include: {
@@ -50,6 +54,7 @@ export async function GET(req: NextRequest) {
       'Ano Nasc': a.eraAno ?? '',
       'Peso (kg)': a.peso ?? '',
       Reprodutor: a.reprodutor ? 'Sim' : 'Não',
+      Descarte: a.descarte ? 'Sim' : 'Não',
       Status: a.status,
       'Data Venda': fmtDate(a.dataVenda),
       'Status Reprodutivo': repro?.statusReprodutivo ?? '',
@@ -58,6 +63,8 @@ export async function GET(req: NextRequest) {
       Inseminada: repro ? (repro.inseminada ? 'Sim' : 'Não') : '',
       'Data Inseminação': fmtDate(repro?.dataInseminacao),
       'Sêmen': repro?.semen?.codigo ?? '',
+      'Monta Natural': repro ? (repro.montaNatural ? 'Sim' : 'Não') : '',
+      'Data Monta Natural': fmtDate(repro?.dataMontaNatural),
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
       'Data Óbito': fmtDate(a.morte?.dataObito),

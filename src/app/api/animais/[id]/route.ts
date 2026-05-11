@@ -34,7 +34,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
 
   // Block changing to a number that already exists on another animal
   if (numero) {
@@ -66,6 +66,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       eraAno: eraAno ? parseInt(eraAno) : null,
       peso: peso !== undefined && peso !== '' ? parseFloat(peso) : null,
       reprodutor: reprodutor ?? false,
+      descarte: descarte ?? false,
       status: status as StatusAnimal,
       denominacao,
       observacoes: observacoes || null,
@@ -105,11 +106,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   if (genero === 'FEMEA' && reproducao) {
-    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, observacoesRepro } = reproducao;
-    if (statusReprodutivo || dataToque) {
+    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, observacoesRepro } = reproducao;
+    if (statusReprodutivo || dataToque || dataMontaNatural) {
       let estacaoMontaId: number | null = null;
-      if (dataToque) {
-        const dt = parseDateBR(dataToque) ?? new Date(dataToque);
+      const refDate = dataToque ?? dataMontaNatural;
+      if (refDate) {
+        const dt = parseDateBR(refDate) ?? new Date(refDate);
         const estacao = await prisma.estacaoMonta.findFirst({
           where: { ativo: true, dataInicio: { lte: dt }, dataFim: { gte: dt } },
         });
@@ -125,6 +127,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           inseminada: inseminada ?? false,
           dataInseminacao: dataInseminacao ? (parseDateBR(dataInseminacao) ?? new Date(dataInseminacao)) : null,
           semenId: semenId ? parseInt(semenId) : null,
+          montaNatural: montaNatural ?? false,
+          dataMontaNatural: dataMontaNatural ? (parseDateBR(dataMontaNatural) ?? new Date(dataMontaNatural)) : null,
           observacoes: observacoesRepro ?? null,
           registradoPorId: parseInt(session.user.id),
         },
@@ -146,6 +150,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const changes: string[] = [];
   if (before) {
     if (before.status !== status) changes.push(`Status: ${before.status} → ${status}`);
+    if (before.descarte !== (descarte ?? false)) changes.push(`Descarte: ${before.descarte ? 'Sim' : 'Não'} → ${(descarte ?? false) ? 'Sim' : 'Não'}`);
     if (before.peso !== (peso !== undefined && peso !== '' ? parseFloat(peso) : null)) changes.push(`Peso: ${before.peso ?? '—'} → ${peso || '—'} kg`);
     if (before.denominacao !== denominacao) changes.push(`Denominação: ${before.denominacao} → ${denominacao}`);
     if ((before.numero ?? '') !== (numero || '')) changes.push(`Número: ${before.numero ?? '—'} → ${numero || '—'}`);
