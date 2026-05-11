@@ -114,6 +114,33 @@ export async function GET() {
     }
   }
 
+  // ── 4. Conditional formatting ──────────────────────────────────────────────
+  // Active row highlight (priority 1 — overrides zebra)
+  ws.addConditionalFormatting({
+    ref: 'A2:X501',
+    rules: [
+      {
+        type: 'expression',
+        priority: 1,
+        formulae: ['CELL("row")=ROW()'],
+        style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } },
+      },
+    ],
+  });
+
+  // Zebra stripes — even rows light blue
+  ws.addConditionalFormatting({
+    ref: 'A2:X501',
+    rules: [
+      {
+        type: 'expression',
+        priority: 2,
+        formulae: ['MOD(ROW(),2)=0'],
+        style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } },
+      },
+    ],
+  });
+
   const buf = Buffer.from(await wb.xlsx.writeBuffer());
 
   return new NextResponse(buf, {
