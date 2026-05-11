@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { classificarAnimal } from '@/lib/classificacao';
+import { calcularDenominacao, classificarAnimal } from '@/lib/classificacao';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
 
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
   const eraAno = searchParams.get('eraAno');
   if (eraAno) where.eraAno = parseInt(eraAno);
 
-  const [animais, total] = await Promise.all([
+  const [animais, total, regras] = await Promise.all([
     prisma.animal.findMany({
       where,
       include: { proprietario: { select: { id: true, name: true } } },
@@ -47,7 +47,27 @@ export async function GET(req: NextRequest) {
       take: limit,
     }),
     prisma.animal.count({ where }),
+    prisma.classificacaoConfig.findMany({ orderBy: { ordem: 'asc' } }),
   ]);
+
+  // Recalculate classification for each animal and update those that changed
+  const desatualizados = animais.filter((a) => {
+    const esperado = calcularDenominacao(a.genero, a.eraMes, a.eraAno, a.reprodutor, regras);
+    return a.denominacao !== esperado;
+  });
+  if (desatualizados.length > 0) {
+    await Promise.all(
+      desatualizados.map((a) =>
+        prisma.animal.update({
+          where: { id: a.id },
+          data: { denominacao: calcularDenominacao(a.genero, a.eraMes, a.eraAno, a.reprodutor, regras) },
+        }),
+      ),
+    );
+    desatualizados.forEach((a) => {
+      a.denominacao = calcularDenominacao(a.genero, a.eraMes, a.eraAno, a.reprodutor, regras);
+    });
+  }
 
   return NextResponse.json({ animais, total, page, limit, pages: Math.ceil(total / limit) });
 }
