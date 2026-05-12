@@ -17,6 +17,7 @@ interface PreviewRow {
 
 interface ImportResult {
   importados: number;
+  atualizados: number;
   erros: string[];
   total: number;
 }
@@ -247,7 +248,7 @@ export default function ImportarPage() {
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
           <h2 className="text-lg font-semibold text-slate-800 mb-6">4. Resultado da Importação</h2>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-blue-700">{result.total}</p>
               <p className="text-xs text-blue-600 mt-1">Total processado</p>
@@ -255,7 +256,12 @@ export default function ImportarPage() {
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
               <CheckCircle size={24} className="text-emerald-500 mx-auto mb-1" />
               <p className="text-2xl font-bold text-emerald-700">{result.importados}</p>
-              <p className="text-xs text-emerald-600 mt-1">Importados com sucesso</p>
+              <p className="text-xs text-emerald-600 mt-1">Criados</p>
+            </div>
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-center">
+              <CheckCircle size={24} className="text-indigo-500 mx-auto mb-1" />
+              <p className="text-2xl font-bold text-indigo-700">{result.atualizados ?? 0}</p>
+              <p className="text-xs text-indigo-600 mt-1">Atualizados</p>
             </div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
               <AlertCircle size={24} className="text-red-400 mx-auto mb-1" />

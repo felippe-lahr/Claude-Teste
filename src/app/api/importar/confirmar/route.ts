@@ -73,14 +73,16 @@ export async function POST(req: NextRequest) {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
 
-  const [usuarios, semens, numerosExistentes] = await Promise.all([
+  const [usuarios, semens, animaisExistentes] = await Promise.all([
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
     prisma.semen.findMany({ select: { id: true, codigo: true, touro: true } }),
-    prisma.animal.findMany({ where: { numero: { not: null } }, select: { numero: true } }),
+    prisma.animal.findMany({ where: { numero: { not: null } }, select: { id: true, numero: true } }),
   ]);
-  const numerosSet = new Set(numerosExistentes.map((a) => a.numero!.toLowerCase().trim()));
+  // Maps numero (lowercase) → animalId for upsert detection
+  const numerosMap = new Map(animaisExistentes.map((a) => [a.numero!.toLowerCase().trim(), a.id]));
 
   let importados = 0;
+  let atualizados = 0;
   const erros: string[] = [];
 
   for (let i = 0; i < rows.length; i++) {
@@ -97,13 +99,17 @@ export async function POST(req: NextRequest) {
       }
 
       const numeroRaw = parseStr(col(row, 'Número', 'Numero'));
-      if (numeroRaw) {
-        const numeroKey = numeroRaw.toLowerCase().trim();
-        if (numerosSet.has(numeroKey)) {
-          erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" já existe no sistema`);
+      const numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
+      const animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
+      const isUpdate = animalExistenteId !== undefined;
+
+      // Block intra-file duplicates for new animals only
+      if (numeroKey && !isUpdate) {
+        if (numerosMap.has(numeroKey)) {
+          erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" duplicado nesta planilha`);
           continue;
         }
-        numerosSet.add(numeroKey); // prevent duplicate within same file
+        numerosMap.set(numeroKey, -1); // sentinel for new animals in this file
       }
 
       const generoStr = parseStr(col(row, 'Gênero', 'Genero')).toUpperCase();
@@ -128,40 +134,49 @@ export async function POST(req: NextRequest) {
 
       const dataVenda = parseDate(col(row, 'Data Venda (dd/mm/aaaa)', 'Data Venda'));
 
-      const animal = await prisma.animal.create({
-        data: {
-          numero: parseStr(col(row, 'Número', 'Numero')) || null,
-          genero,
-          eraMes: eraMes ? parseInt(String(eraMes)) : null,
-          eraAno: eraAno ? parseInt(String(eraAno)) : null,
-          peso: col(row, 'Peso (kg)', 'Peso') ? parseFloat(String(col(row, 'Peso (kg)', 'Peso'))) : null,
-          reprodutor,
-          descarte,
-          status,
-          denominacao,
-          observacoes: parseStr(col(row, 'Observações', 'Observacoes')) || null,
-          dataVenda: status === 'VENDIDO' && dataVenda ? dataVenda : null,
-          proprietarioId: usuario.id,
-        },
-      });
+      const animalData = {
+        numero: numeroRaw || null,
+        genero,
+        eraMes: eraMes ? parseInt(String(eraMes)) : null,
+        eraAno: eraAno ? parseInt(String(eraAno)) : null,
+        peso: col(row, 'Peso (kg)', 'Peso') ? parseFloat(String(col(row, 'Peso (kg)', 'Peso'))) : null,
+        reprodutor,
+        descarte,
+        status,
+        denominacao,
+        observacoes: parseStr(col(row, 'Observações', 'Observacoes')) || null,
+        dataVenda: status === 'VENDIDO' && dataVenda ? dataVenda : null,
+        proprietarioId: usuario.id,
+      };
 
-      // Morte
+      let animal: { id: number; numero: string | null };
+      if (isUpdate) {
+        animal = await prisma.animal.update({
+          where: { id: animalExistenteId },
+          data: animalData,
+          select: { id: true, numero: true },
+        });
+      } else {
+        animal = await prisma.animal.create({
+          data: animalData,
+          select: { id: true, numero: true },
+        });
+      }
+
+      // Morte — upsert so updates don't create duplicate records
       if (status === 'MORTO') {
         const causaMorte = parseStr(col(row, 'Causa da Morte')) || null;
         const dataObito = parseDate(col(row, 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito'));
         if (dataObito) {
-          await prisma.morte.create({
-            data: {
-              animalId: animal.id,
-              causa: causaMorte,
-              dataObito,
-              registradoPorId: parseInt(session.user.id),
-            },
+          await prisma.morte.upsert({
+            where: { animalId: animal.id },
+            update: { causa: causaMorte, dataObito },
+            create: { animalId: animal.id, causa: causaMorte, dataObito, registradoPorId: parseInt(session.user.id) },
           });
         }
       }
 
-      // Reprodução (apenas fêmeas)
+      // Reprodução (apenas fêmeas) — always append a new record (history-based)
       if (genero === 'FEMEA') {
         const statusReproStr = parseStr(col(row, 'Status Reprodutivo')).toUpperCase();
         const validStatusRepro: StatusReprodutivo[] = ['CHEIA', 'VAZIA'];
@@ -223,7 +238,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Vacinas
+      // Vacinas — for updates, skip entries already recorded (same produto+data)
       const vacinas = [];
       for (let v = 1; v <= 2; v++) {
         const produto = parseStr(col(row, `Vacina ${v} - Produto`)) || null;
@@ -234,10 +249,23 @@ export async function POST(req: NextRequest) {
         }
       }
       if (vacinas.length > 0) {
-        await prisma.registroSanitario.createMany({ data: vacinas });
+        if (isUpdate) {
+          const existingVacinas = await prisma.registroSanitario.findMany({
+            where: { animalId: animal.id, tipo: 'VACINA' },
+            select: { produto: true, data: true },
+          });
+          const newVacinas = vacinas.filter((v) =>
+            !existingVacinas.some((e) => e.produto === v.produto && e.data.getTime() === v.data.getTime())
+          );
+          if (newVacinas.length > 0) {
+            await prisma.registroSanitario.createMany({ data: newVacinas });
+          }
+        } else {
+          await prisma.registroSanitario.createMany({ data: vacinas });
+        }
       }
 
-      importados++;
+      if (isUpdate) { atualizados++; } else { importados++; }
     } catch (e) {
       erros.push(`Linha ${rowNum}: ${e instanceof Error ? e.message : 'Erro desconhecido'}`);
     }
@@ -245,7 +273,7 @@ export async function POST(req: NextRequest) {
 
   await registrarLog({
     tipo: 'IMPORTACAO',
-    descricao: `${importados} animal(is) importado(s), ${erros.length} erro(s)`,
+    descricao: `${importados} criado(s), ${atualizados} atualizado(s), ${erros.length} erro(s)`,
     userId: parseInt(session.user.id),
     userName: session.user.name ?? session.user.email ?? 'Usuário',
     origem: `Importação: ${file.name}`,
@@ -255,5 +283,5 @@ export async function POST(req: NextRequest) {
     importErros: erros.length,
   });
 
-  return NextResponse.json({ importados, erros, total: rows.length });
+  return NextResponse.json({ importados, atualizados, erros, total: rows.length });
 }
