@@ -169,6 +169,13 @@ export async function POST(req: NextRequest) {
           ? (statusReproStr as StatusReprodutivo)
           : null;
 
+        const nuncaPariuCell = parseStr(col(row, 'Nunca Pariu')).toLowerCase();
+        const nuncaPariu = nuncaPariuCell === 'sim';
+        const ultimoPartoMesRaw = col(row, 'Último Parto Mês', 'Ultimo Parto Mes');
+        const ultimoPartoAnoRaw = col(row, 'Último Parto Ano', 'Ultimo Parto Ano');
+        const ultimoPartoMes = !nuncaPariu && ultimoPartoMesRaw ? parseInt(String(ultimoPartoMesRaw)) || null : null;
+        const ultimoPartoAno = !nuncaPariu && ultimoPartoAnoRaw ? parseInt(String(ultimoPartoAnoRaw)) || null : null;
+
         const dataToque = parseDate(col(row, 'Data do Toque (dd/mm/aaaa)', 'Data do Toque', 'Data Toque'));
         const dataInseminacao = parseDate(col(row, 'Data Inseminação (dd/mm/aaaa)', 'Data Inseminacao (dd/mm/aaaa)', 'Data Inseminação', 'Data Inseminacao'));
         const semenCodigo = parseStr(col(row, 'Sêmen (código)', 'Semen (codigo)', 'Sêmen', 'Semen'));
@@ -177,7 +184,6 @@ export async function POST(req: NextRequest) {
               ?? semens.find((s) => s.touro?.toLowerCase() === semenCodigo.toLowerCase())?.id
               ?? null)
           : null;
-        // Infer inseminada=true when insemination date or semen is present even if cell blank
         const inseminadaCell = parseStr(col(row, 'Inseminada')).toLowerCase();
         const inseminada = inseminadaCell === 'sim' || (!inseminadaCell && (!!dataInseminacao || !!semenId));
         const montaNaturalCell = parseStr(col(row, 'Monta Natural')).toLowerCase();
@@ -185,7 +191,7 @@ export async function POST(req: NextRequest) {
         const dataMontaNatural = montaNatural ? parseDate(col(row, 'Data Monta Natural (dd/mm/aaaa)', 'Data Monta Natural')) : null;
         const observacoesRepro = parseStr(col(row, 'Obs. Reprodução', 'Obs Reproducao')) || null;
 
-        if (statusReprodutivo || dataToque || montaNatural) {
+        if (statusReprodutivo || dataToque || montaNatural || nuncaPariu || ultimoPartoMes) {
           // Resolve estação from dataToque, dataInseminacao or dataMontaNatural
           let estacaoMontaId: number | null = null;
           for (const candidateDate of [dataToque, dataInseminacao, dataMontaNatural]) {
@@ -207,6 +213,9 @@ export async function POST(req: NextRequest) {
               semenId: inseminada && !montaNatural ? semenId : null,
               montaNatural,
               dataMontaNatural,
+              nuncaPariu,
+              ultimoPartoMes,
+              ultimoPartoAno,
               observacoes: observacoesRepro,
               registradoPorId: parseInt(session.user.id),
             },

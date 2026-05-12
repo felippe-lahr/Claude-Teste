@@ -28,7 +28,7 @@ export async function GET() {
     { header: 'Proprietário',                    key: 'b',  width: 22 },
     { header: 'Gênero',                          key: 'c',  width: 12 },
     { header: 'Reprodutor',                      key: 'd',  width: 12 },
-    { header: 'Descarte',                        key: 'e',  width: 12 },  // NEW
+    { header: 'Descarte',                        key: 'e',  width: 12 },
     { header: 'Mês Nasc',                        key: 'f',  width: 12 },
     { header: 'Ano Nasc',                        key: 'g',  width: 12 },
     { header: 'Peso (kg)',                       key: 'h',  width: 12 },
@@ -36,21 +36,24 @@ export async function GET() {
     { header: 'Data Venda (dd/mm/aaaa)',          key: 'j',  width: 24 },
     { header: 'Observações',                     key: 'k',  width: 22 },
     { header: 'Status Reprodutivo',              key: 'l',  width: 22 },
-    { header: 'Data do Toque (dd/mm/aaaa)',       key: 'm',  width: 26 },
-    { header: 'Inseminada',                      key: 'n',  width: 14 },
-    { header: 'Monta Natural',                   key: 'o',  width: 14 },  // NEW
-    { header: 'Data Monta Natural (dd/mm/aaaa)', key: 'p',  width: 28 },  // NEW
-    { header: 'Data Inseminação (dd/mm/aaaa)',   key: 'q',  width: 28 },
-    { header: 'Sêmen (código)',                  key: 'r',  width: 18 },
-    { header: 'Obs. Reprodução',                 key: 's',  width: 22 },
-    { header: 'Causa da Morte',                  key: 't',  width: 22 },
-    { header: 'Data do Óbito (dd/mm/aaaa)',      key: 'u',  width: 26 },
-    { header: 'Vacina 1 - Produto',              key: 'v',  width: 22 },
-    { header: 'Vacina 1 - Data (dd/mm/aaaa)',    key: 'w',  width: 26 },
-    { header: 'Vacina 1 - Dose',                 key: 'x',  width: 16 },
-    { header: 'Vacina 2 - Produto',              key: 'y',  width: 22 },
-    { header: 'Vacina 2 - Data (dd/mm/aaaa)',    key: 'z',  width: 26 },
-    { header: 'Vacina 2 - Dose',                 key: 'aa', width: 16 },
+    { header: 'Nunca Pariu',                     key: 'm',  width: 14 },
+    { header: 'Último Parto Mês',                key: 'n',  width: 16 },
+    { header: 'Último Parto Ano',                key: 'o',  width: 16 },
+    { header: 'Data do Toque (dd/mm/aaaa)',       key: 'p',  width: 26 },
+    { header: 'Inseminada',                      key: 'q',  width: 14 },
+    { header: 'Monta Natural',                   key: 'r',  width: 14 },
+    { header: 'Data Monta Natural (dd/mm/aaaa)', key: 's',  width: 28 },
+    { header: 'Data Inseminação (dd/mm/aaaa)',   key: 't',  width: 28 },
+    { header: 'Sêmen (código)',                  key: 'u',  width: 18 },
+    { header: 'Obs. Reprodução',                 key: 'v',  width: 22 },
+    { header: 'Causa da Morte',                  key: 'w',  width: 22 },
+    { header: 'Data do Óbito (dd/mm/aaaa)',      key: 'x',  width: 26 },
+    { header: 'Vacina 1 - Produto',              key: 'y',  width: 22 },
+    { header: 'Vacina 1 - Data (dd/mm/aaaa)',    key: 'z',  width: 26 },
+    { header: 'Vacina 1 - Dose',                 key: 'aa', width: 16 },
+    { header: 'Vacina 2 - Produto',              key: 'ab', width: 22 },
+    { header: 'Vacina 2 - Data (dd/mm/aaaa)',    key: 'ac', width: 26 },
+    { header: 'Vacina 2 - Dose',                 key: 'ad', width: 16 },
   ];
 
   // Style header row
@@ -63,12 +66,17 @@ export async function GET() {
   ws.getRow(1).height = 36;
 
   // Example rows
-  ws.addRow(['001', proprietarios[0]?.name ?? 'Proprietário', 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO', '', '', '', '', '', '', '', '', '', '', '', '', 'Aftosa', '15/01/2024', '2ml', '', '', '']);
-  ws.addRow(['002', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 6, 2021, 280, 'VIVO', '', '', 'CHEIA', '10/03/2025', 'Sim', 'Não', '', '10/03/2025', semens[0]?.codigo ?? '', '', '', '', '', '', '', '', '', '']);
-  ws.addRow(['003', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Sim', 9, 2020, 260, 'VIVO', '', '', 'CHEIA', '', 'Não', 'Sim', '01/03/2025', '', '', '', '', '', '', '', '', '', '', '']);
+  // Macho
+  ws.addRow(['001', proprietarios[0]?.name ?? 'Proprietário', 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Aftosa', '15/01/2024', '2ml', '', '', '']);
+  // Fêmea prenha via IA
+  ws.addRow(['002', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 6, 2021, 280, 'VIVO', '', '', 'CHEIA', 'Não', '', '', '10/03/2025', 'Sim', 'Não', '', '10/03/2025', semens[0]?.codigo ?? '', '', '', '', '', '', '', '', '', '']);
+  // Fêmea vazia com último parto
+  ws.addRow(['003', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 9, 2020, 260, 'VIVO', '', '', 'VAZIA', 'Não', 3, 2025, '', 'Não', 'Não', '', '', '', '', '', '', '', '', '', '', '', '']);
+  // Fêmea primípara
+  ws.addRow(['004', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 1, 2024, 220, 'VIVO', '', '', 'VAZIA', 'Sim', '', '', '', 'Não', 'Não', '', '', '', '', '', '', '', '', '', '', '', '']);
 
   ws.views = [{ state: 'frozen', ySplit: 1 }];
-  ws.autoFilter = { from: 'A1', to: 'AA1' };
+  ws.autoFilter = { from: 'A1', to: 'AD1' };
 
   // ── 2. Hidden helper sheet ────────────────────────────────────────────────
   const listas = wb.addWorksheet('_listas');
@@ -112,26 +120,29 @@ export async function GET() {
     ws.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$C$2:$C$3'] };
     ws.getCell(`E${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$D$2:$D$3'] };
     ws.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$E$2:$E$4'] };
-    ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$F$2:$F$5'] };
-    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] };
-    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] };
+    ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$F$2:$F$3'] };
+    ws.getCell(`M${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Nunca Pariu
+    ws.getCell(`N${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [1, 12], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Digite um número de 1 a 12' };
+    ws.getCell(`O${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [2000, 2100], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Digite um ano válido (ex: 2024)' };
+    ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Inseminada
+    ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Monta Natural
     if (semens.length > 0) {
-      ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
+      ws.getCell(`U${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
     }
     if (causasMorte.length > 0) {
-      ws.getCell(`T${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
+      ws.getCell(`W${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
     }
   }
 
   // ── 4. Conditional formatting ─────────────────────────────────────────────
   ws.addConditionalFormatting({
-    ref: 'A2:AA501',
+    ref: 'A2:AD501',
     rules: [
       { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } } },
     ],
   });
   ws.addConditionalFormatting({
-    ref: 'A2:AA501',
+    ref: 'A2:AD501',
     rules: [
       { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
     ],
