@@ -61,7 +61,8 @@ interface ReproducaoItem {
   dataToque: string | null;
   dataInseminacao: string | null;
   inseminada: boolean;
-  dataUltimoParto: string | null;
+  ultimoPartoMes: number | null;
+  ultimoPartoAno: number | null;
   nuncaPariu: boolean;
   observacoes: string | null;
   createdAt: string;
@@ -386,7 +387,7 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
                           {r.statusReprodutivo === 'VAZIA'
                             ? r.nuncaPariu
                               ? <span className="text-amber-600 font-medium">Primípara</span>
-                              : r.dataUltimoParto ? formatDateBR(r.dataUltimoParto) : '—'
+                              : (r.ultimoPartoMes && r.ultimoPartoAno ? `${String(r.ultimoPartoMes).padStart(2,'0')}/${r.ultimoPartoAno}` : '—')
                             : '—'}
                         </td>
                         <td className="px-3 py-2 text-slate-600">{r.dataToque ? formatDateBR(r.dataToque) : '—'}</td>

@@ -24,7 +24,8 @@ interface ReproducaoItem {
   dataInseminacao: string | null;
   montaNatural: boolean;
   dataMontaNatural: string | null;
-  dataUltimoParto: string | null;
+  ultimoPartoMes: number | null;
+  ultimoPartoAno: number | null;
   nuncaPariu: boolean;
   estacaoMonta: { id: number; nome: string } | null;
   semen: { codigo: string; touro: string | null } | null;
@@ -213,7 +214,7 @@ export default function ReproducaoPage() {
                       {r.statusReprodutivo === 'VAZIA'
                         ? r.nuncaPariu
                           ? <span className="text-amber-600 font-medium">Primípara</span>
-                          : r.dataUltimoParto ? formatDateBR(r.dataUltimoParto) : '—'
+                          : (r.ultimoPartoMes && r.ultimoPartoAno ? `${String(r.ultimoPartoMes).padStart(2,'0')}/${r.ultimoPartoAno}` : '—')
                         : '—'}
                     </td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataToque)}</td>

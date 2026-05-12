@@ -52,7 +52,6 @@ export default async function AnimalDetailPage({ params }: Props) {
       dataToque: r.dataToque?.toISOString() ?? null,
       dataInseminacao: r.dataInseminacao?.toISOString() ?? null,
       dataMontaNatural: r.dataMontaNatural?.toISOString() ?? null,
-      dataUltimoParto: r.dataUltimoParto?.toISOString() ?? null,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
       estacaoMonta: r.estacaoMonta

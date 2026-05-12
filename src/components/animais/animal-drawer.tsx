@@ -68,7 +68,8 @@ interface ReproducaoHistorico {
   dataInseminacao: string | null;
   montaNatural: boolean;
   dataMontaNatural: string | null;
-  dataUltimoParto: string | null;
+  ultimoPartoMes: number | null;
+  ultimoPartoAno: number | null;
   nuncaPariu: boolean;
   observacoes: string | null;
   estacaoMonta: { nome: string } | null;
@@ -134,7 +135,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [montaNatural, setMontaNatural] = useState(false);
   const [dataMontaNatural, setDataMontaNatural] = useState('');
   const [estacaoMontaNatural, setEstacaoMontaNatural] = useState<EstacaoMonta | null>(null);
-  const [dataUltimoParto, setDataUltimoParto] = useState('');
+  const [ultimoPartoMes, setUltimoPartoMes] = useState('');
+  const [ultimoPartoAno, setUltimoPartoAno] = useState('');
   const [nuncaPariu, setNuncaPariu] = useState(false);
   const [observacoesRepro, setObservacoesRepro] = useState('');
 
@@ -173,7 +175,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setMontaNatural(false);
       setDataMontaNatural('');
       setEstacaoMontaNatural(null);
-      setDataUltimoParto('');
+      setUltimoPartoMes('');
+      setUltimoPartoAno('');
       setNuncaPariu(false);
       setObservacoesRepro('');
       if (animal) {
@@ -290,7 +293,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         semenId: inseminada && semenId ? semenId : null,
         montaNatural,
         dataMontaNatural: montaNatural && dataMontaNatural ? dataMontaNatural : null,
-        dataUltimoParto: reproStatus === 'VAZIA' && !nuncaPariu && dataUltimoParto ? dataUltimoParto : null,
+        ultimoPartoMes: reproStatus === 'VAZIA' && !nuncaPariu && ultimoPartoMes ? parseInt(ultimoPartoMes) : null,
+        ultimoPartoAno: reproStatus === 'VAZIA' && !nuncaPariu && ultimoPartoAno ? parseInt(ultimoPartoAno) : null,
         nuncaPariu: reproStatus === 'VAZIA' ? nuncaPariu : false,
         observacoesRepro: observacoesRepro || null,
       } : undefined;
@@ -529,7 +533,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                         <div className="text-pink-600 mt-0.5 space-x-2">
                           {r.estacaoMonta && <span>{r.estacaoMonta.nome}</span>}
                           {r.statusReprodutivo === 'VAZIA' && r.nuncaPariu && <span>· Nunca pariu (primípara)</span>}
-                          {r.statusReprodutivo === 'VAZIA' && r.dataUltimoParto && <span>· Último parto: {formatData(r.dataUltimoParto)}</span>}
+                          {r.statusReprodutivo === 'VAZIA' && r.ultimoPartoMes && r.ultimoPartoAno && <span>· Último parto: {MESES[r.ultimoPartoMes - 1]}/{r.ultimoPartoAno}</span>}
                           {r.inseminada && <span>· IA{r.semen ? `: ${r.semen.codigo}` : ''}</span>}
                           {r.dataInseminacao && <span>· {formatData(r.dataInseminacao)}</span>}
                           {r.montaNatural && <span>· Monta Natural{r.dataMontaNatural ? `: ${formatData(r.dataMontaNatural)}` : ''}</span>}
@@ -551,7 +555,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
-                <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setDataUltimoParto(''); setNuncaPariu(false); } }} className={selectClass}>
+                <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setUltimoPartoMes(''); setUltimoPartoAno(''); setNuncaPariu(false); } }} className={selectClass}>
                   <option value="">Selecione...</option>
                   <option value="CHEIA">Cheia (Prenha)</option>
                   <option value="VAZIA">Vazia</option>
@@ -565,20 +569,31 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                       type="checkbox"
                       id="nuncaPariu"
                       checked={nuncaPariu}
-                      onChange={(e) => { setNuncaPariu(e.target.checked); if (e.target.checked) setDataUltimoParto(''); }}
+                      onChange={(e) => { setNuncaPariu(e.target.checked); if (e.target.checked) { setUltimoPartoMes(''); setUltimoPartoAno(''); } }}
                       className="w-4 h-4 text-pink-500 rounded border-slate-300"
                     />
                     <label htmlFor="nuncaPariu" className="text-sm text-slate-700 cursor-pointer">Nunca pariu (primípara)</label>
                   </div>
                   {!nuncaPariu && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Último Parto</label>
-                      <DatePickerBR
-                        value={dataUltimoParto || null}
-                        onChange={(v) => setDataUltimoParto(v ?? '')}
-                        className={inputClass}
-                        placeholder="dd/mm/aaaa"
-                      />
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Último Parto (mês/ano)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <select value={ultimoPartoMes} onChange={(e) => setUltimoPartoMes(e.target.value)} className={selectClass}>
+                          <option value="">Mês</option>
+                          {['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].map((m, i) => (
+                            <option key={i + 1} value={i + 1}>{m}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="number"
+                          value={ultimoPartoAno}
+                          onChange={(e) => setUltimoPartoAno(e.target.value)}
+                          placeholder="Ano"
+                          min="2000"
+                          max={new Date().getFullYear()}
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

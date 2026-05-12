@@ -169,7 +169,8 @@ model ReproducaoAnimal {
   semenId           Int?
   montaNatural      Boolean            @default(false)
   dataMontaNatural  DateTime?
-  dataUltimoParto   DateTime?
+  ultimoPartoMes    Int?
+  ultimoPartoAno    Int?
   nuncaPariu        Boolean            @default(false)
   observacoes       String?
   registradoPorId   Int

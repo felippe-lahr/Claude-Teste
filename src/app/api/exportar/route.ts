@@ -66,7 +66,9 @@ export async function GET(req: NextRequest) {
       'Monta Natural': repro ? (repro.montaNatural ? 'Sim' : 'Não') : '',
       'Data Monta Natural': fmtDate(repro?.dataMontaNatural),
       'Nunca Pariu': repro?.statusReprodutivo === 'VAZIA' ? (repro.nuncaPariu ? 'Sim' : 'Não') : '',
-      'Data Último Parto': repro?.statusReprodutivo === 'VAZIA' && !repro.nuncaPariu ? fmtDate(repro.dataUltimoParto) : '',
+      'Último Parto': repro?.statusReprodutivo === 'VAZIA' && !repro.nuncaPariu && repro.ultimoPartoMes && repro.ultimoPartoAno
+        ? `${String(repro.ultimoPartoMes).padStart(2, '0')}/${repro.ultimoPartoAno}`
+        : '',
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
       'Data Óbito': fmtDate(a.morte?.dataObito),
