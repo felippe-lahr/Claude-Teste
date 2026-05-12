@@ -37,8 +37,6 @@ enum TipoSanitario {
 enum StatusReprodutivo {
   CHEIA
   VAZIA
-  PARIDA
-  BEZERRO_NO_PE
 }
 
 model User {
@@ -171,6 +169,8 @@ model ReproducaoAnimal {
   semenId           Int?
   montaNatural      Boolean            @default(false)
   dataMontaNatural  DateTime?
+  dataUltimoParto   DateTime?
+  nuncaPariu        Boolean            @default(false)
   observacoes       String?
   registradoPorId   Int
   createdAt         DateTime           @default(now())

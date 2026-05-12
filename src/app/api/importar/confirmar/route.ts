@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
       // Reprodução (apenas fêmeas)
       if (genero === 'FEMEA') {
         const statusReproStr = parseStr(col(row, 'Status Reprodutivo')).toUpperCase();
-        const validStatusRepro: StatusReprodutivo[] = ['CHEIA', 'VAZIA', 'PARIDA', 'BEZERRO_NO_PE'];
+        const validStatusRepro: StatusReprodutivo[] = ['CHEIA', 'VAZIA'];
         const statusReprodutivo = validStatusRepro.includes(statusReproStr as StatusReprodutivo)
           ? (statusReproStr as StatusReprodutivo)
           : null;

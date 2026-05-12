@@ -111,7 +111,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   if (genero === 'FEMEA' && reproducao) {
-    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, observacoesRepro } = reproducao;
+    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, dataUltimoParto, nuncaPariu, observacoesRepro } = reproducao;
     if (statusReprodutivo || dataToque || dataMontaNatural) {
       let estacaoMontaId: number | null = null;
       const refDate = dataToque ?? dataMontaNatural;
@@ -134,6 +134,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
           semenId: semenId ? parseInt(semenId) : null,
           montaNatural: montaNatural ?? false,
           dataMontaNatural: dataMontaNatural ? (parseDateBR(dataMontaNatural) ?? new Date(dataMontaNatural)) : null,
+          dataUltimoParto: dataUltimoParto ? (parseDateBR(dataUltimoParto) ?? new Date(dataUltimoParto)) : null,
+          nuncaPariu: nuncaPariu ?? false,
           observacoes: observacoesRepro ?? null,
           registradoPorId: parseInt(session.user.id),
         },
@@ -141,7 +143,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
       await registrarLog({
         tipo: 'REPRODUCAO',
-        descricao: `Status reprodutivo: ${statusReprodutivo ?? '—'}${dataToque ? ` | Toque: ${dataToque}` : ''}${inseminada ? ' | Inseminada: Sim' : ''}`,
+        descricao: `Status reprodutivo: ${statusReprodutivo ?? '—'}${nuncaPariu ? ' | Nunca pariu' : ''}${dataUltimoParto ? ` | Último parto: ${dataUltimoParto}` : ''}${dataToque ? ` | Toque: ${dataToque}` : ''}${inseminada ? ' | Inseminada: Sim' : ''}`,
         userId: parseInt(session.user.id),
         userName: session.user.name ?? session.user.email ?? 'Usuário',
         animalId: animal.id,

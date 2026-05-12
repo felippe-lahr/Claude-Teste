@@ -24,6 +24,8 @@ interface ReproducaoItem {
   dataInseminacao: string | null;
   montaNatural: boolean;
   dataMontaNatural: string | null;
+  dataUltimoParto: string | null;
+  nuncaPariu: boolean;
   estacaoMonta: { id: number; nome: string } | null;
   semen: { codigo: string; touro: string | null } | null;
   animal: {
@@ -38,27 +40,23 @@ interface Resumo {
   totalFemeas: number;
   cheias: number;
   vazias: number;
-  paridas: number;
+  nuncaPariu: number;
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  CHEIA: 'Cheia',
+  CHEIA: 'Cheia (Prenha)',
   VAZIA: 'Vazia',
-  PARIDA: 'Parida',
-  BEZERRO_NO_PE: 'Bezerro no Pé',
 };
 
 const STATUS_COLOR: Record<string, string> = {
   CHEIA: 'bg-green-100 text-green-800',
   VAZIA: 'bg-red-100 text-red-800',
-  PARIDA: 'bg-blue-100 text-blue-800',
-  BEZERRO_NO_PE: 'bg-purple-100 text-purple-800',
 };
 
 
 export default function ReproducaoPage() {
   const [reproducoes, setReproducoes] = useState<ReproducaoItem[]>([]);
-  const [resumo, setResumo] = useState<Resumo>({ totalFemeas: 0, cheias: 0, vazias: 0, paridas: 0 });
+  const [resumo, setResumo] = useState<Resumo>({ totalFemeas: 0, cheias: 0, vazias: 0, nuncaPariu: 0 });
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
   const [proprietarios, setProprietarios] = useState<Proprietario[]>([]);
   const [total, setTotal] = useState(0);
@@ -132,7 +130,7 @@ export default function ReproducaoPage() {
           { label: 'Total Fêmeas', value: resumo.totalFemeas, color: 'bg-slate-50 border-slate-200 text-slate-700' },
           { label: 'Cheias', value: resumo.cheias, color: 'bg-green-50 border-green-200 text-green-700' },
           { label: 'Vazias', value: resumo.vazias, color: 'bg-red-50 border-red-200 text-red-700' },
-          { label: 'Paridas / Bezerro', value: resumo.paridas, color: 'bg-blue-50 border-blue-200 text-blue-700' },
+          { label: 'Primíparas', value: resumo.nuncaPariu, color: 'bg-amber-50 border-amber-200 text-amber-700' },
         ].map((card) => (
           <div key={card.label} className={`rounded-xl border p-4 ${card.color}`}>
             <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{card.label}</p>
@@ -159,10 +157,8 @@ export default function ReproducaoPage() {
             className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
           >
             <option value="">Todos os Status</option>
-            <option value="CHEIA">Cheia</option>
+            <option value="CHEIA">Cheia (Prenha)</option>
             <option value="VAZIA">Vazia</option>
-            <option value="PARIDA">Parida</option>
-            <option value="BEZERRO_NO_PE">Bezerro no Pé</option>
           </select>
 
           <select
@@ -191,7 +187,7 @@ export default function ReproducaoPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  {['Animal', 'Proprietário', 'Status', 'Data Toque', 'Estação de Monta', 'Cobertura', 'Sêmen / Data Monta'].map((h) => (
+                  {['Animal', 'Proprietário', 'Status', 'Último Parto', 'Data Toque', 'Estação de Monta', 'Cobertura', 'Sêmen / Data Monta'].map((h) => (
                     <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -212,6 +208,13 @@ export default function ReproducaoPage() {
                           {STATUS_LABEL[r.statusReprodutivo] ?? r.statusReprodutivo}
                         </span>
                       ) : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      {r.statusReprodutivo === 'VAZIA'
+                        ? r.nuncaPariu
+                          ? <span className="text-amber-600 font-medium">Primípara</span>
+                          : r.dataUltimoParto ? formatDateBR(r.dataUltimoParto) : '—'
+                        : '—'}
                     </td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataToque)}</td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{r.estacaoMonta?.nome ?? '—'}</td>

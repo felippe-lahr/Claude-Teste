@@ -68,6 +68,8 @@ interface ReproducaoHistorico {
   dataInseminacao: string | null;
   montaNatural: boolean;
   dataMontaNatural: string | null;
+  dataUltimoParto: string | null;
+  nuncaPariu: boolean;
   observacoes: string | null;
   estacaoMonta: { nome: string } | null;
   semen: { codigo: string; touro: string | null } | null;
@@ -132,6 +134,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [montaNatural, setMontaNatural] = useState(false);
   const [dataMontaNatural, setDataMontaNatural] = useState('');
   const [estacaoMontaNatural, setEstacaoMontaNatural] = useState<EstacaoMonta | null>(null);
+  const [dataUltimoParto, setDataUltimoParto] = useState('');
+  const [nuncaPariu, setNuncaPariu] = useState(false);
   const [observacoesRepro, setObservacoesRepro] = useState('');
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<FormData>({
@@ -169,6 +173,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setMontaNatural(false);
       setDataMontaNatural('');
       setEstacaoMontaNatural(null);
+      setDataUltimoParto('');
+      setNuncaPariu(false);
       setObservacoesRepro('');
       if (animal) {
         reset({
@@ -284,6 +290,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         semenId: inseminada && semenId ? semenId : null,
         montaNatural,
         dataMontaNatural: montaNatural && dataMontaNatural ? dataMontaNatural : null,
+        dataUltimoParto: reproStatus === 'VAZIA' && !nuncaPariu && dataUltimoParto ? dataUltimoParto : null,
+        nuncaPariu: reproStatus === 'VAZIA' ? nuncaPariu : false,
         observacoesRepro: observacoesRepro || null,
       } : undefined;
 
@@ -507,7 +515,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 </label>
                 <div className="space-y-1">
                   {reproducoes.map((r) => {
-                    const statusLabel: Record<string, string> = { CHEIA: 'Cheia', VAZIA: 'Vazia', PARIDA: 'Parida', BEZERRO_NO_PE: 'Bezerro no Pé' };
+                    const statusLabel: Record<string, string> = { CHEIA: 'Cheia (Prenha)', VAZIA: 'Vazia' };
                     return (
                       <div key={r.id} className="bg-pink-50 border border-pink-100 rounded-lg px-3 py-2 text-xs">
                         <div className="flex items-center justify-between">
@@ -520,6 +528,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                         </div>
                         <div className="text-pink-600 mt-0.5 space-x-2">
                           {r.estacaoMonta && <span>{r.estacaoMonta.nome}</span>}
+                          {r.statusReprodutivo === 'VAZIA' && r.nuncaPariu && <span>· Nunca pariu (primípara)</span>}
+                          {r.statusReprodutivo === 'VAZIA' && r.dataUltimoParto && <span>· Último parto: {formatData(r.dataUltimoParto)}</span>}
                           {r.inseminada && <span>· IA{r.semen ? `: ${r.semen.codigo}` : ''}</span>}
                           {r.dataInseminacao && <span>· {formatData(r.dataInseminacao)}</span>}
                           {r.montaNatural && <span>· Monta Natural{r.dataMontaNatural ? `: ${formatData(r.dataMontaNatural)}` : ''}</span>}
@@ -541,14 +551,38 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
-                <select value={reproStatus} onChange={(e) => setReproStatus(e.target.value)} className={selectClass}>
+                <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setDataUltimoParto(''); setNuncaPariu(false); } }} className={selectClass}>
                   <option value="">Selecione...</option>
                   <option value="CHEIA">Cheia (Prenha)</option>
                   <option value="VAZIA">Vazia</option>
-                  <option value="PARIDA">Parida</option>
-                  <option value="BEZERRO_NO_PE">Bezerro no Pé</option>
                 </select>
               </div>
+
+              {reproStatus === 'VAZIA' && (
+                <div className="bg-white border border-pink-100 rounded-lg px-3 py-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="nuncaPariu"
+                      checked={nuncaPariu}
+                      onChange={(e) => { setNuncaPariu(e.target.checked); if (e.target.checked) setDataUltimoParto(''); }}
+                      className="w-4 h-4 text-pink-500 rounded border-slate-300"
+                    />
+                    <label htmlFor="nuncaPariu" className="text-sm text-slate-700 cursor-pointer">Nunca pariu (primípara)</label>
+                  </div>
+                  {!nuncaPariu && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Último Parto</label>
+                      <DatePickerBR
+                        value={dataUltimoParto || null}
+                        onChange={(v) => setDataUltimoParto(v ?? '')}
+                        className={inputClass}
+                        placeholder="dd/mm/aaaa"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>

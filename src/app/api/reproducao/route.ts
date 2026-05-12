@@ -50,14 +50,12 @@ export async function GET(req: NextRequest) {
   const totalFemeas = await prisma.animal.count({ where: { genero: 'FEMEA', status: 'VIVO' } });
   const cheias = await prisma.reproducaoAnimal.count({ where: { statusReprodutivo: 'CHEIA' } });
   const vazias = await prisma.reproducaoAnimal.count({ where: { statusReprodutivo: 'VAZIA' } });
-  const paridas = await prisma.reproducaoAnimal.count({
-    where: { statusReprodutivo: { in: ['PARIDA', 'BEZERRO_NO_PE'] } },
-  });
+  const nuncaPariuCount = await prisma.reproducaoAnimal.count({ where: { statusReprodutivo: 'VAZIA', nuncaPariu: true } });
 
   return NextResponse.json({
     reproducoes,
     total,
     pages: Math.ceil(total / limit),
-    resumo: { totalFemeas, cheias, vazias, paridas },
+    resumo: { totalFemeas, cheias, vazias, nuncaPariu: nuncaPariuCount },
   });
 }

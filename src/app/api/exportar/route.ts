@@ -65,6 +65,8 @@ export async function GET(req: NextRequest) {
       'Sêmen': repro?.semen?.codigo ?? '',
       'Monta Natural': repro ? (repro.montaNatural ? 'Sim' : 'Não') : '',
       'Data Monta Natural': fmtDate(repro?.dataMontaNatural),
+      'Nunca Pariu': repro?.statusReprodutivo === 'VAZIA' ? (repro.nuncaPariu ? 'Sim' : 'Não') : '',
+      'Data Último Parto': repro?.statusReprodutivo === 'VAZIA' && !repro.nuncaPariu ? fmtDate(repro.dataUltimoParto) : '',
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
       'Data Óbito': fmtDate(a.morte?.dataObito),

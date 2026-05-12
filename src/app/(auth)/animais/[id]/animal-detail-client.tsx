@@ -61,6 +61,8 @@ interface ReproducaoItem {
   dataToque: string | null;
   dataInseminacao: string | null;
   inseminada: boolean;
+  dataUltimoParto: string | null;
+  nuncaPariu: boolean;
   observacoes: string | null;
   createdAt: string;
   estacaoMonta: { nome: string } | null;
@@ -364,21 +366,28 @@ export function AnimalDetailClient({ animal: initialAnimal, proprietarios }: Pro
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    {['Status','Data Toque','Estação','IA','Data IA','Sêmen','Obs'].map((h) => (
+                    {['Status','Último Parto','Data Toque','Estação','IA','Data IA','Sêmen','Obs'].map((h) => (
                       <th key={h} className="text-left px-3 py-2 text-xs font-semibold text-slate-500">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {animal.reproducoes.map((r) => {
-                    const statusLabel: Record<string, string> = { CHEIA: 'Cheia', VAZIA: 'Vazia', PARIDA: 'Parida', BEZERRO_NO_PE: 'Bezerro no Pé' };
-                    const statusColor: Record<string, string> = { CHEIA: 'bg-green-100 text-green-800', VAZIA: 'bg-red-100 text-red-800', PARIDA: 'bg-blue-100 text-blue-800', BEZERRO_NO_PE: 'bg-purple-100 text-purple-800' };
+                    const statusLabel: Record<string, string> = { CHEIA: 'Cheia (Prenha)', VAZIA: 'Vazia' };
+                    const statusColor: Record<string, string> = { CHEIA: 'bg-green-100 text-green-800', VAZIA: 'bg-red-100 text-red-800' };
                     return (
                       <tr key={r.id} className="hover:bg-slate-50">
                         <td className="px-3 py-2">
                           {r.statusReprodutivo
                             ? <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${statusColor[r.statusReprodutivo] ?? 'bg-slate-100 text-slate-700'}`}>{statusLabel[r.statusReprodutivo] ?? r.statusReprodutivo}</span>
                             : <span className="text-slate-400">—</span>}
+                        </td>
+                        <td className="px-3 py-2 text-slate-600 text-xs">
+                          {r.statusReprodutivo === 'VAZIA'
+                            ? r.nuncaPariu
+                              ? <span className="text-amber-600 font-medium">Primípara</span>
+                              : r.dataUltimoParto ? formatDateBR(r.dataUltimoParto) : '—'
+                            : '—'}
                         </td>
                         <td className="px-3 py-2 text-slate-600">{r.dataToque ? formatDateBR(r.dataToque) : '—'}</td>
                         <td className="px-3 py-2 text-slate-600">{r.estacaoMonta?.nome ?? '—'}</td>

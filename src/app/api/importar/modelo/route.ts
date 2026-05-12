@@ -90,7 +90,7 @@ export async function GET() {
   ['VIVO', 'VENDIDO', 'MORTO'].forEach((v, i) => { listas.getCell(`E${i + 2}`).value = v; });
 
   listas.getCell('F1').value = 'Status Reprodutivo';
-  ['CHEIA', 'VAZIA', 'PARIDA', 'BEZERRO_NO_PE'].forEach((v, i) => { listas.getCell(`F${i + 2}`).value = v; });
+  ['CHEIA', 'VAZIA'].forEach((v, i) => { listas.getCell(`F${i + 2}`).value = v; });
 
   listas.getCell('G1').value = 'Inseminada / Monta Natural';
   ['Não', 'Sim'].forEach((v, i) => { listas.getCell(`G${i + 2}`).value = v; });
