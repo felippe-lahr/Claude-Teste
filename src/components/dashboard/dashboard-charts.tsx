@@ -85,7 +85,7 @@ export function DashboardCharts({ porDenominacao, porProprietario, porDenominaca
                     : 'text-[#6B6B65] hover:text-[#111110]'
                 }`}
               >
-                {nome.split(' ')[0]}
+                {nome}
               </button>
             ))}
           </div>
