@@ -6,7 +6,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
-  Beef,
+  Tag,
   Upload,
   Skull,
   Syringe,
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/animais', label: 'Animais', icon: Beef },
+  { href: '/animais', label: 'Animais', icon: Tag },
   { href: '/importar', label: 'Importar', icon: Upload },
   { href: '/mortes', label: 'Mortes', icon: Skull },
   { href: '/sanitario', label: 'Sanitário', icon: Syringe },
@@ -77,14 +77,9 @@ export function Sidebar() {
   return (
     <aside className="w-60 h-screen flex flex-col bg-white border-r border-[#E8E8E3] shrink-0">
       {/* Logo / Brand */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-[#E8E8E3]">
-        <div className="w-8 h-8 rounded-lg bg-[#2F6A47] flex items-center justify-center text-white text-base shrink-0">
-          🐄
-        </div>
-        <div className="overflow-hidden">
-          <p className="text-[#111110] text-sm font-semibold leading-tight truncate">Fazenda SAB</p>
-          <p className="text-[#A8A8A2] text-xs leading-tight truncate">Gestão de Bovinos</p>
-        </div>
+      <div className="px-5 py-5 border-b border-[#E8E8E3]">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-[#A8A8A2] leading-none mb-1">Fazenda</p>
+        <p className="text-[#111110] text-sm font-bold leading-snug">Santo Antônio<br />da Barra</p>
       </div>
 
       {/* Navigation */}

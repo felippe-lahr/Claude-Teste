@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import {
-  Plus, Search, ChevronLeft, ChevronRight, Beef, Eye, Pencil, Trash2,
+  Plus, Search, ChevronLeft, ChevronRight, Tag, Eye, Pencil, Trash2,
   Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList, Package,
 } from 'lucide-react';
 import { NovoLoteWizard } from '@/components/lotes/novo-lote-wizard';
@@ -182,7 +182,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#111110] flex items-center gap-2">
-            <Beef size={24} className="text-[#2F6A47]" />
+            <Tag size={24} className="text-[#2F6A47]" />
             Animais
           </h1>
           <p className="text-[#6B6B65] text-sm mt-1">{total} animais cadastrados</p>
@@ -314,7 +314,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
           <div className="p-6"><TableSkeleton rows={8} cols={9} /></div>
         ) : animais.length === 0 ? (
           <div className="py-16 text-center">
-            <Beef size={48} className="text-[#A8A8A2] mx-auto mb-3" />
+            <Tag size={48} className="text-[#A8A8A2] mx-auto mb-3" />
             <p className="text-[#6B6B65] font-medium">Nenhum animal encontrado</p>
             <p className="text-[#A8A8A2] text-sm mt-1">Tente ajustar os filtros ou cadastre um novo animal</p>
           </div>
