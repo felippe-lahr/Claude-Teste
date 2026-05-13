@@ -46,13 +46,15 @@ export default function LoginPage() {
       <div
         className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col justify-between p-12 relative overflow-hidden"
         style={{
-          backgroundImage: 'url(/login-bg.svg)',
+          backgroundImage: 'url(/login-bg.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        {/* Dark overlay — keeps text legible over the artwork */}
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(6, 18, 46, 0.62)' }} />
+        {/* Dark gradient overlay — keeps text legible */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(160deg, rgba(4,14,34,0.72) 0%, rgba(8,28,68,0.58) 50%, rgba(20,40,10,0.65) 100%)',
+        }} />
 
         {/* Top — empty (logo removed) */}
         <div className="relative" />
