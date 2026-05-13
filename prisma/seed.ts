@@ -8,23 +8,23 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'luiz.henrique@fazenda.com.br' },
-    update: {},
+    update: { role: 'SOCIO' },
     create: {
       name: 'Luiz Henrique',
       email: 'luiz.henrique@fazenda.com.br',
       password: senhaPadrao,
-      role: 'ADMIN',
+      role: 'SOCIO',
     },
   });
 
   await prisma.user.upsert({
     where: { email: 'luiz.antonio@fazenda.com.br' },
-    update: {},
+    update: { role: 'ADMIN' },
     create: {
       name: 'Luiz Antonio',
       email: 'luiz.antonio@fazenda.com.br',
       password: senhaPadrao,
-      role: 'SOCIO',
+      role: 'ADMIN',
     },
   });
 
