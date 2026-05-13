@@ -1,0 +1,276 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#040A16"/>
+      <stop offset="30%" stop-color="#0B1D40"/>
+      <stop offset="58%" stop-color="#163268"/>
+      <stop offset="75%" stop-color="#7A420E"/>
+      <stop offset="88%" stop-color="#C27020"/>
+      <stop offset="100%" stop-color="#E09030"/>
+    </linearGradient>
+
+    <radialGradient id="sunGlow" cx="50%" cy="67%" r="35%">
+      <stop offset="0%"   stop-color="#F0A830" stop-opacity="0.95"/>
+      <stop offset="35%"  stop-color="#C06810" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#0B1D40"  stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="moonGlow" cx="70%" cy="13%" r="9%">
+      <stop offset="0%"   stop-color="#C8E4FF" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#163268"  stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#7A5820"/>
+      <stop offset="40%"  stop-color="#553C14"/>
+      <stop offset="100%" stop-color="#221408"/>
+    </linearGradient>
+
+    <linearGradient id="bottomFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#1A0C06" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#060402" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <filter id="blur2">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+    <filter id="blur4">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- ── SKY ── -->
+  <rect width="800" height="900" fill="url(#skyGrad)"/>
+  <rect width="800" height="900" fill="url(#sunGlow)"/>
+  <rect width="800" height="900" fill="url(#moonGlow)"/>
+
+  <!-- Crescent moon -->
+  <circle cx="558" cy="105" r="20" fill="#EAF4FF" opacity="0.92"/>
+  <circle cx="566" cy="100" r="18" fill="#040A16" opacity="0.88"/>
+
+  <!-- Stars -->
+  <g fill="white">
+    <circle cx="72"  cy="38"  r="1.3" opacity="0.85"/>
+    <circle cx="140" cy="22"  r="0.9" opacity="0.65"/>
+    <circle cx="195" cy="52"  r="1.1" opacity="0.75"/>
+    <circle cx="305" cy="16"  r="1.6" opacity="0.90"/>
+    <circle cx="372" cy="42"  r="0.9" opacity="0.55"/>
+    <circle cx="428" cy="28"  r="1.1" opacity="0.75"/>
+    <circle cx="488" cy="14"  r="1.3" opacity="0.85"/>
+    <circle cx="516" cy="58"  r="0.8" opacity="0.50"/>
+    <circle cx="618" cy="26"  r="1.0" opacity="0.65"/>
+    <circle cx="678" cy="46"  r="1.4" opacity="0.80"/>
+    <circle cx="728" cy="20"  r="0.9" opacity="0.60"/>
+    <circle cx="762" cy="62"  r="1.1" opacity="0.70"/>
+    <circle cx="48"  cy="86"  r="0.8" opacity="0.50"/>
+    <circle cx="158" cy="76"  r="1.0" opacity="0.62"/>
+    <circle cx="268" cy="68"  r="0.9" opacity="0.52"/>
+    <circle cx="348" cy="84"  r="1.2" opacity="0.72"/>
+    <circle cx="638" cy="70"  r="0.9" opacity="0.55"/>
+    <circle cx="708" cy="88"  r="1.1" opacity="0.65"/>
+    <circle cx="32"  cy="118" r="0.7" opacity="0.45"/>
+    <circle cx="420" cy="110" r="0.8" opacity="0.50"/>
+    <circle cx="780" cy="110" r="1.0" opacity="0.60"/>
+  </g>
+
+  <!-- Thin golden horizon streak -->
+  <rect x="0" y="338" width="800" height="4" fill="#E89028" opacity="0.45" filter="url(#blur2)"/>
+
+  <!-- ── SERRA DO RONCADOR – flat-top mesa formations ── -->
+  <!-- Far-left small mesa -->
+  <path d="M -10 318 L 28 262 L 62 256 L 98 262 L 118 318 Z"
+        fill="#140C04" opacity="0.95"/>
+  <path d="M 28 262 L 62 256 L 98 262 Z"
+        fill="#5A3410" opacity="0.45"/>
+
+  <!-- Central dominant mesa -->
+  <path d="M 118 324 L 158 248 L 185 240 L 218 236 L 278 233 L 335 234 L 392 237 L 428 242 L 458 250 L 478 324 Z"
+        fill="#140E06" opacity="0.98"/>
+  <!-- Warm-lit top rim -->
+  <path d="M 158 248 L 185 240 L 218 236 L 278 233 L 335 234 L 392 237 L 428 242 L 458 250 Z"
+        fill="#8B4E18" opacity="0.50"/>
+  <!-- West shadow face -->
+  <path d="M 158 248 L 185 240 L 200 324 L 118 324 Z"
+        fill="#0E0804" opacity="0.70"/>
+
+  <!-- Right mesa group -->
+  <path d="M 500 320 L 536 252 L 568 244 L 618 242 L 668 246 L 702 254 L 728 320 Z"
+        fill="#160E06" opacity="0.96"/>
+  <!-- Lit rim -->
+  <path d="M 536 252 L 568 244 L 618 242 L 668 246 L 702 254 Z"
+        fill="#6A3C12" opacity="0.42"/>
+
+  <!-- Far-right mesa tail -->
+  <path d="M 716 322 L 748 262 L 786 256 L 820 268 L 820 322 Z"
+        fill="#120A04" opacity="0.92"/>
+
+  <!-- Atmospheric glow at mesa bases -->
+  <ellipse cx="300" cy="328" rx="300" ry="22" fill="#C07020" opacity="0.12" filter="url(#blur4)"/>
+
+  <!-- ── MID-DISTANCE plateau ── -->
+  <path d="M 0 360 Q 80 344 180 350 Q 280 340 400 346 Q 520 340 640 347 Q 730 342 800 348 L 800 900 L 0 900 Z"
+        fill="#3A2010"/>
+
+  <!-- ── GROUND ── -->
+  <path d="M 0 400 Q 100 386 220 392 Q 340 382 460 390 Q 580 382 700 388 Q 760 384 800 388 L 800 900 L 0 900 Z"
+        fill="url(#groundGrad)"/>
+
+  <!-- ── CERRADO TREES – background layer (smaller, darker) ── -->
+  <g opacity="0.65">
+    <!-- BG tree 1 -->
+    <rect x="36" y="358" width="5" height="44" fill="#221006" rx="2"/>
+    <ellipse cx="38" cy="348" rx="20" ry="16" fill="#1A3D26"/>
+    <ellipse cx="30" cy="343" rx="13" ry="11" fill="#1F4830"/>
+    <ellipse cx="50" cy="345" rx="15" ry="12" fill="#183522"/>
+    <!-- BG tree 2 -->
+    <rect x="122" y="352" width="5" height="46" fill="#221006" rx="2"/>
+    <ellipse cx="124" cy="342" rx="22" ry="17" fill="#1A3D26"/>
+    <ellipse cx="115" cy="337" rx="14" ry="11" fill="#1C4228"/>
+    <ellipse cx="137" cy="339" rx="16" ry="13" fill="#163020"/>
+    <!-- BG tree 3 -->
+    <rect x="225" y="346" width="4" height="40" fill="#221006" rx="2"/>
+    <ellipse cx="227" cy="337" rx="18" ry="14" fill="#1A3D26"/>
+    <ellipse cx="218" cy="332" rx="12" ry="10" fill="#1F4830"/>
+    <ellipse cx="238" cy="334" rx="14" ry="11" fill="#163020"/>
+    <!-- BG tree 4 -->
+    <rect x="662" y="350" width="5" height="46" fill="#221006" rx="2"/>
+    <ellipse cx="664" cy="340" rx="21" ry="16" fill="#1C4028"/>
+    <ellipse cx="655" cy="335" rx="14" ry="11" fill="#1A3D26"/>
+    <ellipse cx="676" cy="337" rx="15" ry="12" fill="#163020"/>
+    <!-- BG tree 5 -->
+    <rect x="754" y="355" width="5" height="42" fill="#221006" rx="2"/>
+    <ellipse cx="756" cy="345" rx="19" ry="15" fill="#1A3D26"/>
+    <ellipse cx="747" cy="340" rx="13" ry="10" fill="#1F4830"/>
+    <ellipse cx="767" cy="342" rx="15" ry="12" fill="#163020"/>
+  </g>
+
+  <!-- ── CERRADO TREES – foreground (larger, full color) ── -->
+
+  <!-- Tree A — far left -->
+  <path d="M 58 480 L 64 420 Q 67 400 72 386 Q 70 405 76 424 L 80 480 Z" fill="#221006"/>
+  <path d="M 67 415 Q 52 400 38 392" stroke="#221006" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M 71 400 Q 86 382 102 377" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="62" cy="378" rx="27" ry="21" fill="#2F6A47"/>
+  <ellipse cx="50" cy="371" rx="19" ry="16" fill="#38805A"/>
+  <ellipse cx="76" cy="368" rx="24" ry="19" fill="#2F6A47"/>
+  <ellipse cx="65" cy="362" rx="16" ry="13" fill="#3D8E60"/>
+  <ellipse cx="86" cy="374" rx="17" ry="14" fill="#266040"/>
+  <ellipse cx="45" cy="378" rx="14" ry="11" fill="#1F5035"/>
+  <ellipse cx="100" cy="372" rx="13" ry="11" fill="#2A5C42"/>
+
+  <!-- Tree B — center-left tall -->
+  <rect x="192" y="415" width="7" height="72" fill="#221006" rx="3"/>
+  <path d="M 196 432 Q 176 418 160 411" stroke="#221006" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M 196 450 Q 214 432 232 426" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M 196 468 Q 178 458 165 462" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="196" cy="404" rx="25" ry="30" fill="#2F6A47"/>
+  <ellipse cx="184" cy="396" rx="16" ry="20" fill="#38805A"/>
+  <ellipse cx="210" cy="392" rx="18" ry="22" fill="#266040"/>
+  <ellipse cx="180" cy="408" rx="14" ry="16" fill="#3D8E60"/>
+  <ellipse cx="162" cy="404" rx="12" ry="14" fill="#2F6A47"/>
+  <ellipse cx="228" cy="400" rx="13" ry="15" fill="#1F5035"/>
+
+  <!-- Tree C — center wide (dominant) -->
+  <path d="M 392 488 L 398 428 Q 401 406 406 390 Q 403 412 410 434 L 416 488 Z" fill="#221006"/>
+  <path d="M 399 422 Q 375 404 352 396" stroke="#221006" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M 403 406 Q 426 388 454 382" stroke="#221006" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M 400 440 Q 378 428 360 432" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M 404 438 Q 424 424 444 428" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="404" cy="378" rx="38" ry="28" fill="#2F6A47"/>
+  <ellipse cx="383" cy="370" rx="26" ry="22" fill="#38805A"/>
+  <ellipse cx="426" cy="366" rx="28" ry="23" fill="#266040"/>
+  <ellipse cx="364" cy="382" rx="24" ry="18" fill="#2F6A47"/>
+  <ellipse cx="450" cy="376" rx="22" ry="17" fill="#1F5035"/>
+  <ellipse cx="404" cy="360" rx="20" ry="15" fill="#3D8E60"/>
+  <ellipse cx="354" cy="390" rx="16" ry="13" fill="#1A4830"/>
+  <ellipse cx="456" cy="386" rx="17" ry="13" fill="#285C3E"/>
+
+  <!-- Tree D — right -->
+  <path d="M 592 484 L 598 432 Q 600 412 604 398 Q 602 416 608 436 L 614 484 Z" fill="#221006"/>
+  <path d="M 599 426 Q 578 410 558 404" stroke="#221006" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M 602 412 Q 622 394 646 390" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="602" cy="386" rx="30" ry="23" fill="#2F6A47"/>
+  <ellipse cx="584" cy="378" rx="22" ry="18" fill="#38805A"/>
+  <ellipse cx="622" cy="374" rx="24" ry="19" fill="#266040"/>
+  <ellipse cx="560" cy="392" rx="19" ry="15" fill="#1F5035"/>
+  <ellipse cx="644" cy="386" rx="18" ry="14" fill="#2F6A47"/>
+  <ellipse cx="602" cy="368" rx="16" ry="13" fill="#3D8E60"/>
+
+  <!-- Tree E — far right -->
+  <rect x="748" y="420" width="6" height="74" fill="#221006" rx="3"/>
+  <path d="M 750 436 Q 730 422 712 418" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M 751 454 Q 768 440 786 436" stroke="#221006" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="751" cy="406" rx="26" ry="20" fill="#266040"/>
+  <ellipse cx="738" cy="399" rx="18" ry="15" fill="#2F6A47"/>
+  <ellipse cx="766" cy="396" rx="20" ry="16" fill="#1F5035"/>
+  <ellipse cx="718" cy="408" rx="15" ry="12" fill="#2F6A47"/>
+  <ellipse cx="751" cy="390" rx="14" ry="12" fill="#3D8E60"/>
+
+  <!-- ── LOW SHRUBS ── -->
+  <ellipse cx="152" cy="472" rx="30" ry="17" fill="#1A3D26" opacity="0.85"/>
+  <ellipse cx="138" cy="465" rx="20" ry="13" fill="#2F6A47" opacity="0.75"/>
+  <ellipse cx="168" cy="468" rx="22" ry="14" fill="#245535" opacity="0.80"/>
+
+  <ellipse cx="316" cy="478" rx="26" ry="15" fill="#1A3D26" opacity="0.85"/>
+  <ellipse cx="303" cy="472" rx="18" ry="12" fill="#2F6A47" opacity="0.75"/>
+  <ellipse cx="332" cy="474" rx="19" ry="13" fill="#1E4A30" opacity="0.80"/>
+
+  <ellipse cx="515" cy="476" rx="28" ry="16" fill="#1A3D26" opacity="0.85"/>
+  <ellipse cx="530" cy="470" rx="20" ry="13" fill="#2F6A47" opacity="0.75"/>
+  <ellipse cx="503" cy="473" rx="18" ry="12" fill="#245535" opacity="0.80"/>
+
+  <ellipse cx="688" cy="474" rx="24" ry="15" fill="#1A3D26" opacity="0.85"/>
+  <ellipse cx="675" cy="468" rx="16" ry="11" fill="#245535" opacity="0.75"/>
+  <ellipse cx="702" cy="470" rx="18" ry="12" fill="#2F6A47" opacity="0.80"/>
+
+  <!-- ── DRY CERRADO GRASS ── -->
+  <g fill="#8B6820" opacity="0.25">
+    <ellipse cx="100"  cy="530" rx="48"  ry="9"/>
+    <ellipse cx="265"  cy="542" rx="60"  ry="11"/>
+    <ellipse cx="468"  cy="536" rx="52"  ry="10"/>
+    <ellipse cx="706"  cy="540" rx="56"  ry="11"/>
+  </g>
+
+  <!-- ── CATTLE SILHOUETTES ── -->
+  <!-- Cow 1 – facing right -->
+  <g transform="translate(270 452) scale(0.80)">
+    <ellipse cx="0"   cy="0"   rx="42" ry="23" fill="#120C04"/>
+    <ellipse cx="44"  cy="-8"  rx="19" ry="15" fill="#120C04"/>
+    <ellipse cx="60"  cy="-5"  rx="9"  ry="8"  fill="#1A1206"/>
+    <ellipse cx="42"  cy="-22" rx="7"  ry="5"  fill="#120C04" transform="rotate(-20 42 -22)"/>
+    <rect x="22"  y="20" width="7" height="30" fill="#100A04" rx="3"/>
+    <rect x="11"  y="20" width="7" height="30" fill="#100A04" rx="3"/>
+    <rect x="-18" y="20" width="7" height="30" fill="#100A04" rx="3"/>
+    <rect x="-29" y="20" width="7" height="30" fill="#100A04" rx="3"/>
+    <path d="M -40 -4 Q -58 -10 -55 6 Q -52 16 -42 22" stroke="#100A04" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="32" cy="-20" rx="14" ry="10" fill="#120C04"/>
+  </g>
+
+  <!-- Cow 2 – facing left -->
+  <g transform="translate(498 460) scale(0.70) scale(-1,1)">
+    <ellipse cx="0"   cy="0"   rx="40" ry="21" fill="#120C04"/>
+    <ellipse cx="42"  cy="-7"  rx="17" ry="14" fill="#120C04"/>
+    <ellipse cx="57"  cy="-4"  rx="8"  ry="7"  fill="#1A1206"/>
+    <ellipse cx="40"  cy="-20" rx="6"  ry="4"  fill="#120C04" transform="rotate(-20 40 -20)"/>
+    <rect x="20"  y="18" width="6" height="27" fill="#100A04" rx="3"/>
+    <rect x="10"  y="18" width="6" height="27" fill="#100A04" rx="3"/>
+    <rect x="-16" y="18" width="6" height="27" fill="#100A04" rx="3"/>
+    <rect x="-25" y="18" width="6" height="27" fill="#100A04" rx="3"/>
+    <path d="M -37 -3 Q -52 -8 -50 7 Q -47 15 -37 19" stroke="#100A04" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="30" cy="-18" rx="13" ry="9" fill="#120C04"/>
+  </g>
+
+  <!-- Tree ground shadows -->
+  <ellipse cx="68"  cy="490" rx="38" ry="6"  fill="#140E04" opacity="0.50"/>
+  <ellipse cx="196" cy="498" rx="30" ry="5"  fill="#140E04" opacity="0.50"/>
+  <ellipse cx="406" cy="506" rx="50" ry="7"  fill="#140E04" opacity="0.50"/>
+  <ellipse cx="604" cy="502" rx="40" ry="6"  fill="#140E04" opacity="0.50"/>
+  <ellipse cx="752" cy="504" rx="34" ry="5"  fill="#140E04" opacity="0.50"/>
+
+  <!-- ── OVERLAY EFFECTS ── -->
+  <!-- Subtle warm atmospheric band at mesa base -->
+  <rect x="0" y="334" width="800" height="32" fill="#C07018" opacity="0.09"/>
+
+  <!-- Bottom vignette -->
+  <rect y="520" width="800" height="380" fill="url(#bottomFade)"/>
+</svg>

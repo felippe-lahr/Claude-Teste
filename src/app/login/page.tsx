@@ -46,13 +46,13 @@ export default function LoginPage() {
       <div
         className="hidden md:flex md:w-1/2 lg:w-3/5 flex-col justify-between p-12 relative overflow-hidden"
         style={{
-          backgroundImage: 'url(/login-bg.jpg)',
+          backgroundImage: 'url(/login-bg.svg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        {/* Blue overlay */}
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(8, 28, 68, 0.52)' }} />
+        {/* Dark overlay — keeps text legible over the artwork */}
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(6, 18, 46, 0.62)' }} />
 
         {/* Top — empty (logo removed) */}
         <div className="relative" />
