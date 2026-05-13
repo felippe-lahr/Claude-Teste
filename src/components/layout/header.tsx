@@ -50,26 +50,26 @@ export function Header() {
   }
 
   return (
-    <header className="h-[60px] shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+    <header className="h-[60px] shrink-0 bg-white border-b border-[#E8E8E3] flex items-center justify-between px-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-slate-400">Fazenda SAB</span>
-        <span className="text-slate-300 text-xs">/</span>
-        <span className="text-sm font-medium text-slate-800">{pageLabel}</span>
+        <span className="text-xs text-[#A8A8A2]">Fazenda SAB</span>
+        <span className="text-[#A8A8A2] text-xs">/</span>
+        <span className="text-sm font-medium text-[#111110]">{pageLabel}</span>
       </div>
 
       {/* Right: ticker + status */}
       <div className="flex items-center gap-4">
         {ticker.length > 0 && (
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-1 text-slate-400">
+            <div className="flex items-center gap-1 text-[#A8A8A2]">
               <TrendingUp size={12} />
-              <span className="text-[11px] font-medium uppercase tracking-wide">IMEA</span>
+              <span className="text-[11px] font-medium uppercase tracking-wide text-[#2F6A47]">IMEA</span>
             </div>
             {ticker.map((item) => (
               <div key={item.label} className="flex items-center gap-1">
-                <span className="text-[11px] text-slate-400">{item.label}</span>
-                <span className="text-[11px] font-semibold text-emerald-600">
+                <span className="text-[11px] text-[#A8A8A2]">{item.label}</span>
+                <span className="text-[11px] font-semibold text-[#2F6A47]">
                   R$ {item.valor}{item.unidade ? `/${item.unidade}` : ''}
                 </span>
               </div>
@@ -77,11 +77,11 @@ export function Header() {
           </div>
         )}
 
-        <div className="h-4 w-px bg-slate-200" />
+        <div className="h-4 w-px bg-[#E8E8E3]" />
 
         <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-          <span className="text-[11px] font-medium text-slate-500">Online</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-[#2F6A47] inline-block" />
+          <span className="text-[11px] font-medium text-[#6B6B65]">Online</span>
         </div>
       </div>
     </header>
