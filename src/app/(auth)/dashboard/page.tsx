@@ -84,16 +84,16 @@ async function getDashboardData() {
 }
 
 const proprietarioBorderColors: Record<string, string> = {
-  'Luiz Henrique': '#3b82f6',
-  'Luiz Antonio': '#8b5cf6',
-  'Leda': '#ec4899',
+  'Luiz Henrique': '#1B58A3',
+  'Luiz Antonio': '#4D37B0',
+  'Leda': '#8B3B68',
 };
 
 const shortcuts = [
-  { href: '/animais', label: 'Animais', icon: Beef, desc: 'Gerenciar rebanho', bg: 'bg-blue-50', text: 'text-blue-600', hover: 'group-hover:bg-blue-100', border: 'group-hover:border-blue-200' },
-  { href: '/importar', label: 'Importar', icon: Upload, desc: 'Via planilha Excel', bg: 'bg-violet-50', text: 'text-violet-600', hover: 'group-hover:bg-violet-100', border: 'group-hover:border-violet-200' },
-  { href: '/mortes', label: 'Mortes', icon: Skull, desc: 'Registrar óbitos', bg: 'bg-red-50', text: 'text-red-600', hover: 'group-hover:bg-red-100', border: 'group-hover:border-red-200' },
-  { href: '/sanitario', label: 'Sanitário', icon: Syringe, desc: 'Vacinas e remédios', bg: 'bg-emerald-50', text: 'text-emerald-600', hover: 'group-hover:bg-emerald-100', border: 'group-hover:border-emerald-200' },
+  { href: '/animais', label: 'Animais', icon: Beef, desc: 'Gerenciar rebanho', bg: 'bg-[#EEF3FB]', text: 'text-[#1B58A3]', hover: 'group-hover:bg-[#DDE9F9]', border: 'group-hover:border-[#BDD4F5]' },
+  { href: '/importar', label: 'Importar', icon: Upload, desc: 'Via planilha Excel', bg: 'bg-[#EDF9F7]', text: 'text-[#1A6B5E]', hover: 'group-hover:bg-[#D8F4EF]', border: 'group-hover:border-[#B0E8DE]' },
+  { href: '/mortes', label: 'Mortes', icon: Skull, desc: 'Registrar óbitos', bg: 'bg-[#FBF0EE]', text: 'text-[#9B3A2A]', hover: 'group-hover:bg-[#F6E2DE]', border: 'group-hover:border-[#EEC8C0]' },
+  { href: '/sanitario', label: 'Sanitário', icon: Syringe, desc: 'Vacinas e remédios', bg: 'bg-[#EDF7F1]', text: 'text-[#2F6A47]', hover: 'group-hover:bg-[#D8F0E4]', border: 'group-hover:border-[#ACDCC2]' },
 ];
 
 export default async function DashboardPage() {
@@ -106,8 +106,8 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Visão geral do rebanho da Fazenda Santo Antônio da Barra</p>
+        <h1 className="text-xl font-bold text-[#111110]">Dashboard</h1>
+        <p className="text-[#6B6B65] text-sm mt-0.5">Visão geral do rebanho da Fazenda Santo Antônio da Barra</p>
       </div>
 
       {/* Stats Grid */}
@@ -127,22 +127,22 @@ export default async function DashboardPage() {
         <div className="xl:col-span-2">
           {/* Section title */}
           <div className="flex items-center gap-3 mb-4">
-            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Distribuição do Rebanho</h2>
-            <div className="flex-1 h-px bg-slate-200" />
+            <h2 className="text-sm font-semibold text-[#6B6B65] uppercase tracking-wide">Distribuição do Rebanho</h2>
+            <div className="flex-1 h-px bg-[#E8E8E3]" />
           </div>
           <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} />
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Por Proprietário</h2>
-            <div className="flex-1 h-px bg-slate-200" />
+            <h2 className="text-sm font-semibold text-[#6B6B65] uppercase tracking-wide">Por Proprietário</h2>
+            <div className="flex-1 h-px bg-[#E8E8E3]" />
           </div>
 
           {porProprietario.length === 0 ? (
-            <div className="rounded-xl bg-white border border-slate-200 p-8 text-center">
-              <Beef size={32} className="text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">Nenhum dado disponível</p>
+            <div className="rounded-xl bg-white border border-[#E8E8E3] p-8 text-center">
+              <Beef size={32} className="text-[#A8A8A2] mx-auto mb-2" />
+              <p className="text-[#6B6B65] text-sm">Nenhum dado disponível</p>
             </div>
           ) : (
             porProprietario.map((p) => {
@@ -150,14 +150,14 @@ export default async function DashboardPage() {
               return (
                 <div
                   key={p.nome}
-                  className="rounded-xl bg-white border border-slate-200 shadow-sm p-5"
+                  className="rounded-xl bg-white border border-[#E8E8E3] shadow-sm p-5"
                   style={{ borderLeftWidth: '3px', borderLeftColor: borderColor }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <p className="text-xs font-medium text-slate-500">{p.nome}</p>
-                      <p className="text-2xl font-bold text-slate-900 mt-0.5">{p.total}</p>
-                      <p className="text-xs text-slate-400">animais vivos</p>
+                      <p className="text-xs font-medium text-[#6B6B65]">{p.nome}</p>
+                      <p className="text-2xl font-bold text-[#111110] mt-0.5">{p.total}</p>
+                      <p className="text-xs text-[#A8A8A2]">animais vivos</p>
                     </div>
                     <div
                       className="rounded-lg px-2.5 py-1 text-sm font-bold"
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
                       {p.percentual}%
                     </div>
                   </div>
-                  <div className="bg-slate-100 rounded-full h-1.5">
+                  <div className="bg-[#F0EFEB] rounded-full h-1.5">
                     <div
                       className="rounded-full h-1.5 transition-all"
                       style={{ width: `${p.percentual}%`, backgroundColor: borderColor }}
@@ -178,22 +178,22 @@ export default async function DashboardPage() {
           )}
 
           {/* Mortes resumo */}
-          <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-5">
+          <div className="rounded-xl bg-white border border-[#E8E8E3] shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Mortalidade</h3>
-              <div className="flex-1 h-px bg-slate-100" />
+              <h3 className="text-xs font-semibold text-[#6B6B65] uppercase tracking-wide">Mortalidade</h3>
+              <div className="flex-1 h-px bg-[#E8E8E3]" />
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">Total registrado</span>
-                <span className="text-sm font-bold text-slate-900">{stats.mortesTotal}</span>
+                <span className="text-xs text-[#6B6B65]">Total registrado</span>
+                <span className="text-sm font-bold text-[#111110]">{stats.mortesTotal}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">Este ano</span>
+                <span className="text-xs text-[#6B6B65]">Este ano</span>
                 <span className="text-sm font-semibold text-orange-600">{stats.mortesAno}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">Este mês</span>
+                <span className="text-xs text-[#6B6B65]">Este mês</span>
                 <span className="text-sm font-semibold text-red-600">{stats.mortesMes}</span>
               </div>
             </div>
@@ -204,8 +204,8 @@ export default async function DashboardPage() {
       {/* Shortcuts */}
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Acesso Rápido</h2>
-          <div className="flex-1 h-px bg-slate-200" />
+          <h2 className="text-sm font-semibold text-[#6B6B65] uppercase tracking-wide">Acesso Rápido</h2>
+          <div className="flex-1 h-px bg-[#E8E8E3]" />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {shortcuts.map((s) => {
@@ -214,26 +214,26 @@ export default async function DashboardPage() {
               <Link
                 key={s.href}
                 href={s.href}
-                className={`group rounded-xl bg-white border border-slate-200 p-5 hover:shadow-md transition-all ${s.border}`}
+                className={`group rounded-xl bg-white border border-[#E8E8E3] p-5 hover:shadow-md transition-all ${s.border}`}
               >
                 <div className={`inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors mb-3 ${s.bg} ${s.text} ${s.hover}`}>
                   <Icon size={18} />
                 </div>
-                <p className="text-sm font-semibold text-slate-800">{s.label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{s.desc}</p>
+                <p className="text-sm font-semibold text-[#111110]">{s.label}</p>
+                <p className="text-xs text-[#6B6B65] mt-0.5">{s.desc}</p>
               </Link>
             );
           })}
           {session.user.role === 'ADMIN' && (
             <Link
               href="/configuracoes"
-              className="group rounded-xl bg-white border border-slate-200 p-5 hover:shadow-md transition-all group-hover:border-slate-300"
+              className="group rounded-xl bg-white border border-[#E8E8E3] p-5 hover:shadow-md transition-all group-hover:border-[#D0D0CA]"
             >
-              <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors mb-3 bg-slate-50 text-slate-600 group-hover:bg-slate-100">
+              <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg transition-colors mb-3 bg-[#F5F4EF] text-[#6B6B65] group-hover:bg-[#EAEAE4]">
                 <Settings size={18} />
               </div>
-              <p className="text-sm font-semibold text-slate-800">Configurações</p>
-              <p className="text-xs text-slate-500 mt-0.5">Admin do sistema</p>
+              <p className="text-sm font-semibold text-[#111110]">Configurações</p>
+              <p className="text-xs text-[#6B6B65] mt-0.5">Admin do sistema</p>
             </Link>
           )}
         </div>

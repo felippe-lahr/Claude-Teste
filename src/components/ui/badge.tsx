@@ -1,31 +1,34 @@
 import { cn } from '@/lib/utils';
 
 const denominacaoColors: Record<string, string> = {
-  'Vaca': 'bg-blue-100 text-blue-800',
-  'Boi': 'bg-emerald-100 text-emerald-800',
-  'Touro': 'bg-green-100 text-green-900',
-  'Novilha': 'bg-violet-100 text-violet-800',
-  'Garrote': 'bg-amber-100 text-amber-800',
-  'Bezerra Fêmea': 'bg-pink-100 text-pink-800',
-  'Bezerro Macho': 'bg-orange-100 text-orange-800',
+  'Vaca': 'bg-[#FCF0F7] text-[#8B3B68]',
+  'Boi': 'bg-[#EEF3FB] text-[#1B58A3]',
+  'Touro': 'bg-[#F0EDFB] text-[#4D37B0]',
+  'Novilha': 'bg-[#EDF9F7] text-[#1A6B5E]',
+  'Garrote': 'bg-[#FBF3EC] text-[#8A4E1C]',
+  'Bezerra Fêmea': 'bg-[#FEF0F8] text-[#A0347A]',
+  'Bezerro Macho': 'bg-[#EAF4FF] text-[#1565A8]',
 };
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'denominacao' | 'status' | 'default';
+  variant?: 'denominacao' | 'status' | 'genero' | 'default';
   value?: string;
   className?: string;
 }
 
 export function Badge({ children, variant = 'default', value, className }: BadgeProps) {
-  let colorClass = 'bg-slate-100 text-slate-700';
+  let colorClass = 'bg-[#F0EFEB] text-[#6B6B65]';
 
   if (variant === 'denominacao' && value) {
-    colorClass = denominacaoColors[value] ?? 'bg-slate-100 text-slate-700';
+    colorClass = denominacaoColors[value] ?? 'bg-[#F0EFEB] text-[#6B6B65]';
   } else if (variant === 'status') {
-    if (value === 'VIVO') colorClass = 'bg-emerald-100 text-emerald-800';
-    else if (value === 'MORTO') colorClass = 'bg-red-100 text-red-800';
-    else if (value === 'VENDIDO') colorClass = 'bg-amber-100 text-amber-800';
+    if (value === 'VIVO') colorClass = 'bg-[#EDF7F1] text-[#2F6A47]';
+    else if (value === 'MORTO') colorClass = 'bg-[#FBF0EE] text-[#9B3A2A]';
+    else if (value === 'VENDIDO') colorClass = 'bg-[#FBF6ED] text-[#7A5E18]';
+  } else if (variant === 'genero') {
+    if (value === 'MACHO') colorClass = 'bg-[#EEF3FB] text-[#1B58A3]';
+    else if (value === 'FEMEA') colorClass = 'bg-[#FCF0F7] text-[#8B3B68]';
   }
 
   return (

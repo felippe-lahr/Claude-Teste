@@ -105,10 +105,10 @@ interface Props {
 }
 
 const inputClass =
-  'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent';
+  'w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47]';
 
 const selectClass =
-  'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white';
+  'w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] bg-white';
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -341,8 +341,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Preview denominação */}
         {denominacao && (
-          <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <p className="text-xs text-slate-500 mb-1">Denominação calculada:</p>
+          <div className="bg-[#F5F4EF] rounded-lg p-3 border border-[#E8E8E3]">
+            <p className="text-xs text-[#6B6B65] mb-1">Denominação calculada:</p>
             <Badge variant="denominacao" value={denominacao}>
               {previewLoading ? 'Calculando...' : denominacao}
             </Badge>
@@ -350,12 +350,12 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Número (opcional)</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Número (opcional)</label>
           <input {...register('numero')} placeholder="Ex: 001" className={inputClass} />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Proprietário *</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Proprietário *</label>
           <select {...register('proprietarioId')} className={selectClass}>
             <option value="">Selecione...</option>
             {proprietarios.map((p) => (
@@ -366,12 +366,12 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Gênero *</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Gênero *</label>
           <div className="flex gap-3">
             {(['MACHO', 'FEMEA'] as const).map((g) => (
               <label key={g} className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value={g} {...register('genero')} className="text-brand-500" />
-                <span className="text-sm text-slate-700">{g === 'MACHO' ? 'Macho' : 'Fêmea'}</span>
+                <input type="radio" value={g} {...register('genero')} className="text-[#2F6A47]" />
+                <span className="text-sm text-[#111110]">{g === 'MACHO' ? 'Macho' : 'Fêmea'}</span>
               </label>
             ))}
           </div>
@@ -379,7 +379,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Status</label>
           <select {...register('status')} className={selectClass}>
             <option value="VIVO">Vivo</option>
             <option value="MORTO">Morto</option>
@@ -392,7 +392,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
             <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Óbito</label>
+              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Óbito</label>
               <DatePickerBR
                 value={watch('dataObito') || null}
                 onChange={(v) => setValue('dataObito', v ?? '')}
@@ -400,7 +400,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Causa da Morte</label>
+              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Causa da Morte</label>
               <select {...register('causaMorte')} className={selectClass}>
                 <option value="">Selecione a causa...</option>
                 {causas.map((c) => (
@@ -420,7 +420,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         {status === 'VENDIDO' && (
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Venda</label>
+            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Venda</label>
             <DatePickerBR
               value={watch('dataVenda') || null}
               onChange={(v) => setValue('dataVenda', v ?? '')}
@@ -430,12 +430,12 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         )}
 
         {loteInfo && (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 space-y-0.5">
-            <p className="text-xs font-semibold text-indigo-700 flex items-center gap-1.5">
+          <div className="bg-[#EDF7F1] border border-[#ACDCC2] rounded-lg px-4 py-3 space-y-0.5">
+            <p className="text-xs font-semibold text-[#2F6A47] flex items-center gap-1.5">
               <span>📦</span> Lote de Venda
             </p>
-            <p className="text-sm font-medium text-indigo-900">{loteInfo.nome}</p>
-            <div className="flex gap-3 text-xs text-indigo-600 flex-wrap">
+            <p className="text-sm font-medium text-[#111110]">{loteInfo.nome}</p>
+            <div className="flex gap-3 text-xs text-[#2F6A47] flex-wrap">
               <span>Status: {loteInfo.status === 'VENDIDO' ? 'Vendido' : loteInfo.status === 'EM_NEGOCIACAO' ? 'Em Negociação' : 'Aberto'}</span>
               {loteInfo.comprador && <span>Comprador: {loteInfo.comprador}</span>}
               {loteInfo.dataFechamento && <span>Data: {formatDateBR(loteInfo.dataFechamento)}</span>}
@@ -445,7 +445,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Mês de Nascimento</label>
+            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês de Nascimento</label>
             <select {...register('eraMes')} className={selectClass}>
               <option value="">--</option>
               {['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].map((m, i) => (
@@ -454,7 +454,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Ano de Nascimento</label>
+            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Ano de Nascimento</label>
             <input
               {...register('eraAno')}
               type="number"
@@ -467,7 +467,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Peso (kg)</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Peso (kg)</label>
           <input {...register('peso')} type="number" step="0.1" placeholder="Ex: 350.5" className={inputClass} />
         </div>
 
@@ -477,9 +477,9 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             id="reprodutor"
             {...register('reprodutor')}
             onChange={(e) => setValue('reprodutor', e.target.checked)}
-            className="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500"
+            className="w-4 h-4 text-[#2F6A47] rounded border-[#E8E8E3] focus:ring-[#2F6A47]"
           />
-          <label htmlFor="reprodutor" className="text-sm text-slate-700 cursor-pointer">
+          <label htmlFor="reprodutor" className="text-sm text-[#111110] cursor-pointer">
             Reprodutor (Touro)
           </label>
         </div>
@@ -490,20 +490,20 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             id="descarte"
             {...register('descarte')}
             onChange={(e) => setValue('descarte', e.target.checked)}
-            className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
+            className="w-4 h-4 text-amber-500 rounded border-[#E8E8E3] focus:ring-amber-500"
           />
-          <label htmlFor="descarte" className="text-sm text-slate-700 cursor-pointer">
+          <label htmlFor="descarte" className="text-sm text-[#111110] cursor-pointer">
             Animal de Descarte
           </label>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Observações</label>
           <textarea
             {...register('observacoes')}
             rows={3}
             placeholder="Observações gerais..."
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+            className="w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] resize-none"
           />
         </div>
 
@@ -513,7 +513,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             {/* Histórico de registros reprodutivos */}
             {reproducoes.length > 0 && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                <label className="block text-xs font-semibold text-[#6B6B65] mb-2 flex items-center gap-1">
                   <HeartPulse size={12} className="text-pink-500" />
                   Registros reprodutivos anteriores
                 </label>
@@ -554,7 +554,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               </p>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Status Reprodutivo</label>
+                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Status Reprodutivo</label>
                 <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setUltimoPartoMes(''); setUltimoPartoAno(''); setNuncaPariu(false); } }} className={selectClass}>
                   <option value="">Selecione...</option>
                   <option value="CHEIA">Cheia (Prenha)</option>
@@ -570,13 +570,13 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                       id="nuncaPariu"
                       checked={nuncaPariu}
                       onChange={(e) => { setNuncaPariu(e.target.checked); if (e.target.checked) { setUltimoPartoMes(''); setUltimoPartoAno(''); } }}
-                      className="w-4 h-4 text-pink-500 rounded border-slate-300"
+                      className="w-4 h-4 text-pink-500 rounded border-[#E8E8E3]"
                     />
-                    <label htmlFor="nuncaPariu" className="text-sm text-slate-700 cursor-pointer">Nunca pariu (primípara)</label>
+                    <label htmlFor="nuncaPariu" className="text-sm text-[#111110] cursor-pointer">Nunca pariu (primípara)</label>
                   </div>
                   {!nuncaPariu && (
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Último Parto (mês/ano)</label>
+                      <label className="block text-xs font-semibold text-[#111110] mb-1.5">Último Parto (mês/ano)</label>
                       <div className="grid grid-cols-2 gap-2">
                         <select value={ultimoPartoMes} onChange={(e) => setUltimoPartoMes(e.target.value)} className={selectClass}>
                           <option value="">Mês</option>
@@ -600,7 +600,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data do Toque</label>
+                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Toque</label>
                 <DatePickerBR
                   value={dataToque || null}
                   onChange={(v) => setDataToque(v ?? '')}
@@ -617,14 +617,14 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => { setInseminada(e.target.checked); if (e.target.checked) setMontaNatural(false); }} className="w-4 h-4 text-pink-500 rounded border-slate-300" />
-                <label htmlFor="inseminada" className="text-sm text-slate-700 cursor-pointer">Inseminação Artificial (IA)</label>
+                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => { setInseminada(e.target.checked); if (e.target.checked) setMontaNatural(false); }} className="w-4 h-4 text-pink-500 rounded border-[#E8E8E3]" />
+                <label htmlFor="inseminada" className="text-sm text-[#111110] cursor-pointer">Inseminação Artificial (IA)</label>
               </div>
 
               {inseminada && (
                 <>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data da Inseminação</label>
+                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Inseminação</label>
                     <DatePickerBR
                       value={dataInseminacao || null}
                       onChange={(v) => setDataInseminacao(v ?? '')}
@@ -632,7 +632,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">Sêmen Utilizado</label>
+                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Sêmen Utilizado</label>
                     <select value={semenId} onChange={(e) => setSemenId(e.target.value)} className={selectClass}>
                       <option value="">Selecione...</option>
                       {semens.map((s) => <option key={s.id} value={s.id}>{s.codigo}{s.touro ? ` — ${s.touro}` : ''}</option>)}
@@ -642,13 +642,13 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="montaNatural" checked={montaNatural} onChange={(e) => { setMontaNatural(e.target.checked); if (e.target.checked) setInseminada(false); }} className="w-4 h-4 text-green-600 rounded border-slate-300" />
-                <label htmlFor="montaNatural" className="text-sm text-slate-700 cursor-pointer">Monta Natural</label>
+                <input type="checkbox" id="montaNatural" checked={montaNatural} onChange={(e) => { setMontaNatural(e.target.checked); if (e.target.checked) setInseminada(false); }} className="w-4 h-4 text-[#2F6A47] rounded border-[#E8E8E3]" />
+                <label htmlFor="montaNatural" className="text-sm text-[#111110] cursor-pointer">Monta Natural</label>
               </div>
 
               {montaNatural && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">Data de Início da Monta</label>
+                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data de Início da Monta</label>
                   <DatePickerBR
                     value={dataMontaNatural || null}
                     onChange={(v) => setDataMontaNatural(v ?? '')}
@@ -666,8 +666,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Observações</label>
-                <textarea value={observacoesRepro} onChange={(e) => setObservacoesRepro(e.target.value)} rows={2} placeholder="Observações sobre reprodução..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none" />
+                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Observações</label>
+                <textarea value={observacoesRepro} onChange={(e) => setObservacoesRepro(e.target.value)} rows={2} placeholder="Observações sobre reprodução..." className="w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] resize-none" />
               </div>
             </div>
           </div>
@@ -676,7 +676,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {/* Vacinas existentes (somente leitura) */}
         {vacinasExistentes.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-[#6B6B65] mb-2 flex items-center gap-1">
               <Syringe size={12} />
               Vacinas já registradas
             </label>
@@ -694,29 +694,29 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {/* Adicionar novas vacinas */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-xs font-semibold text-slate-700">
+            <label className="block text-xs font-semibold text-[#6B6B65]">
               {vacinasExistentes.length > 0 ? 'Adicionar mais vacinas' : 'Vacinas Aplicadas'}
             </label>
             <button
               type="button"
               onClick={addVacina}
-              className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-medium"
+              className="flex items-center gap-1 text-xs text-[#2F6A47] hover:text-[#255840] font-medium"
             >
               <Plus size={13} />
               Adicionar Vacina
             </button>
           </div>
           {vacinas.length === 0 && vacinasExistentes.length === 0 && (
-            <p className="text-xs text-slate-400 italic">Nenhuma vacina adicionada.</p>
+            <p className="text-xs text-[#A8A8A2] italic">Nenhuma vacina adicionada.</p>
           )}
           {vacinas.map((v, i) => (
-            <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-2 space-y-2">
+            <div key={i} className="bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg p-3 mb-2 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500">Nova vacina {i + 1}</span>
+                <span className="text-xs font-semibold text-[#6B6B65]">Nova vacina {i + 1}</span>
                 <button
                   type="button"
                   onClick={() => removeVacina(i)}
-                  className="text-slate-400 hover:text-red-500 transition-colors"
+                  className="text-[#A8A8A2] hover:text-red-500 transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -730,7 +730,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Data de Aplicação</label>
+                  <label className="block text-xs text-[#6B6B65] mb-1">Data de Aplicação</label>
                   <DatePickerBR
                     value={v.data || null}
                     onChange={(val) => updateVacina(i, 'data', val ?? '')}
@@ -738,7 +738,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1">Dose (opcional)</label>
+                  <label className="block text-xs text-[#6B6B65] mb-1">Dose (opcional)</label>
                   <input
                     type="text"
                     placeholder="Ex: 2ml"
@@ -756,14 +756,14 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="flex-1 py-2.5 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm font-medium hover:bg-[#F5F4EF] transition"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition disabled:opacity-60"
+            className="flex-1 py-2.5 rounded-lg bg-[#2F6A47] hover:bg-[#255840] text-white text-sm font-semibold transition disabled:opacity-60"
           >
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
