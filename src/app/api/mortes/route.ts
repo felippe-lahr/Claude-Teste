@@ -13,8 +13,31 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') ?? '20');
   const skip = (page - 1) * limit;
 
+  const proprietarioId = searchParams.get('proprietarioId');
+  const mes = searchParams.get('mes');
+  const ano = searchParams.get('ano');
+
+  const where: Record<string, unknown> = {};
+  if (proprietarioId) where.animal = { proprietarioId: parseInt(proprietarioId) };
+  if (mes || ano) {
+    const anoNum = ano ? parseInt(ano) : new Date().getFullYear();
+    const mesNum = mes ? parseInt(mes) : null;
+    if (mesNum) {
+      where.dataObito = {
+        gte: new Date(anoNum, mesNum - 1, 1),
+        lt: new Date(anoNum, mesNum, 1),
+      };
+    } else {
+      where.dataObito = {
+        gte: new Date(anoNum, 0, 1),
+        lt: new Date(anoNum + 1, 0, 1),
+      };
+    }
+  }
+
   const [mortes, total] = await Promise.all([
     prisma.morte.findMany({
+      where,
       include: {
         animal: {
           include: { proprietario: { select: { id: true, name: true } } },
@@ -25,7 +48,7 @@ export async function GET(req: NextRequest) {
       skip,
       take: limit,
     }),
-    prisma.morte.count(),
+    prisma.morte.count({ where }),
   ]);
 
   const agora = new Date();
@@ -37,7 +60,9 @@ export async function GET(req: NextRequest) {
     prisma.morte.count({ where: { dataObito: { gte: inicioMes } } }),
   ]);
 
-  return NextResponse.json({ mortes, total, mortesAno, mortesMes, page, limit, pages: Math.ceil(total / limit) });
+  const proprietarios = await prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } });
+
+  return NextResponse.json({ mortes, total, mortesAno, mortesMes, page, limit, pages: Math.ceil(total / limit), proprietarios });
 }
 
 export async function POST(req: NextRequest) {
