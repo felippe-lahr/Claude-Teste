@@ -64,6 +64,20 @@ async function getDashboardData() {
     };
   });
 
+  // Per-proprietário denomination breakdown for chart filter
+  const denomPorProp: Record<string, Record<string, number>> = {};
+  for (const a of animaisVivos) {
+    const nome = usuarios.find((u) => u.id === a.proprietarioId)?.name ?? 'Desconhecido';
+    if (!denomPorProp[nome]) denomPorProp[nome] = {};
+    denomPorProp[nome][a.denominacao] = (denomPorProp[nome][a.denominacao] ?? 0) + 1;
+  }
+  const porDenominacaoPorProprietario: Record<string, { denominacao: string; total: number }[]> = {};
+  for (const [nome, counts2] of Object.entries(denomPorProp)) {
+    porDenominacaoPorProprietario[nome] = Object.entries(counts2)
+      .map(([denominacao, t]) => ({ denominacao, total: t }))
+      .sort((a, b) => a.denominacao.localeCompare(b.denominacao));
+  }
+
   return {
     stats: {
       total,
@@ -80,6 +94,7 @@ async function getDashboardData() {
     },
     porDenominacao,
     porProprietario,
+    porDenominacaoPorProprietario,
   };
 }
 
@@ -100,7 +115,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect('/login');
 
-  const { stats, porDenominacao, porProprietario } = await getDashboardData();
+  const { stats, porDenominacao, porProprietario, porDenominacaoPorProprietario } = await getDashboardData();
 
   return (
     <div className="space-y-8">
@@ -130,7 +145,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-[#6B6B65] uppercase tracking-wide">Distribuição do Rebanho</h2>
             <div className="flex-1 h-px bg-[#E8E8E3]" />
           </div>
-          <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} />
+          <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} porDenominacaoPorProprietario={porDenominacaoPorProprietario} />
         </div>
 
         <div className="space-y-4">
