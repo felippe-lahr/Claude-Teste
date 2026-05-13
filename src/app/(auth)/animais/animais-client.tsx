@@ -181,30 +181,30 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Beef size={24} className="text-indigo-500" />
+          <h1 className="text-2xl font-bold text-[#111110] flex items-center gap-2">
+            <Beef size={24} className="text-[#2F6A47]" />
             Animais
           </h1>
-          <p className="text-slate-500 text-sm mt-1">{total} animais cadastrados</p>
+          <p className="text-[#6B6B65] text-sm mt-1">{total} animais cadastrados</p>
         </div>
         <div className="flex gap-2">
           <Link
             href="/log?tipo=CADASTRO,EDICAO,EXCLUSAO,LOTE"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm font-medium hover:bg-[#F5F4EF] transition"
           >
             <ClipboardList size={16} />
             Ver Log
           </Link>
           <a
             href="/api/exportar"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm font-medium hover:bg-[#F5F4EF] transition"
           >
             <Download size={16} />
             Exportar
           </a>
           <button
             onClick={() => { setEditAnimal(null); setDrawerOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2F6A47] hover:bg-[#255840] text-white text-sm font-semibold transition"
           >
             <Plus size={16} />
             Cadastrar Animal
@@ -213,37 +213,37 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-4">
+      <div className="bg-white rounded-xl border border-[#E8E8E3] p-4 shadow-sm space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
           <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A8A2]" />
             <input
               placeholder="Número..."
               value={filters.numero}
               onChange={(e) => handleFilterChange('numero', e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full pl-8 pr-3 py-2 bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47] focus:border-[#2F6A47]"
             />
           </div>
-          <select value={filters.proprietarioId} onChange={(e) => handleFilterChange('proprietarioId', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={filters.proprietarioId} onChange={(e) => handleFilterChange('proprietarioId', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Proprietário</option>
             {proprietarios.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
-          <select value={filters.genero} onChange={(e) => handleFilterChange('genero', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={filters.genero} onChange={(e) => handleFilterChange('genero', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Gênero</option>
             <option value="MACHO">Macho</option>
             <option value="FEMEA">Fêmea</option>
           </select>
-          <select value={filters.denominacao} onChange={(e) => handleFilterChange('denominacao', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={filters.denominacao} onChange={(e) => handleFilterChange('denominacao', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Denominação</option>
             {denominacoes.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
-          <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Status</option>
             <option value="VIVO">Vivo</option>
             <option value="MORTO">Morto</option>
             <option value="VENDIDO">Vendido</option>
           </select>
-          <select value={filters.descarte} onChange={(e) => handleFilterChange('descarte', e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          <select value={filters.descarte} onChange={(e) => handleFilterChange('descarte', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Descarte</option>
             <option value="true">Somente Descarte</option>
             <option value="false">Sem Descarte</option>
@@ -257,14 +257,14 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               <Calendar size={14} className="text-slate-400" />
               <span className="text-xs font-medium text-slate-600">Nascimento</span>
               {sliderActive && (
-                <span className="text-xs text-indigo-600 font-semibold">
+                <span className="text-xs text-[#2F6A47] font-semibold">
                   {idxToLabel(sliderRange[0])} → {idxToLabel(sliderRange[1])}
                 </span>
               )}
             </div>
             <button
               onClick={() => { setSliderActive((v) => !v); setPage(1); }}
-              className={`text-xs px-2.5 py-1 rounded-full border transition font-medium ${sliderActive ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-500 hover:border-indigo-400'}`}
+              className={`text-xs px-2.5 py-1 rounded-full border transition font-medium ${sliderActive ? 'bg-[#2F6A47] text-white border-[#2F6A47]' : 'border-[#E8E8E3] text-[#6B6B65] hover:border-[#2F6A47]'}`}
             >
               {sliderActive ? 'Filtro ativo' : 'Filtrar por período'}
             </button>
@@ -282,9 +282,9 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                 step={1}
                 dots={false}
                 styles={{
-                  track: { backgroundColor: '#6366f1', height: 6, borderRadius: 3 },
-                  rail: { backgroundColor: '#e2e8f0', height: 6, borderRadius: 3 },
-                  handle: { borderColor: '#6366f1', borderWidth: 2, width: 18, height: 18, marginTop: -6, backgroundColor: '#fff', opacity: 1, boxShadow: '0 2px 6px rgba(99,102,241,.4)', cursor: 'pointer' },
+                  track: { backgroundColor: '#2F6A47', height: 6, borderRadius: 3 },
+                  rail: { backgroundColor: '#E8E8E3', height: 6, borderRadius: 3 },
+                  handle: { borderColor: '#2F6A47', borderWidth: 2, width: 18, height: 18, marginTop: -6, backgroundColor: '#fff', opacity: 1, boxShadow: '0 2px 6px rgba(47,106,71,.4)', cursor: 'pointer' },
                 }}
               />
               {/* Manual year labels */}
@@ -296,7 +296,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                     <span
                       key={year}
                       style={{ left: `${Math.min(98, Math.max(2, pct))}%`, transform: 'translateX(-50%)' }}
-                      className="absolute text-[10px] text-slate-400 select-none"
+                      className="absolute text-[10px] text-[#A8A8A2] select-none"
                     >
                       {year}
                     </span>
@@ -309,19 +309,19 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-[#E8E8E3] shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-6"><TableSkeleton rows={8} cols={9} /></div>
         ) : animais.length === 0 ? (
           <div className="py-16 text-center">
-            <Beef size={48} className="text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">Nenhum animal encontrado</p>
-            <p className="text-slate-400 text-sm mt-1">Tente ajustar os filtros ou cadastre um novo animal</p>
+            <Beef size={48} className="text-[#A8A8A2] mx-auto mb-3" />
+            <p className="text-[#6B6B65] font-medium">Nenhum animal encontrado</p>
+            <p className="text-[#A8A8A2] text-sm mt-1">Tente ajustar os filtros ou cadastre um novo animal</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-[#F5F4EF] border-b border-[#E8E8E3]">
                 <tr>
                   <th className="px-3 py-3 w-8">
                     <input
@@ -329,50 +329,50 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                       checked={allSelected}
                       ref={(el) => { if (el) el.indeterminate = someSelected; }}
                       onChange={toggleSelectAll}
-                      className="w-4 h-4 rounded border-slate-300 text-indigo-600 cursor-pointer"
+                      className="w-4 h-4 rounded border-[#E8E8E3] text-[#2F6A47] cursor-pointer"
                     />
                   </th>
                   {['ID','Número','Proprietário','Gênero','Denominação','Nascimento','Peso','Status','Ações'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6B6B65] uppercase tracking-wide whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#E8E8E3]">
                 {animais.map((animal) => (
                   <tr
                     key={animal.id}
-                    className={`hover:bg-slate-50 transition-colors ${selectedIds.has(animal.id) ? 'bg-indigo-50' : ''}`}
+                    className={`hover:bg-[#F5F4EF] transition-colors ${selectedIds.has(animal.id) ? 'bg-[#EDF7F1]' : ''}`}
                   >
                     <td className="px-3 py-3">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(animal.id)}
                         onChange={() => toggleSelect(animal.id)}
-                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 cursor-pointer"
+                        className="w-4 h-4 rounded border-[#E8E8E3] text-[#2F6A47] cursor-pointer"
                       />
                     </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">#{animal.id}</td>
-                    <td className="px-4 py-3 font-medium text-slate-900">{animal.numero ?? '—'}</td>
-                    <td className="px-4 py-3 text-slate-700">{animal.proprietario.name}</td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{animal.genero === 'MACHO' ? 'Macho' : 'Fêmea'}</td>
+                    <td className="px-4 py-3 text-[#A8A8A2] text-xs">#{animal.id}</td>
+                    <td className="px-4 py-3 font-medium text-[#111110]">{animal.numero ?? '—'}</td>
+                    <td className="px-4 py-3 text-[#6B6B65]">{animal.proprietario.name}</td>
+                    <td className="px-4 py-3 text-xs"><Badge variant="genero" value={animal.genero}>{animal.genero === 'MACHO' ? 'Macho' : 'Fêmea'}</Badge></td>
                     <td className="px-4 py-3">
                       <Badge variant="denominacao" value={animal.denominacao}>{animal.denominacao}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{formatEra(animal.eraMes, animal.eraAno)}</td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{animal.peso ? `${animal.peso} kg` : '—'}</td>
+                    <td className="px-4 py-3 text-[#6B6B65] text-xs">{formatEra(animal.eraMes, animal.eraAno)}</td>
+                    <td className="px-4 py-3 text-[#6B6B65] text-xs">{animal.peso ? `${animal.peso} kg` : '—'}</td>
                     <td className="px-4 py-3">
                       <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
                       {animal.descarte && <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Descarte</span>}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <Link href={`/animais/${animal.id}`} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Ver detalhes">
+                        <Link href={`/animais/${animal.id}`} className="p-1.5 rounded-lg text-[#A8A8A2] hover:text-[#1B58A3] hover:bg-[#EEF3FB] transition-colors" title="Ver detalhes">
                           <Eye size={14} />
                         </Link>
-                        <button onClick={() => { setEditAnimal(animal); setDrawerOpen(true); }} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Editar">
+                        <button onClick={() => { setEditAnimal(animal); setDrawerOpen(true); }} className="p-1.5 rounded-lg text-[#A8A8A2] hover:text-[#2F6A47] hover:bg-[#EDF7F1] transition-colors" title="Editar">
                           <Pencil size={14} />
                         </button>
-                        <button onClick={() => handleDelete(animal.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Excluir">
+                        <button onClick={() => handleDelete(animal.id)} className="p-1.5 rounded-lg text-[#A8A8A2] hover:text-[#9B3A2A] hover:bg-[#FBF0EE] transition-colors" title="Excluir">
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -386,13 +386,13 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
 
         {/* Pagination */}
         {pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
-            <p className="text-xs text-slate-500">Página {page} de {pages} · {total} resultados</p>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[#E8E8E3] bg-[#F5F4EF]">
+            <p className="text-xs text-[#6B6B65]">Página {page} de {pages} · {total} resultados</p>
             <div className="flex gap-1">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition">
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-lg border border-[#E8E8E3] text-[#6B6B65] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition">
                 <ChevronLeft size={14} />
               </button>
-              <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition">
+              <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="p-1.5 rounded-lg border border-[#E8E8E3] text-[#6B6B65] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition">
                 <ChevronRight size={14} />
               </button>
             </div>
@@ -410,15 +410,15 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
 
       {/* Floating batch action bar */}
       {selectedIds.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700">
-          <CheckSquare size={16} className="text-indigo-400 shrink-0" />
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111110] text-white px-5 py-3 rounded-2xl shadow-2xl border border-[#2A2A28]">
+          <CheckSquare size={16} className="text-[#2F6A47] shrink-0" />
           <span className="text-sm font-medium whitespace-nowrap">{selectedIds.size} selecionado{selectedIds.size > 1 ? 's' : ''}</span>
-          <div className="w-px h-4 bg-slate-600" />
+          <div className="w-px h-4 bg-[#2A2A28]" />
           <div className="flex items-center gap-2">
             <button onClick={() => executeBatch('VIVO')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition disabled:opacity-50">Vivo</button>
             <button onClick={() => { setBatchModal('morto'); }} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition disabled:opacity-50">Morto</button>
             <button onClick={() => { setBatchModal('vendido'); }} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition disabled:opacity-50">Vendido</button>
-            <button onClick={() => setBatchModal('lote')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition disabled:opacity-50 flex items-center gap-1.5">
+            <button onClick={() => setBatchModal('lote')} disabled={batchLoading} className="px-3 py-1.5 rounded-lg bg-[#2F6A47] hover:bg-[#255840] text-white text-xs font-semibold transition disabled:opacity-50 flex items-center gap-1.5">
               <Package size={12} />
               Criar Lote
             </button>
@@ -426,8 +426,8 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               <Trash2 size={13} />
             </button>
           </div>
-          <div className="w-px h-4 bg-slate-600" />
-          <button onClick={() => setSelectedIds(new Set())} className="text-slate-400 hover:text-white transition">
+          <div className="w-px h-4 bg-[#2A2A28]" />
+          <button onClick={() => setSelectedIds(new Set())} className="text-[#A8A8A2] hover:text-white transition">
             <X size={16} />
           </button>
         </div>
@@ -437,10 +437,10 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       {batchModal === 'morto' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h3 className="font-semibold text-slate-900">Registrar Óbito — {selectedIds.size} animal(is)</h3>
+            <h3 className="font-semibold text-[#111110]">Registrar Óbito — {selectedIds.size} animal(is)</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Data do Óbito <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-medium text-[#111110] mb-1">Data do Óbito <span className="text-red-500">*</span></label>
                 <DatePickerBR
                   value={batchDataObito}
                   onChange={(v) => setBatchDataObito(v ?? '')}
@@ -449,7 +449,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Causa da Morte</label>
+                <label className="block text-xs font-medium text-[#111110] mb-1">Causa da Morte</label>
                 {causasMorte.length > 0 ? (
                   <select value={batchCausaMorte} onChange={(e) => setBatchCausaMorte(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-red-500">
                     <option value="">Selecione...</option>
@@ -461,7 +461,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               </div>
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">Cancelar</button>
+              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-[#E8E8E3] text-sm text-[#6B6B65] hover:bg-[#F5F4EF] transition">Cancelar</button>
               <button onClick={() => executeBatch('MORTO')} disabled={!batchDataObito || batchLoading} className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition disabled:opacity-50">
                 {batchLoading ? 'Salvando...' : 'Confirmar'}
               </button>
@@ -474,9 +474,9 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       {batchModal === 'vendido' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
-            <h3 className="font-semibold text-slate-900">Registrar Venda — {selectedIds.size} animal(is)</h3>
+            <h3 className="font-semibold text-[#111110]">Registrar Venda — {selectedIds.size} animal(is)</h3>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Data da Venda</label>
+              <label className="block text-xs font-medium text-[#111110] mb-1">Data da Venda</label>
               <DatePickerBR
                 value={batchDataVenda}
                 onChange={(v) => setBatchDataVenda(v ?? '')}
@@ -485,7 +485,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               />
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">Cancelar</button>
+              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-[#E8E8E3] text-sm text-[#6B6B65] hover:bg-[#F5F4EF] transition">Cancelar</button>
               <button onClick={() => executeBatch('VENDIDO')} disabled={batchLoading} className="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold transition disabled:opacity-50">
                 {batchLoading ? 'Salvando...' : 'Confirmar'}
               </button>
@@ -502,11 +502,11 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               <div className="p-2 rounded-full bg-red-100">
                 <AlertTriangle size={20} className="text-red-600" />
               </div>
-              <h3 className="font-semibold text-slate-900">Excluir {selectedIds.size} animal(is)?</h3>
+              <h3 className="font-semibold text-[#111110]">Excluir {selectedIds.size} animal(is)?</h3>
             </div>
-            <p className="text-sm text-slate-500">Esta ação não pode ser desfeita. Todos os registros associados (vacinas, reprodução, morte) também serão excluídos.</p>
+            <p className="text-sm text-[#6B6B65]">Esta ação não pode ser desfeita. Todos os registros associados (vacinas, reprodução, morte) também serão excluídos.</p>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-slate-300 text-sm text-slate-600 hover:bg-slate-50 transition">Cancelar</button>
+              <button onClick={() => setBatchModal(null)} className="flex-1 py-2 rounded-lg border border-[#E8E8E3] text-sm text-[#6B6B65] hover:bg-[#F5F4EF] transition">Cancelar</button>
               <button onClick={() => executeBatch('delete')} disabled={batchLoading} className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition disabled:opacity-50">
                 {batchLoading ? 'Excluindo...' : 'Excluir'}
               </button>

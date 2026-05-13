@@ -105,10 +105,10 @@ interface Props {
 }
 
 const inputClass =
-  'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent';
+  'w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47]';
 
 const selectClass =
-  'w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white';
+  'w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] bg-white';
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -370,8 +370,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <div className="flex gap-3">
             {(['MACHO', 'FEMEA'] as const).map((g) => (
               <label key={g} className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" value={g} {...register('genero')} className="text-brand-500" />
-                <span className="text-sm text-slate-700">{g === 'MACHO' ? 'Macho' : 'Fêmea'}</span>
+                <input type="radio" value={g} {...register('genero')} className="text-[#2F6A47]" />
+                <span className="text-sm text-[#111110]">{g === 'MACHO' ? 'Macho' : 'Fêmea'}</span>
               </label>
             ))}
           </div>
@@ -477,7 +477,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             id="reprodutor"
             {...register('reprodutor')}
             onChange={(e) => setValue('reprodutor', e.target.checked)}
-            className="w-4 h-4 text-brand-500 rounded border-slate-300 focus:ring-brand-500"
+            className="w-4 h-4 text-[#2F6A47] rounded border-[#E8E8E3] focus:ring-[#2F6A47]"
           />
           <label htmlFor="reprodutor" className="text-sm text-[#111110] cursor-pointer">
             Reprodutor (Touro)
@@ -490,7 +490,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             id="descarte"
             {...register('descarte')}
             onChange={(e) => setValue('descarte', e.target.checked)}
-            className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-500"
+            className="w-4 h-4 text-amber-500 rounded border-[#E8E8E3] focus:ring-amber-500"
           />
           <label htmlFor="descarte" className="text-sm text-[#111110] cursor-pointer">
             Animal de Descarte
@@ -503,7 +503,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             {...register('observacoes')}
             rows={3}
             placeholder="Observações gerais..."
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+            className="w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] resize-none"
           />
         </div>
 
@@ -513,7 +513,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
             {/* Histórico de registros reprodutivos */}
             {reproducoes.length > 0 && (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                <label className="block text-xs font-semibold text-[#6B6B65] mb-2 flex items-center gap-1">
                   <HeartPulse size={12} className="text-pink-500" />
                   Registros reprodutivos anteriores
                 </label>
@@ -570,7 +570,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                       id="nuncaPariu"
                       checked={nuncaPariu}
                       onChange={(e) => { setNuncaPariu(e.target.checked); if (e.target.checked) { setUltimoPartoMes(''); setUltimoPartoAno(''); } }}
-                      className="w-4 h-4 text-pink-500 rounded border-slate-300"
+                      className="w-4 h-4 text-pink-500 rounded border-[#E8E8E3]"
                     />
                     <label htmlFor="nuncaPariu" className="text-sm text-[#111110] cursor-pointer">Nunca pariu (primípara)</label>
                   </div>
@@ -617,7 +617,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => { setInseminada(e.target.checked); if (e.target.checked) setMontaNatural(false); }} className="w-4 h-4 text-pink-500 rounded border-slate-300" />
+                <input type="checkbox" id="inseminada" checked={inseminada} onChange={(e) => { setInseminada(e.target.checked); if (e.target.checked) setMontaNatural(false); }} className="w-4 h-4 text-pink-500 rounded border-[#E8E8E3]" />
                 <label htmlFor="inseminada" className="text-sm text-[#111110] cursor-pointer">Inseminação Artificial (IA)</label>
               </div>
 
@@ -642,7 +642,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="montaNatural" checked={montaNatural} onChange={(e) => { setMontaNatural(e.target.checked); if (e.target.checked) setInseminada(false); }} className="w-4 h-4 text-green-600 rounded border-slate-300" />
+                <input type="checkbox" id="montaNatural" checked={montaNatural} onChange={(e) => { setMontaNatural(e.target.checked); if (e.target.checked) setInseminada(false); }} className="w-4 h-4 text-[#2F6A47] rounded border-[#E8E8E3]" />
                 <label htmlFor="montaNatural" className="text-sm text-[#111110] cursor-pointer">Monta Natural</label>
               </div>
 
@@ -667,7 +667,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-[#111110] mb-1.5">Observações</label>
-                <textarea value={observacoesRepro} onChange={(e) => setObservacoesRepro(e.target.value)} rows={2} placeholder="Observações sobre reprodução..." className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none" />
+                <textarea value={observacoesRepro} onChange={(e) => setObservacoesRepro(e.target.value)} rows={2} placeholder="Observações sobre reprodução..." className="w-full border border-[#E8E8E3] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2F6A47] focus:border-[#2F6A47] resize-none" />
               </div>
             </div>
           </div>
@@ -676,7 +676,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {/* Vacinas existentes (somente leitura) */}
         {vacinasExistentes.length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-[#6B6B65] mb-2 flex items-center gap-1">
               <Syringe size={12} />
               Vacinas já registradas
             </label>
@@ -694,23 +694,23 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         {/* Adicionar novas vacinas */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-xs font-semibold text-slate-700">
+            <label className="block text-xs font-semibold text-[#6B6B65]">
               {vacinasExistentes.length > 0 ? 'Adicionar mais vacinas' : 'Vacinas Aplicadas'}
             </label>
             <button
               type="button"
               onClick={addVacina}
-              className="flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-medium"
+              className="flex items-center gap-1 text-xs text-[#2F6A47] hover:text-[#255840] font-medium"
             >
               <Plus size={13} />
               Adicionar Vacina
             </button>
           </div>
           {vacinas.length === 0 && vacinasExistentes.length === 0 && (
-            <p className="text-xs text-slate-400 italic">Nenhuma vacina adicionada.</p>
+            <p className="text-xs text-[#A8A8A2] italic">Nenhuma vacina adicionada.</p>
           )}
           {vacinas.map((v, i) => (
-            <div key={i} className="bg-slate-50 border border-[#E8E8E3] rounded-lg p-3 mb-2 space-y-2">
+            <div key={i} className="bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg p-3 mb-2 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-[#6B6B65]">Nova vacina {i + 1}</span>
                 <button
@@ -756,7 +756,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+            className="flex-1 py-2.5 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm font-medium hover:bg-[#F5F4EF] transition"
           >
             Cancelar
           </button>
