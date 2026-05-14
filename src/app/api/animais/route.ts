@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, reproducao } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
 
   if (!genero || !proprietarioId) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
@@ -134,6 +134,17 @@ export async function POST(req: NextRequest) {
     },
     include: { proprietario: { select: { id: true, name: true } } },
   });
+
+  if (status === 'MORTO') {
+    await prisma.morte.create({
+      data: {
+        animalId: animal.id,
+        dataObito: dataObito ? (parseDateBR(dataObito) ?? new Date(dataObito)) : new Date(),
+        causa: causaMorte && causaMorte !== '__outra__' ? causaMorte : null,
+        registradoPorId: parseInt(session.user.id),
+      },
+    });
+  }
 
   if (Array.isArray(vacinas) && vacinas.length > 0) {
     await prisma.registroSanitario.createMany({
