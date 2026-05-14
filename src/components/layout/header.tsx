@@ -1,8 +1,10 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, AlertTriangle } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 const breadcrumbMap: Record<string, string> = {
   '/dashboard':     'Dashboard',
@@ -24,8 +26,12 @@ interface TickerItem {
 
 export function Header() {
   const pathname = usePathname();
-  const [ticker, setTicker] = useState<TickerItem[]>([]);
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'ADMIN';
+
+  const [ticker, setTicker]       = useState<TickerItem[]>([]);
   const [updatedAt, setUpdatedAt] = useState<string>('');
+  const [stale, setStale]         = useState(false);
 
   useEffect(() => {
     fetch('/api/configuracoes/ticker')
@@ -42,8 +48,10 @@ export function Header() {
 
           if (data._updatedAt) {
             const d = new Date(data._updatedAt);
-            const fmt = d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-            setUpdatedAt(fmt);
+            setUpdatedAt(d.toLocaleDateString('pt-BR', { timeZone: 'UTC' }));
+            // Alerta se passou mais de 1 dia útil sem atualização
+            const diffH = (Date.now() - d.getTime()) / 36e5;
+            setStale(diffH > 28);
           }
         }
       })
@@ -103,12 +111,22 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right: updated date */}
-          {updatedAt && (
-            <div className="pl-3 pr-4 shrink-0 border-l border-[#E8E8E3] h-full flex items-center bg-[#FAFAF7]">
+          {/* Right: updated date + stale warning */}
+          <div className="pl-3 pr-4 shrink-0 border-l border-[#E8E8E3] h-full flex items-center gap-2 bg-[#FAFAF7]">
+            {updatedAt && (
               <span className="text-[9px] text-[#C0C0B8] whitespace-nowrap">atualizado {updatedAt}</span>
-            </div>
-          )}
+            )}
+            {stale && isAdmin && (
+              <Link
+                href="/configuracoes"
+                title="Cotações desatualizadas — clique para atualizar"
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FBF6ED] border border-[#F0D8A0] hover:bg-[#F7EDCC] transition-colors"
+              >
+                <AlertTriangle size={9} className="text-[#8A6A10]" />
+                <span className="text-[9px] font-semibold text-[#8A6A10] whitespace-nowrap">Atualizar</span>
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </header>

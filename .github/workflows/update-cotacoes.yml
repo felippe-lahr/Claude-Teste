@@ -1,0 +1,40 @@
+name: Atualizar Cotações IMEA-MT
+
+on:
+  # Roda todo dia útil às 08:30 BRT (11:30 UTC)
+  schedule:
+    - cron: '30 11 * * 1-5'
+  # Permite disparar manualmente pelo painel do GitHub
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Buscar cotações e atualizar Railway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependências do script
+        run: |
+          # Playwright para fallback com browser real
+          npm install -g playwright 2>/dev/null || true
+
+      - name: Buscar cotações do IMEA e atualizar Railway
+        env:
+          RAILWAY_URL: ${{ secrets.RAILWAY_URL }}
+          SYNC_TOKEN:  ${{ secrets.SYNC_TOKEN }}
+        run: node .github/scripts/fetch-imea.mjs
+
+      - name: Notificar falha
+        if: failure()
+        run: |
+          echo "⚠️ Não foi possível atualizar automaticamente as cotações IMEA-MT."
+          echo "O administrador deve atualizar manualmente em Configurações → Cotações."
+          echo "URL: ${{ secrets.RAILWAY_URL }}/configuracoes"
