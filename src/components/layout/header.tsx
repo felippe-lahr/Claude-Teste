@@ -36,19 +36,45 @@ export function Header() {
   const rafRef                    = useRef<number>(0);
   const pausedRef                 = useRef(false);
 
-  // RAF-based infinite scroll — resets at exactly -50% so the loop is invisible
+  // Cópias suficientes para sempre ultrapassar qualquer largura de tela
+  const COPIES = 8;
+
   useEffect(() => {
     const el = trackRef.current;
     if (!el || ticker.length === 0) return;
 
+    cancelAnimationFrame(rafRef.current);
+
+    let oneSetWidth = 0;
+
+    // Mede a largura de UM conjunto de itens somando offsetWidth dos primeiros N filhos
+    const measureSet = () => {
+      let w = 0;
+      const kids = el.children;
+      for (let i = 0; i < ticker.length; i++) {
+        w += (kids[i] as HTMLElement).offsetWidth;
+      }
+      return w;
+    };
+
+    const SPEED = 0.5;
+
+    // Começa deslocado em -oneSetWidth para que ao aumentar x, os itens
+    // entrem da esquerda e saiam pela direita (rolagem esquerda → direita)
     let x = 0;
-    const speed = 0.4; // px per frame (~24px/s at 60fps)
 
     const step = () => {
-      if (!pausedRef.current) {
-        x -= speed;
-        const half = el.scrollWidth / 2;
-        if (half > 0 && Math.abs(x) >= half) x = 0;
+      if (oneSetWidth === 0) {
+        oneSetWidth = measureSet();
+        // Inicia fora da tela à esquerda (atrás da cópia inicial)
+        x = -oneSetWidth;
+        el.style.transform = `translateX(${x}px)`;
+      }
+
+      if (!pausedRef.current && oneSetWidth > 0) {
+        x += SPEED;
+        // Quando o conjunto avançou uma cópia inteira, volta ao ponto inicial
+        if (x >= 0) x = -oneSetWidth;
         el.style.transform = `translateX(${x}px)`;
       }
       rafRef.current = requestAnimationFrame(step);
@@ -124,20 +150,22 @@ export function Header() {
           <div className="flex-1 overflow-hidden relative">
             <div
               ref={trackRef}
-              className="flex items-center will-change-transform"
+              style={{ display: 'flex', alignItems: 'center', willChange: 'transform' }}
               onMouseEnter={() => { pausedRef.current = true; }}
               onMouseLeave={() => { pausedRef.current = false; }}
             >
-              {/* Render items twice for seamless loop */}
-              {[...ticker, ...ticker].map((item, i) => (
-                <div key={i} className="flex items-center gap-1 px-5 border-r border-[#EBEBEB] h-[30px] whitespace-nowrap shrink-0">
-                  <span className="text-[10px] text-[#9B9B94] font-medium">{item.label}</span>
-                  <span className="text-[10px] font-bold text-[#111110]">
-                    R$&nbsp;{item.valor}
-                    {item.unidade ? <span className="text-[#A8A8A2] font-normal">/{item.unidade}</span> : null}
-                  </span>
-                </div>
-              ))}
+              {/* COPIES conjuntos para garantir conteúdo sempre maior que a tela */}
+              {Array.from({ length: COPIES }, (_, c) =>
+                ticker.map((item, i) => (
+                  <div key={`${c}-${i}`} className="flex items-center gap-1 px-5 border-r border-[#EBEBEB] h-[30px] whitespace-nowrap shrink-0">
+                    <span className="text-[10px] text-[#9B9B94] font-medium">{item.label}</span>
+                    <span className="text-[10px] font-bold text-[#111110]">
+                      R$&nbsp;{item.valor}
+                      {item.unidade ? <span className="text-[#A8A8A2] font-normal">/{item.unidade}</span> : null}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
