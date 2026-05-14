@@ -16,6 +16,18 @@ export function formatDateBR(value: string | Date | null | undefined): string {
   }
 }
 
+export function formatMonthYearBR(value: string | Date | null | undefined): string {
+  if (!value) return '—';
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '—';
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    return `${m}/${d.getUTCFullYear()}`;
+  } catch {
+    return '—';
+  }
+}
+
 export function parseDateBR(value: string): Date | null {
   if (!value) return null;
   // dd/mm/yyyy or dd/mm/yy

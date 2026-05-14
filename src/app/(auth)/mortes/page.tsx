@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Plus, Skull, Trash2, ChevronLeft, ChevronRight, TrendingDown, CalendarDays, CalendarClock, Filter } from 'lucide-react';
 import { MorteDrawer } from '@/components/mortes/morte-drawer';
-import { formatDateBR } from '@/lib/utils';
+import { formatMonthYearBR } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { StatCard } from '@/components/ui/stat-card';
 import { TableSkeleton } from '@/components/ui/skeleton';
@@ -194,7 +194,7 @@ export default function MortesPage() {
                     <td className="px-4 py-3">
                       <Badge variant="denominacao" value={morte.animal.denominacao}>{morte.animal.denominacao}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-[#6B6B65]">{formatDateBR(morte.dataObito)}</td>
+                    <td className="px-4 py-3 text-[#6B6B65]">{formatMonthYearBR(morte.dataObito)}</td>
                     <td className="px-4 py-3 text-[#6B6B65]">{morte.causa ?? '—'}</td>
                     <td className="px-4 py-3 text-[#A8A8A2] text-xs">{morte.registradoPor.name}</td>
                     <td className="px-4 py-3">
