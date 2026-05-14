@@ -99,9 +99,9 @@ export default function SanitarioPage() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Total de Registros" value={total} sub="no filtro atual" color="#10b981" icon={Syringe} />
-        <StatCard label="Vacinas" value={vacinaCount} sub="página atual" color="#3b82f6" icon={ShieldCheck} />
-        <StatCard label="Medicamentos" value={medicCount} sub="página atual" color="#f97316" icon={Pill} />
+        <StatCard label="Total de Registros" value={total} sub="no filtro atual" color="#10b981" />
+        <StatCard label="Vacinas" value={vacinaCount} sub="página atual" color="#3b82f6" />
+        <StatCard label="Medicamentos" value={medicCount} sub="página atual" color="#f97316" />
       </div>
 
       {/* Filters */}

@@ -5,13 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { StatCard } from '@/components/ui/stat-card';
 import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
 import {
-  Users,
-  Heart,
   Beef,
-  Shield,
-  Star,
-  Zap,
-  Baby,
   Settings,
   Upload,
   Skull,
@@ -127,14 +121,14 @@ export default async function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total de Animais" value={stats.total} sub="animais vivos" color="#ef4444" icon={Users} />
-        <StatCard label="Vacas" value={stats.vaca} sub="fêmeas adultas" color="#06b6d4" icon={Heart} />
-        <StatCard label="Bois" value={stats.boi} sub="machos adultos" color="#3b82f6" icon={Beef} />
-        <StatCard label="Touros" value={stats.touro} sub="reprodutores" color="#10b981" icon={Shield} />
-        <StatCard label="Novilhas" value={stats.novilha} sub="fêmeas jovens" color="#8b5cf6" icon={Star} />
-        <StatCard label="Garrotes" value={stats.garrote} sub="machos jovens" color="#f59e0b" icon={Zap} />
-        <StatCard label="Bezerra Fêmea" value={stats.bezerraFemea} sub="bezerras" color="#ec4899" icon={Baby} />
-        <StatCard label="Bezerro Macho" value={stats.bezerroMacho} sub="bezerros" color="#f97316" icon={Baby} />
+        <StatCard label="Total de Animais" value={stats.total} sub="animais vivos"  color="#ef4444" />
+        <StatCard label="Vacas"            value={stats.vaca}  sub="fêmeas adultas" color="#06b6d4" />
+        <StatCard label="Bois"             value={stats.boi}   sub="machos adultos" color="#3b82f6" />
+        <StatCard label="Touros"           value={stats.touro} sub="reprodutores"   color="#10b981" />
+        <StatCard label="Novilhas"         value={stats.novilha}      sub="fêmeas jovens" color="#8b5cf6" />
+        <StatCard label="Garrotes"         value={stats.garrote}      sub="machos jovens" color="#f59e0b" />
+        <StatCard label="Bezerra Fêmea"    value={stats.bezerraFemea} sub="bezerras"      color="#ec4899" />
+        <StatCard label="Bezerro Macho"    value={stats.bezerroMacho} sub="bezerros"      color="#f97316" />
       </div>
 
       {/* Charts + Proprietários */}
@@ -181,9 +175,9 @@ export default async function DashboardPage() {
                       {p.percentual}%
                     </div>
                   </div>
-                  <div className="bg-[#F0EFEB] rounded-full h-1.5">
+                  <div className="bg-[#F0EFEB] rounded-full h-3">
                     <div
-                      className="rounded-full h-1.5 transition-all"
+                      className="rounded-full h-3 transition-all"
                       style={{ width: `${p.percentual}%`, backgroundColor: borderColor }}
                     />
                   </div>

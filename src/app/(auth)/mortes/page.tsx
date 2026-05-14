@@ -127,9 +127,9 @@ export default function MortesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Total Registrado" value={total} sub="todos os tempos" color="#9B3A2A" icon={TrendingDown} />
-        <StatCard label="Este Ano" value={mortesAno} sub={String(new Date().getFullYear())} color="#C0622A" icon={CalendarDays} />
-        <StatCard label="Este Mês" value={mortesMes} sub="mês atual" color="#B04458" icon={CalendarClock} />
+        <StatCard label="Total Registrado" value={total} sub="todos os tempos" color="#9B3A2A" />
+        <StatCard label="Este Ano" value={mortesAno} sub={String(new Date().getFullYear())} color="#C0622A" />
+        <StatCard label="Este Mês" value={mortesMes} sub="mês atual" color="#B04458" />
       </div>
 
       {/* Filters */}

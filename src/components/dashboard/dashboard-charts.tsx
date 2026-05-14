@@ -121,7 +121,7 @@ export function DashboardCharts({ porDenominacao, porProprietario, porDenominaca
                 tickLine={false}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F5F4EF' }} />
-              <Bar dataKey="total" radius={[0, 6, 6, 0]} maxBarSize={28}>
+              <Bar dataKey="total" radius={[0, 6, 6, 0]} maxBarSize={52}>
                 <LabelList
                   dataKey="total"
                   position="right"
