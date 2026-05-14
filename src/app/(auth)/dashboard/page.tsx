@@ -178,7 +178,7 @@ export default async function DashboardPage() {
                   <div className="bg-[#F0EFEB] rounded-full h-3">
                     <div
                       className="rounded-full h-3 transition-all"
-                      style={{ width: `${p.percentual}%`, backgroundColor: borderColor }}
+                      style={{ width: `${p.percentual}%`, backgroundColor: `${borderColor}70` }}
                     />
                   </div>
                 </div>
