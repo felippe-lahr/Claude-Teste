@@ -38,6 +38,15 @@ function extractPrices(html) {
     if (m) prices[key] = m[1].trim();
   }
 
+  // Debug: se não extraiu nada, mostra trechos do HTML para diagnóstico
+  if (Object.keys(prices).length === 0) {
+    console.log('\n🔎 DEBUG — primeiros 3000 chars do HTML:');
+    console.log(html.slice(0, 3000));
+    console.log('\n🔎 DEBUG — busca por números no HTML:');
+    const nums = [...html.matchAll(/[\d]{2,4}[.,]\d{2}/g)].slice(0, 20);
+    nums.forEach(m => console.log('  número:', m[0], '| contexto:', html.slice(Math.max(0, m.index-40), m.index+40).replace(/\s+/g,' ')));
+  }
+
   return prices;
 }
 
