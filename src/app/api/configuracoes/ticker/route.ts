@@ -12,10 +12,13 @@ export async function GET() {
     where: { chave: { in: TICKER_KEYS } },
   });
 
-  const result: Record<string, string> = {};
+  const result: Record<string, string | Date | null> = {};
+  let latestUpdatedAt: Date | null = null;
   for (const c of configs) {
     result[c.chave] = c.valor;
+    if (!latestUpdatedAt || c.updatedAt > latestUpdatedAt) latestUpdatedAt = c.updatedAt;
   }
+  result._updatedAt = latestUpdatedAt;
 
   return NextResponse.json(result);
 }

@@ -5,11 +5,14 @@ import { useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
 
 const breadcrumbMap: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/animais': 'Animais',
-  '/importar': 'Importar',
-  '/mortes': 'Mortes',
-  '/sanitario': 'Sanitário',
+  '/dashboard':     'Dashboard',
+  '/animais':       'Animais',
+  '/importar':      'Importar',
+  '/mortes':        'Mortes',
+  '/sanitario':     'Sanitário',
+  '/reproducao':    'Reprodução',
+  '/lotes':         'Lotes',
+  '/log':           'Log',
   '/configuracoes': 'Configurações',
 };
 
@@ -22,6 +25,7 @@ interface TickerItem {
 export function Header() {
   const pathname = usePathname();
   const [ticker, setTicker] = useState<TickerItem[]>([]);
+  const [updatedAt, setUpdatedAt] = useState<string>('');
 
   useEffect(() => {
     fetch('/api/configuracoes/ticker')
@@ -29,18 +33,23 @@ export function Header() {
       .then((data) => {
         if (data && typeof data === 'object') {
           const items: TickerItem[] = [
-            { label: 'Boi Gordo', valor: data.boi_gordo ?? '—', unidade: '@' },
-            { label: 'Vaca Gorda', valor: data.vaca_gorda ?? '—', unidade: '@' },
-            { label: 'Bezerro 8M', valor: data.bezerro_8m ?? '—', unidade: '' },
-            { label: 'Garrote 18M', valor: data.garrote_18m ?? '—', unidade: '' },
+            { label: 'Boi Gordo MT',   valor: data.boi_gordo   ?? '—', unidade: '@' },
+            { label: 'Vaca Gorda MT',  valor: data.vaca_gorda  ?? '—', unidade: '@' },
+            { label: 'Bezerro 8M MT',  valor: data.bezerro_8m  ?? '—', unidade: '' },
+            { label: 'Garrote 18M MT', valor: data.garrote_18m ?? '—', unidade: '' },
           ].filter((i) => i.valor !== '—');
           setTicker(items);
+
+          if (data._updatedAt) {
+            const d = new Date(data._updatedAt);
+            const fmt = d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+            setUpdatedAt(fmt);
+          }
         }
       })
       .catch(() => {});
   }, []);
 
-  // Determine page label from pathname
   let pageLabel = 'Painel';
   for (const [key, label] of Object.entries(breadcrumbMap)) {
     if (pathname === key || pathname.startsWith(key + '/')) {
@@ -50,40 +59,58 @@ export function Header() {
   }
 
   return (
-    <header className="h-[60px] shrink-0 bg-white border-b border-[#E8E8E3] flex items-center justify-between px-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-[#A8A8A2]">Fazenda SAB</span>
-        <span className="text-[#A8A8A2] text-xs">/</span>
-        <span className="text-sm font-medium text-[#111110]">{pageLabel}</span>
-      </div>
+    <header className="shrink-0 bg-white border-b border-[#E8E8E3]">
+      {/* Main row */}
+      <div className="h-[52px] flex items-center justify-between px-6">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#A8A8A2]">Fazenda SAB</span>
+          <span className="text-[#A8A8A2] text-xs">/</span>
+          <span className="text-sm font-medium text-[#111110]">{pageLabel}</span>
+        </div>
 
-      {/* Right: ticker + status */}
-      <div className="flex items-center gap-4">
-        {ticker.length > 0 && (
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[#A8A8A2]">
-              <TrendingUp size={12} />
-              <span className="text-[11px] font-medium uppercase tracking-wide text-[#2F6A47]">IMEA</span>
-            </div>
-            {ticker.map((item) => (
-              <div key={item.label} className="flex items-center gap-1">
-                <span className="text-[11px] text-[#A8A8A2]">{item.label}</span>
-                <span className="text-[11px] font-semibold text-[#2F6A47]">
-                  R$ {item.valor}{item.unidade ? `/${item.unidade}` : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="h-4 w-px bg-[#E8E8E3]" />
-
+        {/* Right: status */}
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#2F6A47] inline-block" />
           <span className="text-[11px] font-medium text-[#6B6B65]">Online</span>
         </div>
       </div>
+
+      {/* Ticker strip */}
+      {ticker.length > 0 && (
+        <div className="h-[30px] border-t border-[#F0EFE9] bg-[#FAFAF7] flex items-center overflow-hidden relative">
+          {/* Left label — fixed, not scrolled */}
+          <div className="flex items-center gap-1.5 pl-4 pr-3 shrink-0 border-r border-[#E8E8E3] h-full bg-[#FAFAF7] z-10">
+            <TrendingUp size={11} className="text-[#2F6A47]" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[#2F6A47] whitespace-nowrap">
+              IMEA · MT
+            </span>
+          </div>
+
+          {/* Scrolling area */}
+          <div className="flex-1 overflow-hidden relative">
+            <div className="ticker-track flex items-center gap-0">
+              {/* Render items twice for seamless loop */}
+              {[...ticker, ...ticker].map((item, i) => (
+                <div key={i} className="flex items-center gap-1 px-5 border-r border-[#EBEBEB] h-[30px] whitespace-nowrap shrink-0">
+                  <span className="text-[10px] text-[#9B9B94] font-medium">{item.label}</span>
+                  <span className="text-[10px] font-bold text-[#111110]">
+                    R$&nbsp;{item.valor}
+                    {item.unidade ? <span className="text-[#A8A8A2] font-normal">/{item.unidade}</span> : null}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: updated date */}
+          {updatedAt && (
+            <div className="pl-3 pr-4 shrink-0 border-l border-[#E8E8E3] h-full flex items-center bg-[#FAFAF7]">
+              <span className="text-[9px] text-[#C0C0B8] whitespace-nowrap">atualizado {updatedAt}</span>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
