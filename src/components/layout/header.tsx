@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TrendingUp, AlertTriangle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
@@ -32,6 +32,31 @@ export function Header() {
   const [ticker, setTicker]       = useState<TickerItem[]>([]);
   const [updatedAt, setUpdatedAt] = useState<string>('');
   const [stale, setStale]         = useState(false);
+  const trackRef                  = useRef<HTMLDivElement>(null);
+  const rafRef                    = useRef<number>(0);
+  const pausedRef                 = useRef(false);
+
+  // RAF-based infinite scroll — resets at exactly -50% so the loop is invisible
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el || ticker.length === 0) return;
+
+    let x = 0;
+    const speed = 0.4; // px per frame (~24px/s at 60fps)
+
+    const step = () => {
+      if (!pausedRef.current) {
+        x -= speed;
+        const half = el.scrollWidth / 2;
+        if (half > 0 && Math.abs(x) >= half) x = 0;
+        el.style.transform = `translateX(${x}px)`;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [ticker]);
 
   useEffect(() => {
     fetch('/api/configuracoes/ticker')
@@ -97,7 +122,12 @@ export function Header() {
 
           {/* Scrolling area */}
           <div className="flex-1 overflow-hidden relative">
-            <div className="ticker-track flex items-center gap-0">
+            <div
+              ref={trackRef}
+              className="flex items-center will-change-transform"
+              onMouseEnter={() => { pausedRef.current = true; }}
+              onMouseLeave={() => { pausedRef.current = false; }}
+            >
               {/* Render items twice for seamless loop */}
               {[...ticker, ...ticker].map((item, i) => (
                 <div key={i} className="flex items-center gap-1 px-5 border-r border-[#EBEBEB] h-[30px] whitespace-nowrap shrink-0">
