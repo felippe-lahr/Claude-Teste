@@ -19,12 +19,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Instalar dependências do script
+      - name: Instalar Playwright + Chromium
         run: |
-          # Playwright para fallback com browser real
-          npm install -g playwright 2>/dev/null || true
+          cd .github/scripts
+          npm init -y
+          npm install playwright
+          npx playwright install chromium --with-deps
 
       - name: Buscar cotações do IMEA e atualizar Railway
         env:
