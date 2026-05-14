@@ -22,17 +22,18 @@ jobs:
           node-version: '22'
 
       - name: Instalar Playwright + Chromium
+        working-directory: .github/scripts
         run: |
-          cd .github/scripts
           npm init -y
           npm install playwright
           npx playwright install chromium --with-deps
 
       - name: Buscar cotações do IMEA e atualizar Railway
+        working-directory: .github/scripts
         env:
           RAILWAY_URL: ${{ secrets.RAILWAY_URL }}
           SYNC_TOKEN:  ${{ secrets.SYNC_TOKEN }}
-        run: node .github/scripts/fetch-imea.mjs
+        run: node fetch-imea.mjs
 
       - name: Notificar falha
         if: failure()
