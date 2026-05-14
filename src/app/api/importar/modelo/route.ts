@@ -47,7 +47,7 @@ export async function GET() {
     { header: 'Sêmen (código)',                  key: 'u',  width: 18 },
     { header: 'Obs. Reprodução',                 key: 'v',  width: 22 },
     { header: 'Causa da Morte',                  key: 'w',  width: 22 },
-    { header: 'Data do Óbito (dd/mm/aaaa)',      key: 'x',  width: 26 },
+    { header: 'Data do Óbito (mm/aaaa)',          key: 'x',  width: 26 },
     { header: 'Vacina 1 - Produto',              key: 'y',  width: 22 },
     { header: 'Vacina 1 - Data (dd/mm/aaaa)',    key: 'z',  width: 26 },
     { header: 'Vacina 1 - Dose',                 key: 'aa', width: 16 },

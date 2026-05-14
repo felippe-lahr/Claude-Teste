@@ -11,6 +11,12 @@ function fmtDate(d: Date | null | undefined): string {
   return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
+function fmtMonthYear(d: Date | null | undefined): string {
+  if (!d) return '';
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  return `${m}/${d.getUTCFullYear()}`;
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
@@ -71,7 +77,7 @@ export async function GET(req: NextRequest) {
         : '',
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
-      'Data Óbito': fmtDate(a.morte?.dataObito),
+      'Data Óbito (mm/aaaa)': fmtMonthYear(a.morte?.dataObito),
       Observações: a.observacoes ?? '',
       'Cadastrado em': fmtDate(a.createdAt),
     };

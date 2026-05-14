@@ -24,6 +24,21 @@ function parseDate(value: unknown): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Accepts "mm/aaaa" or "mm/yyyy" → first day of that month
+function parseMonthYear(value: unknown): Date | null {
+  if (!value) return null;
+  const str = String(value).trim();
+  // mm/yyyy
+  const m = str.match(/^(\d{1,2})\/(\d{4})$/);
+  if (m) {
+    const month = parseInt(m[1], 10) - 1;
+    const year = parseInt(m[2], 10);
+    if (month >= 0 && month <= 11) return new Date(Date.UTC(year, month, 1));
+  }
+  // Fallback: try full date parse (for backwards-compat with dd/mm/aaaa sheets)
+  return parseDate(value);
+}
+
 function parseStr(value: unknown): string {
   if (value === null || value === undefined) return '';
   return String(value).trim();
@@ -166,7 +181,7 @@ export async function POST(req: NextRequest) {
       // Morte — upsert so updates don't create duplicate records
       if (status === 'MORTO') {
         const causaMorte = parseStr(col(row, 'Causa da Morte')) || null;
-        const dataObito = parseDate(col(row, 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito'));
+        const dataObito = parseMonthYear(col(row, 'Data do Óbito (mm/aaaa)', 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito'));
         if (dataObito) {
           await prisma.morte.upsert({
             where: { animalId: animal.id },

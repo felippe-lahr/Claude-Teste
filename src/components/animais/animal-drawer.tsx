@@ -9,6 +9,7 @@ import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
+import { MonthYearPickerBR } from '@/components/ui/month-year-picker-br';
 import { parseDateBR, formatDateBR } from '@/lib/utils';
 
 const schema = z.object({
@@ -392,8 +393,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
             <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
             <div>
-              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Óbito</label>
-              <DatePickerBR
+              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano do Óbito</label>
+              <MonthYearPickerBR
                 value={watch('dataObito') || null}
                 onChange={(v) => setValue('dataObito', v ?? '')}
                 className={inputClass}
