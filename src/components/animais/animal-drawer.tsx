@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
-import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { MonthYearPickerBR } from '@/components/ui/month-year-picker-br';
 import { parseDateBR, formatDateBR } from '@/lib/utils';
 
@@ -421,8 +420,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         {status === 'VENDIDO' && (
           <div>
-            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Venda</label>
-            <DatePickerBR
+            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Venda</label>
+            <MonthYearPickerBR
               value={watch('dataVenda') || null}
               onChange={(v) => setValue('dataVenda', v ?? '')}
               className={inputClass}
@@ -601,8 +600,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Toque</label>
-                <DatePickerBR
+                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano do Toque</label>
+                <MonthYearPickerBR
                   value={dataToque || null}
                   onChange={(v) => setDataToque(v ?? '')}
                   className={inputClass}
@@ -625,8 +624,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               {inseminada && (
                 <>
                   <div>
-                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Inseminação</label>
-                    <DatePickerBR
+                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Inseminação</label>
+                    <MonthYearPickerBR
                       value={dataInseminacao || null}
                       onChange={(v) => setDataInseminacao(v ?? '')}
                       className={inputClass}
@@ -649,8 +648,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               {montaNatural && (
                 <div>
-                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data de Início da Monta</label>
-                  <DatePickerBR
+                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Monta Natural</label>
+                  <MonthYearPickerBR
                     value={dataMontaNatural || null}
                     onChange={(v) => setDataMontaNatural(v ?? '')}
                     className={inputClass}
@@ -731,8 +730,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-[#6B6B65] mb-1">Data de Aplicação</label>
-                  <DatePickerBR
+                  <label className="block text-xs text-[#6B6B65] mb-1">Mês/Ano Aplicação</label>
+                  <MonthYearPickerBR
                     value={v.data || null}
                     onChange={(val) => updateVacina(i, 'data', val ?? '')}
                     className={inputClass}

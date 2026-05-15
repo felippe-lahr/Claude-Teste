@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Search } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
-import { DatePickerBR } from '@/components/ui/date-picker-br';
+import { MonthYearPickerBR } from '@/components/ui/month-year-picker-br';
 
 const schema = z.object({
   animalId: z.string().min(1, 'Animal obrigatório'),
@@ -169,8 +169,8 @@ export function SanitarioDrawer({ open, onClose, onSaved }: Props) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Data *</label>
-          <DatePickerBR
+          <label className="block text-xs font-semibold text-slate-600 mb-1.5">Mês/Ano *</label>
+          <MonthYearPickerBR
             value={watch('data') || null}
             onChange={(v) => setValue('data', v ?? '')}
             className={inputClass}
