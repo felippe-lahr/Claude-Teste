@@ -138,7 +138,13 @@ export async function GET() {
   ws.addConditionalFormatting({
     ref: 'A2:AK501',
     rules: [
-      { type: 'expression', priority: 1, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
+      { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } } },
+    ],
+  });
+  ws.addConditionalFormatting({
+    ref: 'A2:AK501',
+    rules: [
+      { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
     ],
   });
 
