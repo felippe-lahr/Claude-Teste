@@ -67,9 +67,9 @@ export async function GET() {
 
   // Example rows
   // Macho
-  ws.addRow(['001', proprietarios[0]?.name ?? 'Proprietário', 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Aftosa', '15/01/2024', '2ml', '', '', '']);
+  ws.addRow(['001', proprietarios[0]?.name ?? 'Proprietário', 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'Aftosa', new Date(2024, 0, 15), '2ml', '', '', '']);
   // Fêmea prenha via IA
-  ws.addRow(['002', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 6, 2021, 280, 'VIVO', '', '', 'CHEIA', 'Não', '', '', '10/03/2025', 'Sim', 'Não', '', '10/03/2025', semens[0]?.codigo ?? '', '', '', '', '', '', '', '', '', '']);
+  ws.addRow(['002', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 6, 2021, 280, 'VIVO', '', '', 'CHEIA', 'Não', '', '', new Date(2025, 2, 10), 'Sim', 'Não', '', new Date(2025, 2, 10), semens[0]?.codigo ?? '', '', '', '', '', '', '', '', '', '']);
   // Fêmea vazia com último parto
   ws.addRow(['003', proprietarios[0]?.name ?? 'Proprietário', 'FEMEA', 'Não', 'Não', 9, 2020, 260, 'VIVO', '', '', 'VAZIA', 'Não', 3, 2025, '', 'Não', 'Não', '', '', '', '', '', '', '', '', '', '', '', '']);
   // Fêmea primípara
@@ -109,28 +109,58 @@ export async function GET() {
   listas.getCell('I1').value = 'Causa da Morte';
   causasMorte.forEach((c, i) => { listas.getCell(`I${i + 2}`).value = c.nome; });
 
+  listas.getCell('J1').value = 'Meses';
+  for (let m = 1; m <= 12; m++) { listas.getCell(`J${m + 1}`).value = m; }
+
   const propEnd  = Math.max(proprietarios.length + 1, 2);
   const semenEnd = Math.max(semens.length + 1, 2);
   const causaEnd = Math.max(causasMorte.length + 1, 2);
 
   // ── 3. Data validations ───────────────────────────────────────────────────
+  const dateValidation = {
+    type: 'date' as const,
+    allowBlank: true,
+    operator: 'between' as const,
+    formulae: [new Date(2000, 0, 1), new Date(2100, 11, 31)],
+    showErrorMessage: true,
+    errorTitle: 'Data inválida',
+    error: 'Clique na célula e use o seletor de data, ou digite no formato dd/mm/aaaa',
+  };
+
   for (let r = 2; r <= 501; r++) {
     ws.getCell(`B${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$A$2:$A$${propEnd}`] };
     ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$B$2:$B$3'] };
     ws.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$C$2:$C$3'] };
     ws.getCell(`E${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$D$2:$D$3'] };
+
+    // Mês Nasc — dropdown 1-12
+    ws.getCell(`F${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
+    // Ano Nasc — número 4 dígitos
+    ws.getCell(`G${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [2000, 2100], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Digite um ano válido (ex: 2024)' };
+
     ws.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$E$2:$E$4'] };
     ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$F$2:$F$3'] };
     ws.getCell(`M${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Nunca Pariu
-    ws.getCell(`N${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [1, 12], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Digite um número de 1 a 12' };
+
+    // Último Parto Mês — dropdown 1-12
+    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
     ws.getCell(`O${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [2000, 2100], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Digite um ano válido (ex: 2024)' };
+
     ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Inseminada
     ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Monta Natural
+
     if (semens.length > 0) {
       ws.getCell(`U${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
     }
     if (causasMorte.length > 0) {
       ws.getCell(`W${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
+    }
+
+    // Date picker para campos de data completa
+    for (const col of ['J', 'P', 'S', 'T', 'Z', 'AC']) {
+      const cell = ws.getCell(`${col}${r}`);
+      cell.dataValidation = dateValidation;
+      cell.numFmt = 'dd/mm/yyyy';
     }
   }
 
