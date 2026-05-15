@@ -112,6 +112,11 @@ export async function GET() {
   listas.getCell('J1').value = 'Meses';
   for (let m = 1; m <= 12; m++) { listas.getCell(`J${m + 1}`).value = m; }
 
+  listas.getCell('K1').value = 'Anos';
+  const ANO_INICIO = 2020;
+  const ANO_FIM    = 2026;
+  for (let a = ANO_INICIO; a <= ANO_FIM; a++) { listas.getCell(`K${a - ANO_INICIO + 2}`).value = a; }
+
   const propEnd  = Math.max(proprietarios.length + 1, 2);
   const semenEnd = Math.max(semens.length + 1, 2);
   const causaEnd = Math.max(causasMorte.length + 1, 2);
@@ -135,8 +140,8 @@ export async function GET() {
 
     // Mês Nasc — dropdown 1-12
     ws.getCell(`F${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
-    // Ano Nasc — número 4 dígitos
-    ws.getCell(`G${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [2000, 2100], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Digite um ano válido (ex: 2024)' };
+    // Ano Nasc — dropdown 2020-2026
+    ws.getCell(`G${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$K$2:$K$${ANO_FIM - ANO_INICIO + 2}`], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Selecione um ano da lista' };
 
     ws.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$E$2:$E$4'] };
     ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$F$2:$F$3'] };
@@ -144,7 +149,8 @@ export async function GET() {
 
     // Último Parto Mês — dropdown 1-12
     ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
-    ws.getCell(`O${r}`).dataValidation = { type: 'whole', allowBlank: true, operator: 'between', formulae: [2000, 2100], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Digite um ano válido (ex: 2024)' };
+    // Último Parto Ano — dropdown 2020-2026
+    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$K$2:$K$${ANO_FIM - ANO_INICIO + 2}`], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Selecione um ano da lista' };
 
     ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Inseminada
     ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Monta Natural
