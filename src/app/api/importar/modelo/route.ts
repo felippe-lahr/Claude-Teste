@@ -133,35 +133,31 @@ export async function GET() {
   };
 
   for (let r = 2; r <= 501; r++) {
+    // Listas inline (mais confiável que referências à sheet oculta)
     ws.getCell(`B${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$A$2:$A$${propEnd}`] };
-    ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$B$2:$B$3'] };
-    ws.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$C$2:$C$3'] };
-    ws.getCell(`E${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$D$2:$D$3'] };
-
+    ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"MACHO,FEMEA"'] };
+    ws.getCell(`D${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };
+    ws.getCell(`E${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };
     // Mês Nasc — dropdown 1-12
-    ws.getCell(`F${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
+    ws.getCell(`F${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"1,2,3,4,5,6,7,8,9,10,11,12"'] };
     // Ano Nasc — dropdown 2020-2026
-    ws.getCell(`G${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$K$2:$K$${ANO_FIM - ANO_INICIO + 2}`], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Selecione um ano da lista' };
-
-    ws.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$E$2:$E$4'] };
-    ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$F$2:$F$3'] };
-    ws.getCell(`M${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Nunca Pariu
-
+    ws.getCell(`G${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"2020,2021,2022,2023,2024,2025,2026"'] };
+    // Status — VIVO, VENDIDO, MORTO
+    ws.getCell(`I${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"VIVO,VENDIDO,MORTO"'] };
+    ws.getCell(`L${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"CHEIA,VAZIA"'] };
+    ws.getCell(`M${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] }; // Nunca Pariu
     // Último Parto Mês — dropdown 1-12
-    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$J$2:$J$13'], showErrorMessage: true, errorTitle: 'Mês inválido', error: 'Selecione um mês de 1 a 12' };
+    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"1,2,3,4,5,6,7,8,9,10,11,12"'] };
     // Último Parto Ano — dropdown 2020-2026
-    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$K$2:$K$${ANO_FIM - ANO_INICIO + 2}`], showErrorMessage: true, errorTitle: 'Ano inválido', error: 'Selecione um ano da lista' };
-
-    ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Inseminada
-    ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['_listas!$G$2:$G$3'] }; // Monta Natural
-
+    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"2020,2021,2022,2023,2024,2025,2026"'] };
+    ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] }; // Inseminada
+    ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] }; // Monta Natural
     if (semens.length > 0) {
       ws.getCell(`U${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
     }
     if (causasMorte.length > 0) {
       ws.getCell(`W${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
     }
-
     // Date picker para campos de data completa
     for (const col of ['J', 'P', 'S', 'T', 'Z', 'AC']) {
       const cell = ws.getCell(`${col}${r}`);
