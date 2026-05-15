@@ -135,16 +135,18 @@ export async function GET() {
   }
 
   // ── 4. Conditional formatting ─────────────────────────────────────────────
+  // Priority 1 (highest): yellow highlight for the active row (requires Excel recalc on cell select)
   ws.addConditionalFormatting({
-    ref: 'A2:AD501',
+    ref: 'A2:AK501',
     rules: [
-      { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } } },
+      { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF9C4' } } } },
     ],
   });
+  // Priority 2: alternating blue stripe
   ws.addConditionalFormatting({
-    ref: 'A2:AD501',
+    ref: 'A2:AK501',
     rules: [
-      { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
+      { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F4FD' } } } },
     ],
   });
 
