@@ -239,7 +239,7 @@ model LoteAnimalItem {
   animalId Int
 
   lote   LoteAnimal @relation(fields: [loteId], references: [id], onDelete: Cascade)
-  animal Animal     @relation(fields: [animalId], references: [id])
+  animal Animal     @relation(fields: [animalId], references: [id], onDelete: Cascade)
 
   @@unique([loteId, animalId])
   @@index([animalId])
