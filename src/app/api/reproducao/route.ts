@@ -18,11 +18,31 @@ export async function GET(req: NextRequest) {
   const estacaoMontaId = searchParams.get('estacaoMontaId');
   const statusReprodutivo = searchParams.get('statusReprodutivo') as StatusReprodutivo | null;
   const proprietarioId = searchParams.get('proprietarioId');
+  const toqueMes = searchParams.get('toqueMes');
+  const toqueAno = searchParams.get('toqueAno');
+  const excluirDescartes = searchParams.get('excluirDescartes') === 'true';
+
+  // Build dataToque range filter when both month and year are selected
+  let dataToqueFilter: { dataToque?: { gte: Date; lte: Date } } = {};
+  if (toqueMes && toqueAno) {
+    const m = parseInt(toqueMes) - 1;
+    const y = parseInt(toqueAno);
+    dataToqueFilter = {
+      dataToque: {
+        gte: new Date(Date.UTC(y, m, 1)),
+        lte: new Date(Date.UTC(y, m + 1, 0, 23, 59, 59, 999)),
+      },
+    };
+  }
+
+  const animalWhere: Record<string, unknown> = {};
+  if (proprietarioId) animalWhere.proprietarioId = parseInt(proprietarioId);
 
   const where = {
+    ...dataToqueFilter,
     ...(estacaoMontaId ? { estacaoMontaId: parseInt(estacaoMontaId) } : {}),
     ...(statusReprodutivo ? { statusReprodutivo } : {}),
-    ...(proprietarioId ? { animal: { proprietarioId: parseInt(proprietarioId) } } : {}),
+    ...(Object.keys(animalWhere).length > 0 ? { animal: animalWhere } : {}),
   };
 
   const [reproducoes, total] = await Promise.all([
@@ -30,7 +50,7 @@ export async function GET(req: NextRequest) {
       where,
       skip,
       take: limit,
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { dataToque: 'desc' },
       include: {
         animal: {
           select: {
@@ -52,10 +72,39 @@ export async function GET(req: NextRequest) {
   const vazias = await prisma.reproducaoAnimal.count({ where: { statusReprodutivo: 'VAZIA' } });
   const nuncaPariuCount = await prisma.reproducaoAnimal.count({ where: { statusReprodutivo: 'VAZIA', nuncaPariu: true } });
 
+  // Índice de prenhez — calculado apenas quando mês e ano do toque estão selecionados
+  let prenhez: { percent: number; cheias: number; total: number } | null = null;
+  if (toqueMes && toqueAno) {
+    const animalWherePrenhez: Record<string, unknown> = {};
+    if (excluirDescartes) animalWherePrenhez.descarte = false;
+
+    const [totalTocadas, cheiasNoPeriodo] = await Promise.all([
+      prisma.reproducaoAnimal.count({
+        where: {
+          ...dataToqueFilter,
+          ...(Object.keys(animalWherePrenhez).length > 0 ? { animal: animalWherePrenhez } : {}),
+        },
+      }),
+      prisma.reproducaoAnimal.count({
+        where: {
+          ...dataToqueFilter,
+          statusReprodutivo: 'CHEIA',
+          ...(Object.keys(animalWherePrenhez).length > 0 ? { animal: animalWherePrenhez } : {}),
+        },
+      }),
+    ]);
+
+    prenhez = {
+      percent: totalTocadas > 0 ? Math.round((cheiasNoPeriodo / totalTocadas) * 100) : 0,
+      cheias: cheiasNoPeriodo,
+      total: totalTocadas,
+    };
+  }
+
   return NextResponse.json({
     reproducoes,
     total,
     pages: Math.ceil(total / limit),
-    resumo: { totalFemeas, cheias, vazias, nuncaPariu: nuncaPariuCount },
+    resumo: { totalFemeas, cheias, vazias, nuncaPariu: nuncaPariuCount, prenhez },
   });
 }
