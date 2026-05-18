@@ -64,6 +64,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
@@ -87,7 +88,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   const fetchAnimais = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(page), limit: '20' });
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
       if (sliderActive) {
         params.set('eraMin', String(sliderRange[0]));
@@ -105,7 +106,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
     } finally {
       setLoading(false);
     }
-  }, [page, filters, sliderActive, sliderRange]);
+  }, [page, limit, filters, sliderActive, sliderRange]);
 
   useEffect(() => { fetchAnimais(); }, [fetchAnimais]);
 
@@ -385,9 +386,21 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
         )}
 
         {/* Pagination */}
-        {pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[#E8E8E3] bg-[#F5F4EF]">
-            <p className="text-xs text-[#6B6B65]">Página {page} de {pages} · {total} resultados</p>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-[#E8E8E3] bg-[#F5F4EF]">
+          <p className="text-xs text-[#6B6B65]">Página {page} de {pages} · {total} resultados</p>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[#6B6B65]">Por página:</span>
+              {[20, 50, 100, 200].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => { setLimit(n); setPage(1); }}
+                  className={`px-2 py-1 rounded text-xs font-medium transition border ${limit === n ? 'bg-[#2F6A47] text-white border-[#2F6A47]' : 'border-[#E8E8E3] text-[#6B6B65] hover:bg-white'}`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
             <div className="flex gap-1">
               <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-lg border border-[#E8E8E3] text-[#6B6B65] hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition">
                 <ChevronLeft size={14} />
@@ -397,7 +410,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <AnimalDrawer
