@@ -4,7 +4,14 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { HeartPulse, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TableSkeleton } from '@/components/ui/skeleton';
-import { formatDateBR } from '@/lib/utils';
+
+const MESES_PT = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+function fmtMesAno(dateStr: string | null): string {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return `${MESES_PT[d.getUTCMonth()]}/${d.getUTCFullYear()}`;
+}
 
 interface EstacaoMonta {
   id: number;
@@ -37,11 +44,18 @@ interface ReproducaoItem {
   };
 }
 
+interface Prenhez {
+  percent: number;
+  cheias: number;
+  total: number;
+}
+
 interface Resumo {
   totalFemeas: number;
   cheias: number;
   vazias: number;
   nuncaPariu: number;
+  prenhez: Prenhez | null;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -54,21 +68,23 @@ const STATUS_COLOR: Record<string, string> = {
   VAZIA: 'bg-red-100 text-red-800',
 };
 
-
 export default function ReproducaoPage() {
   const [reproducoes, setReproducoes] = useState<ReproducaoItem[]>([]);
-  const [resumo, setResumo] = useState<Resumo>({ totalFemeas: 0, cheias: 0, vazias: 0, nuncaPariu: 0 });
+  const [resumo, setResumo] = useState<Resumo>({ totalFemeas: 0, cheias: 0, vazias: 0, nuncaPariu: 0, prenhez: null });
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
   const [proprietarios, setProprietarios] = useState<Proprietario[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [excluirDescartes, setExcluirDescartes] = useState(false);
 
   const [filters, setFilters] = useState({
     estacaoMontaId: '',
     statusReprodutivo: '',
     proprietarioId: '',
+    toqueMes: '',
+    toqueAno: '',
   });
 
   useEffect(() => {
@@ -93,6 +109,9 @@ export default function ReproducaoPage() {
     try {
       const params = new URLSearchParams({ page: String(page) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+      if (filters.toqueMes && filters.toqueAno) {
+        params.set('excluirDescartes', String(excluirDescartes));
+      }
       const res = await fetch(`/api/reproducao?${params}`);
       const data = await res.json();
       setReproducoes(data.reproducoes ?? []);
@@ -104,7 +123,7 @@ export default function ReproducaoPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters]);
+  }, [page, filters, excluirDescartes]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -112,6 +131,8 @@ export default function ReproducaoPage() {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1);
   }
+
+  const toqueFilterActive = !!(filters.toqueMes && filters.toqueAno);
 
   return (
     <div className="space-y-6">
@@ -126,23 +147,74 @@ export default function ReproducaoPage() {
       </div>
 
       {/* Cards resumo */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Fêmeas', value: resumo.totalFemeas, color: 'bg-slate-50 border-slate-200 text-slate-700' },
-          { label: 'Cheias', value: resumo.cheias, color: 'bg-green-50 border-green-200 text-green-700' },
-          { label: 'Vazias', value: resumo.vazias, color: 'bg-red-50 border-red-200 text-red-700' },
-          { label: 'Primíparas', value: resumo.nuncaPariu, color: 'bg-amber-50 border-amber-200 text-amber-700' },
-        ].map((card) => (
-          <div key={card.label} className={`rounded-xl border p-4 ${card.color}`}>
-            <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{card.label}</p>
-            <p className="text-3xl font-bold mt-1">{card.value}</p>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="rounded-xl border p-4 bg-slate-50 border-slate-200 text-slate-700">
+          <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Total Fêmeas</p>
+          <p className="text-3xl font-bold mt-1">{resumo.totalFemeas}</p>
+        </div>
+        <div className="rounded-xl border p-4 bg-green-50 border-green-200 text-green-700">
+          <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Cheias</p>
+          <p className="text-3xl font-bold mt-1">{resumo.cheias}</p>
+        </div>
+        <div className="rounded-xl border p-4 bg-red-50 border-red-200 text-red-700">
+          <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Vazias</p>
+          <p className="text-3xl font-bold mt-1">{resumo.vazias}</p>
+        </div>
+        <div className="rounded-xl border p-4 bg-amber-50 border-amber-200 text-amber-700">
+          <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Primíparas</p>
+          <p className="text-3xl font-bold mt-1">{resumo.nuncaPariu}</p>
+        </div>
+
+        {/* Índice de Prenhez */}
+        <div className="rounded-xl border p-4 bg-pink-50 border-pink-200 text-pink-700">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <p className="text-xs font-semibold uppercase tracking-wide opacity-70">Índice de Prenhez</p>
+            <label className="flex items-center gap-1 text-[10px] font-medium cursor-pointer whitespace-nowrap opacity-80 hover:opacity-100">
+              <input
+                type="checkbox"
+                checked={excluirDescartes}
+                onChange={(e) => setExcluirDescartes(e.target.checked)}
+                className="accent-pink-600"
+              />
+              Excluir descartes
+            </label>
           </div>
-        ))}
+          {toqueFilterActive && resumo.prenhez !== null ? (
+            <>
+              <p className="text-3xl font-bold">{resumo.prenhez.percent}%</p>
+              <p className="text-xs mt-0.5 opacity-70">{resumo.prenhez.cheias} cheias de {resumo.prenhez.total} tocadas</p>
+            </>
+          ) : (
+            <p className="text-sm mt-2 opacity-50 italic">Selecione mês e ano do toque</p>
+          )}
+        </div>
       </div>
 
       {/* Filtros */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <select
+            value={filters.toqueMes}
+            onChange={(e) => handleFilter('toqueMes', e.target.value)}
+            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+          >
+            <option value="">Toque — todos os meses</option>
+            {MESES_PT.map((m, i) => (
+              <option key={m} value={i + 1}>{m}</option>
+            ))}
+          </select>
+
+          <select
+            value={filters.toqueAno}
+            onChange={(e) => handleFilter('toqueAno', e.target.value)}
+            className="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+          >
+            <option value="">Toque — todos os anos</option>
+            {[2020,2021,2022,2023,2024,2025,2026].map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+
           <select
             value={filters.estacaoMontaId}
             onChange={(e) => handleFilter('estacaoMontaId', e.target.value)}
@@ -217,7 +289,7 @@ export default function ReproducaoPage() {
                           : (r.ultimoPartoMes && r.ultimoPartoAno ? `${String(r.ultimoPartoMes).padStart(2,'0')}/${r.ultimoPartoAno}` : '—')
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-xs">{formatDateBR(r.dataToque)}</td>
+                    <td className="px-4 py-3 text-slate-600 text-xs">{fmtMesAno(r.dataToque)}</td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{r.estacaoMonta?.nome ?? '—'}</td>
                     <td className="px-4 py-3 text-xs">
                       {r.inseminada
@@ -229,9 +301,9 @@ export default function ReproducaoPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-600 text-xs">
                       {r.inseminada
-                        ? (r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : (r.dataInseminacao ? formatDateBR(r.dataInseminacao) : '—'))
+                        ? (r.semen ? `${r.semen.codigo}${r.semen.touro ? ` (${r.semen.touro})` : ''}` : (r.dataInseminacao ? fmtMesAno(r.dataInseminacao) : '—'))
                         : r.montaNatural
-                          ? (r.dataMontaNatural ? formatDateBR(r.dataMontaNatural) : '—')
+                          ? (r.dataMontaNatural ? fmtMesAno(r.dataMontaNatural) : '—')
                           : '—'
                       }
                     </td>
