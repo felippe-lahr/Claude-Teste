@@ -37,6 +37,8 @@ export default function ImportarPage() {
   const [totalRows, setTotalRows] = useState(0);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forceMode, setForceMode] = useState(false);
+  const [duplicateMsg, setDuplicateMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,15 +63,23 @@ export default function ImportarPage() {
     }
   }
 
-  async function handleConfirmar() {
+  async function handleConfirmar(force = false) {
     if (!file) return;
     setLoading(true);
+    setDuplicateMsg(null);
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await fetch('/api/importar/confirmar', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Erro na importação');
+      const url = force ? '/api/importar/confirmar?force=1' : '/api/importar/confirmar';
+      const res = await fetch(url, { method: 'POST', body: fd });
       const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 409 && data.podeForcar) {
+          setDuplicateMsg(data.error);
+          return;
+        }
+        throw new Error(data.error ?? 'Erro na importação');
+      }
       setResult(data);
       setStep(4);
     } catch (e) {
@@ -85,6 +95,8 @@ export default function ImportarPage() {
     setPreview([]);
     setTotalRows(0);
     setResult(null);
+    setForceMode(false);
+    setDuplicateMsg(null);
     if (fileRef.current) fileRef.current.value = '';
   }
 
@@ -225,15 +237,32 @@ export default function ImportarPage() {
             </div>
           </div>
 
+          {duplicateMsg && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-sm text-amber-800 font-medium mb-1">Arquivo já importado</p>
+              <p className="text-xs text-amber-700 mb-3">{duplicateMsg}</p>
+              <p className="text-xs text-amber-700 mb-3">
+                Deseja forçar a reimportação? Os dados reprodutivos e vacinas serão recriados com os valores atuais da planilha.
+              </p>
+              <button
+                onClick={() => { setForceMode(true); handleConfirmar(true); }}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold transition disabled:opacity-60"
+              >
+                {loading ? 'Reimportando...' : 'Sim, forçar reimportação'}
+              </button>
+            </div>
+          )}
+
           <div className="flex gap-3">
             <button
-              onClick={() => { setStep(2); if (fileRef.current) fileRef.current.value = ''; }}
+              onClick={() => { setStep(2); if (fileRef.current) fileRef.current.value = ''; setDuplicateMsg(null); }}
               className="px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
             >
               ← Trocar arquivo
             </button>
             <button
-              onClick={handleConfirmar}
+              onClick={() => handleConfirmar(forceMode)}
               disabled={loading}
               className="flex-1 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition disabled:opacity-60"
             >
