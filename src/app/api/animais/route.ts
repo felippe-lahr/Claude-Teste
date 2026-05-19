@@ -62,7 +62,14 @@ export async function GET(req: NextRequest) {
   const [animais, total, regras] = await Promise.all([
     prisma.animal.findMany({
       where,
-      include: { proprietario: { select: { id: true, name: true } } },
+      include: {
+        proprietario: { select: { id: true, name: true } },
+        reproducoes: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { statusReprodutivo: true, estagioPrenhez: true, dataToque: true },
+        },
+      },
       orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
       skip,
       take: limit,

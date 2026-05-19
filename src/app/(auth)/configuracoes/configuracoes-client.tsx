@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical } from 'lucide-react';
+import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical, Baby } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { formatDateBR } from '@/lib/utils';
@@ -44,6 +44,15 @@ interface SemenItem {
   touro: string | null;
 }
 
+interface ClassificacaoPrenhezConfig {
+  id: number;
+  estagio: string;
+  label: string;
+  mesInicio: number;
+  mesFim: number;
+  ordem: number;
+}
+
 interface Props {
   ticker: Record<string, string>;
   classificacoes: ClassificacaoConfig[];
@@ -51,6 +60,7 @@ interface Props {
   causasMorte: CausaMorte[];
   estacoes: EstacaoMonta[];
   semens: SemenItem[];
+  configsPrenhez: ClassificacaoPrenhezConfig[];
 }
 
 const senhaSchema = z.object({
@@ -63,7 +73,7 @@ const senhaSchema = z.object({
 
 type SenhaData = z.infer<typeof senhaSchema>;
 
-export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios, causasMorte: initialCausas, estacoes: initialEstacoes, semens: initialSemens }: Props) {
+export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: initialClassificacoes, usuarios, causasMorte: initialCausas, estacoes: initialEstacoes, semens: initialSemens, configsPrenhez: initialConfigsPrenhez }: Props) {
   const [ticker, setTicker] = useState(initialTicker);
   const [classificacoes, setClassificacoes] = useState(initialClassificacoes);
   const [causasMorte, setCausasMorte] = useState(initialCausas);
@@ -86,6 +96,9 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
   const [senhaUserId, setSenhaUserId] = useState<number | null>(null);
   const [senhaUserName, setSenhaUserName] = useState('');
   const [savingSenha, setSavingSenha] = useState(false);
+
+  const [configsPrenhez, setConfigsPrenhez] = useState(initialConfigsPrenhez);
+  const [savingPrenhez, setSavingPrenhez] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SenhaData>({
     resolver: zodResolver(senhaSchema),
@@ -262,6 +275,31 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
     }
   }
 
+
+  function handlePrenhezChange(id: number, field: 'mesInicio' | 'mesFim', value: string) {
+    setConfigsPrenhez((prev) =>
+      prev.map((c) => c.id === id ? { ...c, [field]: value === '' ? 0 : parseInt(value) } : c)
+    );
+  }
+
+  async function salvarPrenhez() {
+    setSavingPrenhez(true);
+    try {
+      const res = await fetch('/api/configuracoes/prenhez', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(configsPrenhez),
+      });
+      if (!res.ok) throw new Error('Erro ao salvar');
+      const data = await res.json();
+      setConfigsPrenhez(data);
+      toast.success('Configurações de prenhez salvas!');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao salvar');
+    } finally {
+      setSavingPrenhez(false);
+    }
+  }
 
   const GENERO_LABEL: Record<string, string> = { MACHO: 'Macho', FEMEA: 'Fêmea' };
   const ROLE_LABEL: Record<string, string> = { ADMIN: 'Admin', SOCIO: 'Sócio' };
@@ -533,7 +571,68 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
         </div>
       </section>
 
-      {/* Seção 6: Usuários */}
+      {/* Seção 6: Classificação de Prenhez */}
+      <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
+          <Baby size={16} className="text-pink-500" />
+          Classificação de Prenhez
+        </h2>
+        <p className="text-xs text-slate-500 mb-5">
+          Define os intervalos de meses de gestação para cada estágio (P1, P2, P3). O estágio exibido é calculado dinamicamente a partir da data do toque.
+        </p>
+        <div className="overflow-x-auto mb-5">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 border-b border-slate-200">
+              <tr>
+                {['Estágio','Descrição','Mês Início','Mês Fim'].map((h) => (
+                  <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {configsPrenhez.map((c) => (
+                <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="px-4 py-3.5">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${c.estagio === 'P1' ? 'bg-yellow-100 text-yellow-800' : c.estagio === 'P2' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'}`}>
+                      {c.estagio}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 text-slate-500 text-xs">{c.label}</td>
+                  <td className="px-4 py-3.5">
+                    <input
+                      type="number"
+                      min="0"
+                      max="8"
+                      value={c.mesInicio}
+                      onChange={(e) => handlePrenhezChange(c.id, 'mesInicio', e.target.value)}
+                      className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                    />
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <input
+                      type="number"
+                      min="0"
+                      max="8"
+                      value={c.mesFim}
+                      onChange={(e) => handlePrenhezChange(c.id, 'mesFim', e.target.value)}
+                      className="w-20 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <button
+          onClick={salvarPrenhez}
+          disabled={savingPrenhez}
+          className="px-5 py-2.5 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+        >
+          {savingPrenhez ? 'Salvando...' : 'Salvar Configurações de Prenhez'}
+        </button>
+      </section>
+
+      {/* Seção 7: Usuários */}
       <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
         <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-5">
           <Users size={16} className="text-violet-500" />

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { classificarAnimal } from '@/lib/classificacao';
-import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
+import { EstagioPrenhez, Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
 import { registrarLog } from '@/lib/log';
 
@@ -111,7 +111,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   if (genero === 'FEMEA' && reproducao) {
-    const { statusReprodutivo, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, ultimoPartoMes, ultimoPartoAno, nuncaPariu, observacoesRepro } = reproducao;
+    const { statusReprodutivo, estagioPrenhez, dataToque, inseminada, dataInseminacao, semenId, montaNatural, dataMontaNatural, ultimoPartoMes, ultimoPartoAno, nuncaPariu, observacoesRepro } = reproducao;
     if (statusReprodutivo || dataToque || dataMontaNatural) {
       let estacaoMontaId: number | null = null;
       const refDate = dataToque ?? dataMontaNatural;
@@ -127,6 +127,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         data: {
           animalId: parseInt(params.id),
           statusReprodutivo: statusReprodutivo as StatusReprodutivo | null ?? null,
+          estagioPrenhez: statusReprodutivo === 'CHEIA' && estagioPrenhez ? (estagioPrenhez as EstagioPrenhez) : null,
           dataToque: dataToque ? (parseDateBR(dataToque) ?? new Date(dataToque)) : null,
           estacaoMontaId,
           inseminada: inseminada ?? false,

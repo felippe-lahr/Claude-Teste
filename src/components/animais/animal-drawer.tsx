@@ -127,6 +127,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [semens, setSemens] = useState<SemenItem[]>([]);
   const [reproducoes, setReproducoes] = useState<ReproducaoHistorico[]>([]);
   const [reproStatus, setReproStatus] = useState('');
+  const [estagioPrenhez, setEstagioPrenhez] = useState('');
   const [dataToque, setDataToque] = useState('');
   const [estacaoDetectada, setEstacaoDetectada] = useState<EstacaoMonta | null>(null);
   const [inseminada, setInseminada] = useState(false);
@@ -167,6 +168,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setJaTemMorte(false);
       setLoteInfo(null);
       setReproStatus('');
+      setEstagioPrenhez('');
       setDataToque('');
       setEstacaoDetectada(null);
       setInseminada(false);
@@ -287,6 +289,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
       const reproPayload = data.genero === 'FEMEA' ? {
         statusReprodutivo: reproStatus || null,
+        estagioPrenhez: reproStatus === 'CHEIA' && estagioPrenhez ? estagioPrenhez : null,
         dataToque: dataToque || null,
         inseminada,
         dataInseminacao: inseminada && dataInseminacao ? dataInseminacao : null,
@@ -555,12 +558,24 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               <div>
                 <label className="block text-xs font-semibold text-[#111110] mb-1.5">Status Reprodutivo</label>
-                <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setUltimoPartoMes(''); setUltimoPartoAno(''); setNuncaPariu(false); } }} className={selectClass}>
+                <select value={reproStatus} onChange={(e) => { setReproStatus(e.target.value); if (e.target.value !== 'VAZIA') { setUltimoPartoMes(''); setUltimoPartoAno(''); setNuncaPariu(false); } if (e.target.value !== 'CHEIA') setEstagioPrenhez(''); }} className={selectClass}>
                   <option value="">Selecione...</option>
                   <option value="CHEIA">Cheia (Prenha)</option>
                   <option value="VAZIA">Vazia</option>
                 </select>
               </div>
+
+              {reproStatus === 'CHEIA' && (
+                <div>
+                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Estágio de Prenhez</label>
+                  <select value={estagioPrenhez} onChange={(e) => setEstagioPrenhez(e.target.value)} className={selectClass}>
+                    <option value="">Selecione...</option>
+                    <option value="P1">P1 (0–3 meses)</option>
+                    <option value="P2">P2 (4–6 meses)</option>
+                    <option value="P3">P3 (7–9 meses)</option>
+                  </select>
+                </div>
+              )}
 
               {reproStatus === 'VAZIA' && (
                 <div className="bg-white border border-pink-100 rounded-lg px-3 py-3 space-y-2">
