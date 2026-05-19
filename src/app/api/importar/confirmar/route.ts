@@ -184,6 +184,11 @@ export async function POST(req: NextRequest) {
           ? (statusReproStr as StatusReprodutivo)
           : null;
 
+        const estagioRaw = parseStr(col(row, 'Estágio Prenhez', 'Estagio Prenhez')).toUpperCase();
+        const estagioPrenhez = statusReprodutivo === 'CHEIA' && ['P1', 'P2', 'P3'].includes(estagioRaw)
+          ? (estagioRaw as 'P1' | 'P2' | 'P3')
+          : null;
+
         const nuncaPariuCell = parseStr(col(row, 'Nunca Pariu')).toLowerCase();
         const nuncaPariu = nuncaPariuCell === 'sim';
         const ultimoPartoMesRaw = col(row, 'Último Parto Mês', 'Ultimo Parto Mes');
@@ -221,6 +226,7 @@ export async function POST(req: NextRequest) {
             data: {
               animalId: animal.id,
               statusReprodutivo,
+              estagioPrenhez,
               dataToque,
               estacaoMontaId,
               inseminada: inseminada && !montaNatural,

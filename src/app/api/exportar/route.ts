@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
       Status: a.status,
       'Data Venda': fmtDate(a.dataVenda),
       'Status Reprodutivo': repro?.statusReprodutivo ?? '',
+      'Estágio Prenhez': repro?.statusReprodutivo === 'CHEIA' ? (repro?.estagioPrenhez ?? '') : '',
       'Data do Toque': fmtDate(repro?.dataToque),
       'Estação de Monta': repro?.estacaoMonta?.nome ?? '',
       Inseminada: repro ? (repro.inseminada ? 'Sim' : 'Não') : '',
