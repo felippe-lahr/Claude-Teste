@@ -37,6 +37,22 @@ function col(row: Record<string, unknown>, ...keys: string[]): unknown {
   return null;
 }
 
+const MES_NOME: Record<string, number> = {
+  jan: 1, fev: 2, mar: 3, abr: 4, mai: 5, jun: 6,
+  jul: 7, ago: 8, set: 9, out: 10, nov: 11, dez: 12,
+};
+
+// Build a UTC Date from a month (name like "mai" or number 1-12) + year
+function parseMesAno(mes: unknown, ano: unknown): Date | null {
+  if (!mes || !ano) return null;
+  const anoNum = parseInt(String(ano));
+  if (isNaN(anoNum)) return null;
+  const mesStr = String(mes).toLowerCase().trim();
+  const mesNum = MES_NOME[mesStr] ?? parseInt(mesStr);
+  if (isNaN(mesNum) || mesNum < 1 || mesNum > 12) return null;
+  return new Date(Date.UTC(anoNum, mesNum - 1, 1));
+}
+
 // Strict proprietário matching: exact first, then full-string contains — avoids first-name collisions
 function findProprietario(usuarios: { id: number; name: string }[], nome: string) {
   const n = nome.toLowerCase().trim();
@@ -132,7 +148,8 @@ export async function POST(req: NextRequest) {
         ? (statusStr as 'VIVO' | 'MORTO' | 'VENDIDO')
         : 'VIVO';
 
-      const dataVenda = parseDate(col(row, 'Data Venda (dd/mm/aaaa)', 'Data Venda'));
+      const dataVenda = parseDate(col(row, 'Data Venda (dd/mm/aaaa)', 'Data Venda'))
+        ?? parseMesAno(col(row, 'Venda Mês', 'Venda Mes'), col(row, 'Venda Ano'));
 
       const animalData = {
         numero: numeroRaw || null,
@@ -166,7 +183,8 @@ export async function POST(req: NextRequest) {
       // Morte — upsert so updates don't create duplicate records
       if (status === 'MORTO') {
         const causaMorte = parseStr(col(row, 'Causa da Morte')) || null;
-        const dataObito = parseDate(col(row, 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito'));
+        const dataObito = parseDate(col(row, 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito'))
+          ?? parseMesAno(col(row, 'Óbito Mês', 'Obito Mes'), col(row, 'Óbito Ano', 'Obito Ano'));
         if (dataObito) {
           await prisma.morte.upsert({
             where: { animalId: animal.id },
@@ -196,8 +214,10 @@ export async function POST(req: NextRequest) {
         const ultimoPartoMes = !nuncaPariu && ultimoPartoMesRaw ? parseInt(String(ultimoPartoMesRaw)) || null : null;
         const ultimoPartoAno = !nuncaPariu && ultimoPartoAnoRaw ? parseInt(String(ultimoPartoAnoRaw)) || null : null;
 
-        const dataToque = parseDate(col(row, 'Data do Toque (dd/mm/aaaa)', 'Data do Toque', 'Data Toque'));
-        const dataInseminacao = parseDate(col(row, 'Data Inseminação (dd/mm/aaaa)', 'Data Inseminacao (dd/mm/aaaa)', 'Data Inseminação', 'Data Inseminacao'));
+        const dataToque = parseDate(col(row, 'Data do Toque (dd/mm/aaaa)', 'Data do Toque', 'Data Toque'))
+          ?? parseMesAno(col(row, 'Toque Mês', 'Toque Mes'), col(row, 'Toque Ano'));
+        const dataInseminacao = parseDate(col(row, 'Data Inseminação (dd/mm/aaaa)', 'Data Inseminacao (dd/mm/aaaa)', 'Data Inseminação', 'Data Inseminacao'))
+          ?? parseMesAno(col(row, 'Inseminação Mês', 'Inseminacao Mes'), col(row, 'Inseminação Ano', 'Inseminacao Ano'));
         const semenCodigo = parseStr(col(row, 'Sêmen (código)', 'Semen (codigo)', 'Sêmen', 'Semen'));
         const semenId = semenCodigo
           ? (semens.find((s) => s.codigo.toLowerCase() === semenCodigo.toLowerCase())?.id
@@ -208,7 +228,10 @@ export async function POST(req: NextRequest) {
         const inseminada = inseminadaCell === 'sim' || (!inseminadaCell && (!!dataInseminacao || !!semenId));
         const montaNaturalCell = parseStr(col(row, 'Monta Natural')).toLowerCase();
         const montaNatural = montaNaturalCell === 'sim';
-        const dataMontaNatural = montaNatural ? parseDate(col(row, 'Data Monta Natural (dd/mm/aaaa)', 'Data Monta Natural')) : null;
+        const dataMontaNatural = montaNatural
+          ? (parseDate(col(row, 'Data Monta Natural (dd/mm/aaaa)', 'Data Monta Natural'))
+              ?? parseMesAno(col(row, 'Monta Mês', 'Monta Mes'), col(row, 'Monta Ano')))
+          : null;
         const observacoesRepro = parseStr(col(row, 'Obs. Reprodução', 'Obs Reproducao')) || null;
 
         if (statusReprodutivo || dataToque || montaNatural || nuncaPariu || ultimoPartoMes) {
@@ -248,7 +271,8 @@ export async function POST(req: NextRequest) {
       const vacinas = [];
       for (let v = 1; v <= 2; v++) {
         const produto = parseStr(col(row, `Vacina ${v} - Produto`)) || null;
-        const dataVac = parseDate(col(row, `Vacina ${v} - Data (dd/mm/aaaa)`, `Vacina ${v} - Data`));
+        const dataVac = parseDate(col(row, `Vacina ${v} - Data (dd/mm/aaaa)`, `Vacina ${v} - Data`))
+          ?? parseMesAno(col(row, `Vacina ${v} - Mês`, `Vacina ${v} - Mes`), col(row, `Vacina ${v} - Ano`));
         const dose = parseStr(col(row, `Vacina ${v} - Dose`)) || null;
         if (produto && dataVac) {
           vacinas.push({ animalId: animal.id, tipo: 'VACINA' as const, produto, data: dataVac, dose });
