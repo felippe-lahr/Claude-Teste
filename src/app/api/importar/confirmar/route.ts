@@ -91,6 +91,9 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
+  const { searchParams } = req.nextUrl;
+  const force = searchParams.get('force') === '1';
+
   const formData = await req.formData();
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 });
@@ -98,12 +101,15 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
   const fileHash = createHash('sha256').update(buffer).digest('hex');
 
-  // Block re-upload of an identical file
-  const logDuplicado = await prisma.logAlteracao.findFirst({ where: { fileHash, tipo: 'IMPORTACAO' } });
-  if (logDuplicado) {
-    return NextResponse.json({
-      error: `Este arquivo já foi importado em ${new Date(logDuplicado.createdAt).toLocaleString('pt-BR')} por ${logDuplicado.userName}. Importe um arquivo diferente.`,
-    }, { status: 409 });
+  // Block re-upload of an identical file (unless ?force=1)
+  if (!force) {
+    const logDuplicado = await prisma.logAlteracao.findFirst({ where: { fileHash, tipo: 'IMPORTACAO' } });
+    if (logDuplicado) {
+      return NextResponse.json({
+        error: `Este arquivo já foi importado em ${new Date(logDuplicado.createdAt).toLocaleString('pt-BR')} por ${logDuplicado.userName}. Importe um arquivo diferente.`,
+        podeForcar: true,
+      }, { status: 409 });
+    }
   }
 
   const workbook = XLSX.read(buffer, { type: 'buffer', cellDates: true });
