@@ -11,6 +11,12 @@ function fmtDate(d: Date | null | undefined): string {
   return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
+const MESES_PT = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+function fmtMonthYear(d: Date | null | undefined): string {
+  if (!d) return '';
+  return `${MESES_PT[d.getUTCMonth()]}/${d.getUTCFullYear()}`;
+}
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
@@ -56,23 +62,23 @@ export async function GET(req: NextRequest) {
       Reprodutor: a.reprodutor ? 'Sim' : 'Não',
       Descarte: a.descarte ? 'Sim' : 'Não',
       Status: a.status,
-      'Data Venda': fmtDate(a.dataVenda),
+      'Data Venda (mm/aaaa)': fmtMonthYear(a.dataVenda),
       'Status Reprodutivo': repro?.statusReprodutivo ?? '',
       'Estágio Prenhez': repro?.statusReprodutivo === 'CHEIA' ? (repro?.estagioPrenhez ?? '') : '',
-      'Data do Toque': fmtDate(repro?.dataToque),
+      'Data do Toque (mm/aaaa)': fmtMonthYear(repro?.dataToque),
       'Estação de Monta': repro?.estacaoMonta?.nome ?? '',
       Inseminada: repro ? (repro.inseminada ? 'Sim' : 'Não') : '',
-      'Data Inseminação': fmtDate(repro?.dataInseminacao),
+      'Data Inseminação (mm/aaaa)': fmtMonthYear(repro?.dataInseminacao),
       'Sêmen': repro?.semen?.codigo ?? '',
       'Monta Natural': repro ? (repro.montaNatural ? 'Sim' : 'Não') : '',
-      'Data Monta Natural': fmtDate(repro?.dataMontaNatural),
+      'Data Monta Natural (mm/aaaa)': fmtMonthYear(repro?.dataMontaNatural),
       'Nunca Pariu': repro?.statusReprodutivo === 'VAZIA' ? (repro.nuncaPariu ? 'Sim' : 'Não') : '',
       'Último Parto': repro?.statusReprodutivo === 'VAZIA' && !repro.nuncaPariu && repro.ultimoPartoMes && repro.ultimoPartoAno
         ? `${String(repro.ultimoPartoMes).padStart(2, '0')}/${repro.ultimoPartoAno}`
         : '',
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
-      'Data Óbito': fmtDate(a.morte?.dataObito),
+      'Data Óbito (mm/aaaa)': fmtMonthYear(a.morte?.dataObito),
       Observações: a.observacoes ?? '',
       'Cadastrado em': fmtDate(a.createdAt),
     };
