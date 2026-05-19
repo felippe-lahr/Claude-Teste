@@ -25,9 +25,13 @@ export async function GET() {
   // ── 1. Main sheet ─────────────────────────────────────────────────────────
   const ws = wb.addWorksheet('Animais');
 
-  // Layout: A-I dados básicos | J-K Venda Mês/Ano | L Obs | M-P Repro básico+Último Parto
-  // Q-X Toque/Inseminada/Monta/Inseminação (Mês/Ano) | Y-AC Sêmen/Obs/CausaMorte/Óbito Mês/Ano
-  // AD-AK Vacinas 1 e 2
+  // Layout — 38 columns A–AL
+  // A-I: dados básicos | J-K: Venda Mês/Ano | L: Obs
+  // M: Status Reprodutivo | N: Estágio Prenhez (P1/P2/P3) ← novo
+  // O-R: Nunca Pariu + Último Parto Mês/Ano | R-S: Toque Mês/Ano
+  // T-Y: Inseminada/Monta/Monta Mês/Ano/Inseminação Mês/Ano
+  // Z-AA: Sêmen/Obs | AB-AD: CausaMorte/Óbito Mês/Ano
+  // AE-AL: Vacinas 1 e 2
   ws.columns = [
     { header: 'Número',              key: 'a',  width: 12 },
     { header: 'Proprietário',        key: 'b',  width: 22 },
@@ -42,30 +46,31 @@ export async function GET() {
     { header: 'Venda Ano',          key: 'k',  width: 14 }, // K
     { header: 'Observações',        key: 'l',  width: 22 }, // L
     { header: 'Status Reprodutivo', key: 'm',  width: 22 }, // M
-    { header: 'Nunca Pariu',        key: 'n',  width: 14 }, // N
-    { header: 'Último Parto Mês',   key: 'o',  width: 16 }, // O
-    { header: 'Último Parto Ano',   key: 'p',  width: 16 }, // P
-    { header: 'Toque Mês',          key: 'q',  width: 14 }, // Q
-    { header: 'Toque Ano',          key: 'r',  width: 14 }, // R
-    { header: 'Inseminada',         key: 's',  width: 14 }, // S
-    { header: 'Monta Natural',      key: 't',  width: 14 }, // T
-    { header: 'Monta Mês',         key: 'u',  width: 14 }, // U
-    { header: 'Monta Ano',         key: 'v',  width: 14 }, // V
-    { header: 'Inseminação Mês',   key: 'w',  width: 16 }, // W
-    { header: 'Inseminação Ano',   key: 'x',  width: 16 }, // X
-    { header: 'Sêmen (código)',     key: 'y',  width: 18 }, // Y
-    { header: 'Obs. Reprodução',    key: 'z',  width: 22 }, // Z
-    { header: 'Causa da Morte',     key: 'aa', width: 22 }, // AA
-    { header: 'Óbito Mês',         key: 'ab', width: 14 }, // AB
-    { header: 'Óbito Ano',         key: 'ac', width: 14 }, // AC
-    { header: 'Vacina 1 - Produto', key: 'ad', width: 22 }, // AD
-    { header: 'Vacina 1 - Mês',     key: 'ae', width: 14 }, // AE
-    { header: 'Vacina 1 - Ano',     key: 'af', width: 14 }, // AF
-    { header: 'Vacina 1 - Dose',    key: 'ag', width: 16 }, // AG
-    { header: 'Vacina 2 - Produto', key: 'ah', width: 22 }, // AH
-    { header: 'Vacina 2 - Mês',     key: 'ai', width: 14 }, // AI
-    { header: 'Vacina 2 - Ano',     key: 'aj', width: 14 }, // AJ
-    { header: 'Vacina 2 - Dose',    key: 'ak', width: 16 }, // AK
+    { header: 'Estágio Prenhez',    key: 'n',  width: 16 }, // N ← novo
+    { header: 'Nunca Pariu',        key: 'o',  width: 14 }, // O (era N)
+    { header: 'Último Parto Mês',   key: 'p',  width: 16 }, // P (era O)
+    { header: 'Último Parto Ano',   key: 'q',  width: 16 }, // Q (era P)
+    { header: 'Toque Mês',          key: 'r',  width: 14 }, // R (era Q)
+    { header: 'Toque Ano',          key: 's',  width: 14 }, // S (era R)
+    { header: 'Inseminada',         key: 't',  width: 14 }, // T (era S)
+    { header: 'Monta Natural',      key: 'u',  width: 14 }, // U (era T)
+    { header: 'Monta Mês',         key: 'v',  width: 14 }, // V (era U)
+    { header: 'Monta Ano',         key: 'w',  width: 14 }, // W (era V)
+    { header: 'Inseminação Mês',   key: 'x',  width: 16 }, // X (era W)
+    { header: 'Inseminação Ano',   key: 'y',  width: 16 }, // Y (era X)
+    { header: 'Sêmen (código)',     key: 'z',  width: 18 }, // Z (era Y)
+    { header: 'Obs. Reprodução',    key: 'aa', width: 22 }, // AA (era Z)
+    { header: 'Causa da Morte',     key: 'ab', width: 22 }, // AB (era AA)
+    { header: 'Óbito Mês',         key: 'ac', width: 14 }, // AC (era AB)
+    { header: 'Óbito Ano',         key: 'ad', width: 14 }, // AD (era AC)
+    { header: 'Vacina 1 - Produto', key: 'ae', width: 22 }, // AE (era AD)
+    { header: 'Vacina 1 - Mês',     key: 'af', width: 14 }, // AF (era AE)
+    { header: 'Vacina 1 - Ano',     key: 'ag', width: 14 }, // AG (era AF)
+    { header: 'Vacina 1 - Dose',    key: 'ah', width: 16 }, // AH (era AG)
+    { header: 'Vacina 2 - Produto', key: 'ai', width: 22 }, // AI (era AH)
+    { header: 'Vacina 2 - Mês',     key: 'aj', width: 14 }, // AJ (era AI)
+    { header: 'Vacina 2 - Ano',     key: 'ak', width: 14 }, // AK (era AJ)
+    { header: 'Vacina 2 - Dose',    key: 'al', width: 16 }, // AL (era AK)
   ];
 
   // Style header row
@@ -80,54 +85,60 @@ export async function GET() {
   const p0 = proprietarios[0]?.name ?? 'Proprietário';
   const s0 = semens[0]?.codigo ?? '';
 
-  // Example rows (37 columns A–AK)
+  // Example rows (38 columns A–AL)
+  // Macho — sem reprodução
   ws.addRow([
     '001', p0, 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO',
-    '', '',       // J K  venda mês/ano
-    '',           // L  obs
-    '', '', '', '', // M N O P  repro básico
-    '', '',       // Q R  toque mês/ano
-    'Não', 'Não', // S T  inseminada, monta natural
-    '', '',       // U V  monta mês/ano
-    '', '',       // W X  inseminação mês/ano
-    '', '',       // Y Z  sêmen, obs repro
-    '',           // AA causa morte
-    '', '',       // AB AC óbito mês/ano
-    'Aftosa', 'jan', 2024, '2ml', // AD AE AF AG vacina 1
-    '', '', '', '',               // AH AI AJ AK vacina 2
+    '', '',        // J K  venda mês/ano
+    '',            // L  obs
+    '', '',        // M N  status repro + estágio
+    '', '', '',    // O P Q  nunca pariu + último parto mês/ano
+    '', '',        // R S  toque mês/ano
+    'Não', 'Não',  // T U  inseminada, monta natural
+    '', '',        // V W  monta mês/ano
+    '', '',        // X Y  inseminação mês/ano
+    '', '',        // Z AA  sêmen, obs repro
+    '',            // AB causa morte
+    '', '',        // AC AD óbito mês/ano
+    'Aftosa', 'jan', 2024, '2ml', // AE AF AG AH vacina 1
+    '', '', '', '',               // AI AJ AK AL vacina 2
   ]);
+  // Fêmea prenha P1 via IA — toque e inseminação em mar/2025
   ws.addRow([
     '002', p0, 'FEMEA', 'Não', 'Não', 6, 2021, 280, 'VIVO',
-    '', '',           // J K  venda
-    '',               // L  obs
-    'CHEIA', 'Não', '', '', // M N O P
-    'mar', 2025,      // Q R  toque
-    'Sim', 'Não',     // S T
-    '', '',           // U V  monta
-    'mar', 2025,      // W X  inseminação
-    s0, '',           // Y Z
-    '',               // AA causa morte
-    '', '',           // AB AC óbito
-    '', '', '', '',   // AD-AG vacina 1
-    '', '', '', '',   // AH-AK vacina 2
+    '', '',            // J K  venda
+    '',                // L  obs
+    'CHEIA', 'P1',     // M N  status repro + estágio
+    'Não', '', '',     // O P Q  nunca pariu + último parto
+    'mar', 2025,       // R S  toque
+    'Sim', 'Não',      // T U  inseminada, monta natural
+    '', '',            // V W  monta
+    'mar', 2025,       // X Y  inseminação
+    s0, '',            // Z AA
+    '',                // AB causa morte
+    '', '',            // AC AD óbito
+    '', '', '', '',    // AE-AH vacina 1
+    '', '', '', '',    // AI-AL vacina 2
   ]);
+  // Fêmea vazia com último parto
   ws.addRow([
     '003', p0, 'FEMEA', 'Não', 'Não', 9, 2020, 260, 'VIVO',
-    '', '', '', 'VAZIA', 'Não', 'mar', 2025,
+    '', '', '', 'VAZIA', '', 'Não', 'mar', 2025,
     '', '', 'Não', 'Não', '', '', '', '',
     '', '', '', '', '',
     '', '', '', '', '', '', '', '',
   ]);
+  // Fêmea primípara
   ws.addRow([
     '004', p0, 'FEMEA', 'Não', 'Não', 1, 2024, 220, 'VIVO',
-    '', '', '', 'VAZIA', 'Sim', '', '',
+    '', '', '', 'VAZIA', '', 'Sim', '', '',
     '', '', 'Não', 'Não', '', '', '', '',
     '', '', '', '', '',
     '', '', '', '', '', '', '', '',
   ]);
 
   ws.views = [{ state: 'frozen', ySplit: 1 }];
-  ws.autoFilter = { from: 'A1', to: 'AK1' };
+  ws.autoFilter = { from: 'A1', to: 'AL1' };
 
   // ── 2. Hidden helper sheet ────────────────────────────────────────────────
   const listas = wb.addWorksheet('_listas');
@@ -158,48 +169,49 @@ export async function GET() {
     // Venda Mês/Ano
     ws.getCell(`J${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
     ws.getCell(`K${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
-    // Status reprodutivo
+    // Status reprodutivo + estágio prenhez
     ws.getCell(`M${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"CHEIA,VAZIA"'] };
-    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };
-    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"1,2,3,4,5,6,7,8,9,10,11,12"'] };
-    ws.getCell(`P${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`N${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"P1,P2,P3"'] }; // Estágio Prenhez
+    ws.getCell(`O${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };   // Nunca Pariu
+    ws.getCell(`P${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"1,2,3,4,5,6,7,8,9,10,11,12"'] }; // Últ Parto Mês
+    ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };           // Últ Parto Ano
     // Toque Mês/Ano
-    ws.getCell(`Q${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
-    ws.getCell(`S${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };
-    ws.getCell(`T${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] };
+    ws.getCell(`R${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`S${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`T${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] }; // Inseminada
+    ws.getCell(`U${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"Não,Sim"'] }; // Monta Natural
     // Monta Mês/Ano
-    ws.getCell(`U${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`V${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`V${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`W${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
     // Inseminação Mês/Ano
-    ws.getCell(`W${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`X${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`X${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`Y${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
     if (semens.length > 0) {
-      ws.getCell(`Y${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
+      ws.getCell(`Z${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$H$2:$H$${semenEnd}`] };
     }
     if (causasMorte.length > 0) {
-      ws.getCell(`AA${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
+      ws.getCell(`AB${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$I$2:$I$${causaEnd}`] };
     }
     // Óbito Mês/Ano
-    ws.getCell(`AB${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`AC${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`AC${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`AD${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
     // Vacina 1 Mês/Ano
-    ws.getCell(`AE${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`AF${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`AF${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`AG${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
     // Vacina 2 Mês/Ano
-    ws.getCell(`AI${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
-    ws.getCell(`AJ${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
+    ws.getCell(`AJ${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [MESES] };
+    ws.getCell(`AK${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
   }
 
   // ── 4. Conditional formatting ─────────────────────────────────────────────
   ws.addConditionalFormatting({
-    ref: 'A2:AK501',
+    ref: 'A2:AL501',
     rules: [
       { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } } },
     ],
   });
   ws.addConditionalFormatting({
-    ref: 'A2:AK501',
+    ref: 'A2:AL501',
     rules: [
       { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
     ],

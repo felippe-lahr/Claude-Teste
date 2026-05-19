@@ -11,12 +11,6 @@ function fmtDate(d: Date | null | undefined): string {
   return d.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
-function fmtMonthYear(d: Date | null | undefined): string {
-  if (!d) return '';
-  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-  return `${m}/${d.getUTCFullYear()}`;
-}
-
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
@@ -62,22 +56,23 @@ export async function GET(req: NextRequest) {
       Reprodutor: a.reprodutor ? 'Sim' : 'Não',
       Descarte: a.descarte ? 'Sim' : 'Não',
       Status: a.status,
-      'Data Venda (mm/aaaa)': fmtMonthYear(a.dataVenda),
+      'Data Venda': fmtDate(a.dataVenda),
       'Status Reprodutivo': repro?.statusReprodutivo ?? '',
-      'Data do Toque (mm/aaaa)': fmtMonthYear(repro?.dataToque),
+      'Estágio Prenhez': repro?.statusReprodutivo === 'CHEIA' ? (repro?.estagioPrenhez ?? '') : '',
+      'Data do Toque': fmtDate(repro?.dataToque),
       'Estação de Monta': repro?.estacaoMonta?.nome ?? '',
       Inseminada: repro ? (repro.inseminada ? 'Sim' : 'Não') : '',
-      'Data Inseminação (mm/aaaa)': fmtMonthYear(repro?.dataInseminacao),
+      'Data Inseminação': fmtDate(repro?.dataInseminacao),
       'Sêmen': repro?.semen?.codigo ?? '',
       'Monta Natural': repro ? (repro.montaNatural ? 'Sim' : 'Não') : '',
-      'Data Monta Natural (mm/aaaa)': fmtMonthYear(repro?.dataMontaNatural),
+      'Data Monta Natural': fmtDate(repro?.dataMontaNatural),
       'Nunca Pariu': repro?.statusReprodutivo === 'VAZIA' ? (repro.nuncaPariu ? 'Sim' : 'Não') : '',
       'Último Parto': repro?.statusReprodutivo === 'VAZIA' && !repro.nuncaPariu && repro.ultimoPartoMes && repro.ultimoPartoAno
         ? `${String(repro.ultimoPartoMes).padStart(2, '0')}/${repro.ultimoPartoAno}`
         : '',
       'Obs. Reprodução': repro?.observacoes ?? '',
       'Causa Morte': a.morte?.causa ?? '',
-      'Data Óbito (mm/aaaa)': fmtMonthYear(a.morte?.dataObito),
+      'Data Óbito': fmtDate(a.morte?.dataObito),
       Observações: a.observacoes ?? '',
       'Cadastrado em': fmtDate(a.createdAt),
     };
