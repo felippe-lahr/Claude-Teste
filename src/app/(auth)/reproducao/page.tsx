@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { HeartPulse, ChevronLeft, ChevronRight } from 'lucide-react';
+import { HeartPulse, ChevronLeft, ChevronRight, Baby } from 'lucide-react';
 import { TableSkeleton } from '@/components/ui/skeleton';
+import { calcularEstagioAtual, DEFAULT_PRENHEZ_CONFIGS } from '@/lib/prenhez';
 
 const MESES_PT = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 
@@ -26,6 +27,7 @@ interface Proprietario {
 interface ReproducaoItem {
   id: number;
   statusReprodutivo: string | null;
+  estagioPrenhez: string | null;
   dataToque: string | null;
   inseminada: boolean;
   dataInseminacao: string | null;
@@ -43,6 +45,20 @@ interface ReproducaoItem {
     proprietario: { id: number; name: string };
   };
 }
+
+interface ProjecaoItem {
+  mes: number;
+  ano: number;
+  count: number;
+}
+
+const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const PRENHEZ_BADGE: Record<string, string> = {
+  P1: 'bg-yellow-100 text-yellow-800',
+  P2: 'bg-orange-100 text-orange-800',
+  P3: 'bg-green-100 text-green-800',
+};
 
 interface Prenhez {
   percent: number;
@@ -71,6 +87,7 @@ const STATUS_COLOR: Record<string, string> = {
 export default function ReproducaoPage() {
   const [reproducoes, setReproducoes] = useState<ReproducaoItem[]>([]);
   const [resumo, setResumo] = useState<Resumo>({ totalFemeas: 0, cheias: 0, vazias: 0, nuncaPariu: 0, prenhez: null });
+  const [projecao, setProjecao] = useState<ProjecaoItem[]>([]);
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
   const [proprietarios, setProprietarios] = useState<Proprietario[]>([]);
   const [total, setTotal] = useState(0);
@@ -118,6 +135,7 @@ export default function ReproducaoPage() {
       setTotal(data.total ?? 0);
       setPages(data.pages ?? 1);
       if (data.resumo) setResumo(data.resumo);
+      if (data.projecao) setProjecao(data.projecao);
     } catch {
       // silent
     } finally {
@@ -189,6 +207,25 @@ export default function ReproducaoPage() {
           )}
         </div>
       </div>
+
+      {/* Card Projeção de Nascimentos */}
+      {projecao.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-4">
+            <Baby size={16} className="text-pink-500" />
+            Projeção de Nascimentos (próximos 6 meses)
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {projecao.map((p) => (
+              <div key={`${p.ano}-${p.mes}`} className="rounded-lg border border-pink-100 bg-pink-50 p-3 text-center">
+                <p className="text-xs font-semibold text-pink-600 mb-1">{MESES_NOMES[p.mes - 1].substring(0, 3)}/{p.ano}</p>
+                <p className="text-2xl font-bold text-pink-800">{p.count}</p>
+                <p className="text-xs text-pink-500 mt-0.5">{p.count === 1 ? 'parto' : 'partos'}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filtros */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
@@ -276,11 +313,21 @@ export default function ReproducaoPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-600 text-xs">{r.animal.proprietario.name}</td>
                     <td className="px-4 py-3">
-                      {r.statusReprodutivo ? (
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_COLOR[r.statusReprodutivo] ?? 'bg-slate-100 text-slate-700'}`}>
-                          {STATUS_LABEL[r.statusReprodutivo] ?? r.statusReprodutivo}
-                        </span>
-                      ) : '—'}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {r.statusReprodutivo ? (
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_COLOR[r.statusReprodutivo] ?? 'bg-slate-100 text-slate-700'}`}>
+                            {STATUS_LABEL[r.statusReprodutivo] ?? r.statusReprodutivo}
+                          </span>
+                        ) : '—'}
+                        {r.statusReprodutivo === 'CHEIA' && r.estagioPrenhez && r.dataToque && (() => {
+                          const estagio = calcularEstagioAtual(r.estagioPrenhez, new Date(r.dataToque), DEFAULT_PRENHEZ_CONFIGS);
+                          return (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${PRENHEZ_BADGE[estagio] ?? ''}`}>
+                              {estagio}
+                            </span>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {r.statusReprodutivo === 'VAZIA'

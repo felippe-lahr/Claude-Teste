@@ -14,8 +14,15 @@ import { Badge } from '@/components/ui/badge';
 import { AnimalDrawer } from '@/components/animais/animal-drawer';
 import { TableSkeleton } from '@/components/ui/skeleton';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
+import { calcularEstagioAtual, DEFAULT_PRENHEZ_CONFIGS } from '@/lib/prenhez';
 
 interface Proprietario { id: number; name: string }
+
+interface LatestRepro {
+  statusReprodutivo: string | null;
+  estagioPrenhez: string | null;
+  dataToque: string | null;
+}
 
 interface Animal {
   id: number;
@@ -32,7 +39,14 @@ interface Animal {
   dataVenda: string | null;
   proprietarioId: number;
   proprietario: { id: number; name: string };
+  reproducoes?: LatestRepro[];
 }
+
+const PRENHEZ_BADGE: Record<string, string> = {
+  P1: 'bg-yellow-100 text-yellow-800',
+  P2: 'bg-orange-100 text-orange-800',
+  P3: 'bg-green-100 text-green-800',
+};
 
 interface Props {
   proprietarios: Proprietario[];
@@ -362,8 +376,22 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                     <td className="px-4 py-3 text-[#6B6B65] text-xs">{formatEra(animal.eraMes, animal.eraAno)}</td>
                     <td className="px-4 py-3 text-[#6B6B65] text-xs">{animal.peso ? `${animal.peso} kg` : '—'}</td>
                     <td className="px-4 py-3">
-                      <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
-                      {animal.descarte && <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Descarte</span>}
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <Badge variant="status" value={animal.status}>{animal.status === 'VIVO' ? 'Vivo' : animal.status === 'VENDIDO' ? 'Vendido' : 'Morto'}</Badge>
+                        {animal.descarte && <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Descarte</span>}
+                        {(() => {
+                          const repro = animal.reproducoes?.[0];
+                          if (repro?.statusReprodutivo === 'CHEIA' && repro.estagioPrenhez && repro.dataToque) {
+                            const estagio = calcularEstagioAtual(repro.estagioPrenhez, new Date(repro.dataToque), DEFAULT_PRENHEZ_CONFIGS);
+                            return (
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${PRENHEZ_BADGE[estagio] ?? ''}`}>
+                                {estagio}
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
