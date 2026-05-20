@@ -319,8 +319,10 @@ export default function ReproducaoPage() {
                             {STATUS_LABEL[r.statusReprodutivo] ?? r.statusReprodutivo}
                           </span>
                         ) : '—'}
-                        {r.statusReprodutivo === 'CHEIA' && r.estagioPrenhez && r.dataToque && (() => {
-                          const estagio = calcularEstagioAtual(r.estagioPrenhez, new Date(r.dataToque), DEFAULT_PRENHEZ_CONFIGS);
+                        {r.statusReprodutivo === 'CHEIA' && r.estagioPrenhez && (() => {
+                          const estagio = r.dataToque
+                            ? calcularEstagioAtual(r.estagioPrenhez, new Date(r.dataToque), DEFAULT_PRENHEZ_CONFIGS)
+                            : (r.estagioPrenhez as 'P1' | 'P2' | 'P3');
                           return (
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${PRENHEZ_BADGE[estagio] ?? ''}`}>
                               {estagio}
