@@ -381,8 +381,10 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                         {animal.descarte && <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Descarte</span>}
                         {(() => {
                           const repro = animal.reproducoes?.[0];
-                          if (repro?.statusReprodutivo === 'CHEIA' && repro.estagioPrenhez && repro.dataToque) {
-                            const estagio = calcularEstagioAtual(repro.estagioPrenhez, new Date(repro.dataToque), DEFAULT_PRENHEZ_CONFIGS);
+                          if (repro?.statusReprodutivo === 'CHEIA' && repro.estagioPrenhez) {
+                            const estagio = repro.dataToque
+                              ? calcularEstagioAtual(repro.estagioPrenhez, new Date(repro.dataToque), DEFAULT_PRENHEZ_CONFIGS)
+                              : (repro.estagioPrenhez as 'P1' | 'P2' | 'P3');
                             return (
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${PRENHEZ_BADGE[estagio] ?? ''}`}>
                                 {estagio}

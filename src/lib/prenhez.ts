@@ -21,8 +21,9 @@ export function calcularEstagioAtual(
   configs: PrenhezConfig[],
 ): 'P1' | 'P2' | 'P3' {
   const mesesNaToque = STAGE_START[estagio] ?? 0;
-  const mesesPassados = Math.floor(
-    (Date.now() - dataToque.getTime()) / (1000 * 60 * 60 * 24 * 30.44),
+  const mesesPassados = Math.max(
+    0,
+    Math.floor((Date.now() - dataToque.getTime()) / (1000 * 60 * 60 * 24 * 30.44)),
   );
   const totalMeses = mesesNaToque + mesesPassados;
   const sorted = [...configs].sort((a, b) => a.ordem - b.ordem);
