@@ -281,11 +281,12 @@ export async function POST(req: NextRequest) {
             observacoes: observacoesRepro,
             registradoPorId: parseInt(session.user.id),
           };
-          await prisma.reproducaoAnimal.upsert({
-            where: { animalId: animal.id },
-            update: reproData,
-            create: { animalId: animal.id, ...reproData },
-          });
+          const reproExistente = await prisma.reproducaoAnimal.findFirst({ where: { animalId: animal.id }, select: { id: true } });
+          if (reproExistente) {
+            await prisma.reproducaoAnimal.update({ where: { id: reproExistente.id }, data: reproData });
+          } else {
+            await prisma.reproducaoAnimal.create({ data: { animalId: animal.id, ...reproData } });
+          }
         }
       }
 
