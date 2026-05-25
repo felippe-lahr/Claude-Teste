@@ -126,8 +126,7 @@ export async function GET(req: NextRequest) {
     { label: 'Nasc.',     flex: 0.9 },
     { label: 'Peso',      flex: 0.7 },
     { label: 'Repr.',     flex: 0.6 },
-    { label: 'Desc.',     flex: 0.6 },
-    { label: 'Status',    flex: 0.9 },
+    { label: 'Status',    flex: 1.4 },
     { label: 'Reprod.',   flex: 1.1 },
     { label: 'Toque',     flex: 0.9 },
   ];
@@ -190,11 +189,15 @@ export async function GET(req: NextRequest) {
                 <Text style={[s.td, { flex: 0.9 }]}>{fmtAnoMes(a.eraMes, a.eraAno)}</Text>
                 <Text style={[s.td, { flex: 0.7 }]}>{a.peso != null ? `${a.peso} kg` : '—'}</Text>
                 <Text style={[s.td, { flex: 0.6 }]}>{a.reprodutor ? 'Sim' : 'Não'}</Text>
-                <Text style={[s.td, { flex: 0.6 }]}>{a.descarte ? 'Sim' : 'Não'}</Text>
-                <View style={[s.td, { flex: 0.9, flexDirection: 'row' }]}>
+                <View style={[s.td, { flex: 1.4, flexDirection: 'row', gap: 3, alignItems: 'center', flexWrap: 'wrap' }]}>
                   <Text style={[s.badge, { backgroundColor: sBg(a.status), color: sColor(a.status) }]}>
                     {sLabel(a.status)}
                   </Text>
+                  {a.descarte && (
+                    <Text style={[s.badge, { backgroundColor: '#fef3c7', color: '#92400e' }]}>
+                      Descarte
+                    </Text>
+                  )}
                 </View>
                 <Text style={[s.td, { flex: 1.1 }]}>{reproLabel}</Text>
                 <Text style={[s.td, { flex: 0.9 }]}>
