@@ -64,7 +64,14 @@ export async function GET(req: NextRequest) {
   if (genero && (genero === 'MACHO' || genero === 'FEMEA')) where.genero = genero as Genero;
 
   const denominacao = searchParams.get('denominacao');
-  if (denominacao) where.denominacao = denominacao;
+  const denominacoesParam = searchParams.get('denominacoes');
+  if (denominacoesParam) {
+    const list = denominacoesParam.split(',').map((s: string) => s.trim()).filter(Boolean);
+    if (list.length === 1) where.denominacao = list[0];
+    else if (list.length > 1) where.denominacao = { in: list };
+  } else if (denominacao) {
+    where.denominacao = denominacao;
+  }
 
   const status = searchParams.get('status');
   if (status && (['VIVO', 'MORTO', 'VENDIDO'] as string[]).includes(status)) where.status = status as StatusAnimal;
@@ -103,7 +110,8 @@ export async function GET(req: NextRequest) {
     chips.push(`Proprietário: ${nome}`);
   }
   if (genero) chips.push(`Gênero: ${genero === 'MACHO' ? 'Macho' : 'Fêmea'}`);
-  if (denominacao) chips.push(`Categoria: ${denominacao}`);
+  if (denominacoesParam) chips.push(`Categoria: ${denominacoesParam.split(',').join(', ')}`);
+  else if (denominacao) chips.push(`Categoria: ${denominacao}`);
   if (status) chips.push(`Status: ${sLabel(status)}`);
   if (descarteFilter === 'true') chips.push('Descarte: Sim');
   else if (descarteFilter === 'false') chips.push('Descarte: Não');
