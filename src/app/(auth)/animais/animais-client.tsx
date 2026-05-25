@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import {
   Plus, Search, ChevronLeft, ChevronRight, Tag, Eye, Pencil, Trash2,
-  Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList, Package,
+  Download, CheckSquare, X, AlertTriangle, Calendar, ClipboardList, Package, FileText,
 } from 'lucide-react';
 import { NovoLoteWizard } from '@/components/lotes/novo-lote-wizard';
 import Slider from 'rc-slider';
@@ -129,6 +129,16 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
     setPage(1);
   }
 
+  function handleDownloadPDF() {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+    if (sliderActive) {
+      params.set('eraMin', String(sliderRange[0]));
+      params.set('eraMax', String(sliderRange[1]));
+    }
+    window.open(`/api/animais/relatorio?${params}`, '_blank');
+  }
+
   async function handleDelete(id: number) {
     if (!confirm('Deseja excluir este animal? Esta ação não pode ser desfeita.')) return;
     try {
@@ -217,6 +227,14 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
             <Download size={16} />
             Exportar
           </a>
+          <button
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm font-medium hover:bg-[#F5F4EF] transition"
+            title={`Gerar relatório PDF com os filtros atuais (${total} animais)`}
+          >
+            <FileText size={16} />
+            Relatório PDF
+          </button>
           <button
             onClick={() => { setEditAnimal(null); setDrawerOpen(true); }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2F6A47] hover:bg-[#255840] text-white text-sm font-semibold transition"
