@@ -84,8 +84,11 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null);
 
   const [filters, setFilters] = useState({
-    numero: '', proprietarioId: '', genero: '', denominacao: '', status: '', descarte: '',
+    numero: '', proprietarioId: '', genero: '', status: '', descarte: '',
   });
+  const [denominacoesSel, setDenominacoesSel] = useState<string[]>([]);
+  const [denomDropOpen, setDenomDropOpen] = useState(false);
+  const denomDropRef = useRef<HTMLDivElement>(null);
 
   // Slider state — null means not active
   const [sliderRange, setSliderRange] = useState<[number, number]>([sliderMin, sliderMax]);
@@ -104,6 +107,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+      if (denominacoesSel.length > 0) params.set('denominacoes', denominacoesSel.join(','));
       if (sliderActive) {
         params.set('eraMin', String(sliderRange[0]));
         params.set('eraMax', String(sliderRange[1]));
@@ -120,7 +124,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
     } finally {
       setLoading(false);
     }
-  }, [page, limit, filters, sliderActive, sliderRange]);
+  }, [page, limit, filters, denominacoesSel, sliderActive, sliderRange]);
 
   useEffect(() => { fetchAnimais(); }, [fetchAnimais]);
 
@@ -132,12 +136,24 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   function handleDownloadPDF() {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+    if (denominacoesSel.length > 0) params.set('denominacoes', denominacoesSel.join(','));
     if (sliderActive) {
       params.set('eraMin', String(sliderRange[0]));
       params.set('eraMax', String(sliderRange[1]));
     }
     window.open(`/api/animais/relatorio?${params}`, '_blank');
   }
+
+  // Close denominação dropdown when clicking outside
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (denomDropRef.current && !denomDropRef.current.contains(e.target as Node)) {
+        setDenomDropOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
 
   async function handleDelete(id: number) {
     if (!confirm('Deseja excluir este animal? Esta ação não pode ser desfeita.')) return;
@@ -266,10 +282,55 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
             <option value="MACHO">Macho</option>
             <option value="FEMEA">Fêmea</option>
           </select>
-          <select value={filters.denominacao} onChange={(e) => handleFilterChange('denominacao', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
-            <option value="">Denominação</option>
-            {denominacoes.map((d) => <option key={d} value={d}>{d}</option>)}
-          </select>
+          {/* Multi-select denominação */}
+          <div ref={denomDropRef} className="relative w-full">
+            <button
+              type="button"
+              onClick={() => setDenomDropOpen((o) => !o)}
+              className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs text-left flex items-center justify-between gap-1 focus:outline-none focus:ring-1 focus:ring-[#2F6A47]"
+            >
+              <span className={denominacoesSel.length === 0 ? 'text-[#9B9B93]' : 'text-[#3D3D37] font-medium'}>
+                {denominacoesSel.length === 0
+                  ? 'Denominação'
+                  : denominacoesSel.length === 1
+                    ? denominacoesSel[0]
+                    : `${denominacoesSel.length} selecionadas`}
+              </span>
+              <svg className={`w-3 h-3 text-[#9B9B93] shrink-0 transition-transform ${denomDropOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {denomDropOpen && (
+              <div className="absolute z-50 top-full left-0 mt-1 w-full min-w-[180px] bg-white border border-[#E8E8E3] rounded-lg shadow-lg py-1 max-h-60 overflow-y-auto">
+                {denominacoesSel.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => { setDenominacoesSel([]); setPage(1); }}
+                    className="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 border-b border-[#E8E8E3]"
+                  >
+                    Limpar seleção
+                  </button>
+                )}
+                {denominacoes.map((d) => {
+                  const checked = denominacoesSel.includes(d);
+                  return (
+                    <label key={d} className="flex items-center gap-2 px-3 py-1.5 text-xs text-[#3D3D37] hover:bg-[#F5F4EF] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => {
+                          setDenominacoesSel((prev) =>
+                            checked ? prev.filter((x) => x !== d) : [...prev, d]
+                          );
+                          setPage(1);
+                        }}
+                        className="accent-[#2F6A47] w-3.5 h-3.5 rounded"
+                      />
+                      {d}
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <select value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47]">
             <option value="">Status</option>
             <option value="VIVO">Vivo</option>
