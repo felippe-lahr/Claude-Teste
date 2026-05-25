@@ -93,6 +93,7 @@ export default function ReproducaoPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [loading, setLoading] = useState(true);
   const [excluirDescartes, setExcluirDescartes] = useState(false);
 
@@ -124,7 +125,7 @@ export default function ReproducaoPage() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(page) });
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
       if (filters.toqueMes && filters.toqueAno) {
         params.set('excluirDescartes', String(excluirDescartes));
@@ -141,12 +142,17 @@ export default function ReproducaoPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters, excluirDescartes]);
+  }, [page, limit, filters, excluirDescartes]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   function handleFilter(key: string, value: string) {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  }
+
+  function handleLimitChange(newLimit: number) {
+    setLimit(newLimit);
     setPage(1);
   }
 
@@ -363,27 +369,39 @@ export default function ReproducaoPage() {
           </div>
         )}
 
-        {pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+          <div className="flex items-center gap-3">
             <p className="text-xs text-slate-500">Página {page} de {pages} · {total} resultados</p>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                <ChevronLeft size={14} />
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(pages, p + 1))}
-                disabled={page === pages}
-                className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                <ChevronRight size={14} />
-              </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-400">Exibir:</span>
+              {[20, 50, 100, 200].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => handleLimitChange(n)}
+                  className={`px-2 py-0.5 rounded text-xs font-medium border transition ${limit === n ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-300 text-slate-600 hover:bg-white'}`}
+                >
+                  {n}
+                </button>
+              ))}
             </div>
           </div>
-        )}
+          <div className="flex gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(pages, p + 1))}
+              disabled={page === pages}
+              className="p-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

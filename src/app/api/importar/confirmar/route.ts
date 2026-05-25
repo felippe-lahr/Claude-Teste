@@ -265,24 +265,26 @@ export async function POST(req: NextRequest) {
             if (estacao) { estacaoMontaId = estacao.id; break; }
           }
 
-          await prisma.reproducaoAnimal.create({
-            data: {
-              animalId: animal.id,
-              statusReprodutivo,
-              estagioPrenhez,
-              dataToque,
-              estacaoMontaId,
-              inseminada: inseminada && !montaNatural,
-              dataInseminacao: inseminada && !montaNatural ? dataInseminacao : null,
-              semenId: inseminada && !montaNatural ? semenId : null,
-              montaNatural,
-              dataMontaNatural,
-              nuncaPariu,
-              ultimoPartoMes,
-              ultimoPartoAno,
-              observacoes: observacoesRepro,
-              registradoPorId: parseInt(session.user.id),
-            },
+          const reproData = {
+            statusReprodutivo,
+            estagioPrenhez,
+            dataToque,
+            estacaoMontaId,
+            inseminada: inseminada && !montaNatural,
+            dataInseminacao: inseminada && !montaNatural ? dataInseminacao : null,
+            semenId: inseminada && !montaNatural ? semenId : null,
+            montaNatural,
+            dataMontaNatural,
+            nuncaPariu,
+            ultimoPartoMes,
+            ultimoPartoAno,
+            observacoes: observacoesRepro,
+            registradoPorId: parseInt(session.user.id),
+          };
+          await prisma.reproducaoAnimal.upsert({
+            where: { animalId: animal.id },
+            update: reproData,
+            create: { animalId: animal.id, ...reproData },
           });
         }
       }
