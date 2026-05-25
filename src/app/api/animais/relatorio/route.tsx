@@ -83,9 +83,16 @@ export async function GET(req: NextRequest) {
   const eraMin = searchParams.get('eraMin');
   const eraMax = searchParams.get('eraMax');
   if (eraMin && eraMax) {
+    const minIdx = parseInt(eraMin); // year*12 + (month-1)
+    const maxIdx = parseInt(eraMax);
+    const minYear = Math.floor(minIdx / 12);
+    const minMonth = (minIdx % 12) + 1;
+    const maxYear = Math.floor(maxIdx / 12);
+    const maxMonth = (maxIdx % 12) + 1;
     (where as Record<string, unknown>).AND = [
-      { eraAno: { gte: parseInt(eraMin) } },
-      { eraAno: { lte: parseInt(eraMax) } },
+      { eraAno: { not: null } },
+      { OR: [{ eraAno: { gt: minYear } }, { AND: [{ eraAno: minYear }, { OR: [{ eraMes: null }, { eraMes: { gte: minMonth } }] }] }] },
+      { OR: [{ eraAno: { lt: maxYear } }, { AND: [{ eraAno: maxYear }, { OR: [{ eraMes: null }, { eraMes: { lte: maxMonth } }] }] }] },
     ];
   }
 
@@ -115,7 +122,13 @@ export async function GET(req: NextRequest) {
   if (status) chips.push(`Status: ${sLabel(status)}`);
   if (descarteFilter === 'true') chips.push('Descarte: Sim');
   else if (descarteFilter === 'false') chips.push('Descarte: Não');
-  if (eraMin && eraMax) chips.push(`Ano Nasc.: ${eraMin}–${eraMax}`);
+  if (eraMin && eraMax) {
+    const minIdx = parseInt(eraMin);
+    const maxIdx = parseInt(eraMax);
+    const minLabel = `${MESES_PT[(minIdx % 12)]}/${Math.floor(minIdx / 12)}`;
+    const maxLabel = `${MESES_PT[(maxIdx % 12)]}/${Math.floor(maxIdx / 12)}`;
+    chips.push(`Nasc.: ${minLabel} – ${maxLabel}`);
+  }
 
   const now = new Date();
   const dataBR = now.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
