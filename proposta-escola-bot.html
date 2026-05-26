@@ -82,18 +82,43 @@
     .cover-logo {
       display: flex;
       align-items: center;
-      gap: 16px;
       z-index: 2;
     }
 
-    .cover-logo svg {
-      height: 64px;
-      width: auto;
+    .cover-logo .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    .logo-small svg {
-      height: 36px;
-      width: auto;
+    .cover-logo .logo-text .brand {
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .cover-logo .logo-text .subbrand {
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .logo-small .logo-text .brand {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .logo-small .logo-text .subbrand {
+      font-size: 8px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
 
     .cover-body {
@@ -662,21 +687,10 @@
   <div class="cover">
 
     <div class="cover-logo">
-      <svg viewBox="0 0 260 64" xmlns="http://www.w3.org/2000/svg" height="64">
-        <rect width="260" height="64" rx="8" fill="rgba(255,255,255,0.15)"/>
-        <!-- Ícone 44 estilizado -->
-        <g transform="translate(10,8)">
-          <polygon points="0,12 14,0 14,10 24,10 24,16 14,16 14,48 8,48 8,16 0,16" fill="white"/>
-          <polygon points="28,12 42,0 42,10 52,10 52,16 42,16 42,48 36,48 36,16 28,16" fill="white" opacity="0.85"/>
-          <polygon points="54,32 68,20 68,48 62,48 62,32 54,38" fill="white" opacity="0.6"/>
-        </g>
-        <!-- Texto STUDIO 44 -->
-        <text x="82" y="28" font-family="'Inter',sans-serif" font-weight="800" font-size="20" fill="white" letter-spacing="3">STUDIO 44</text>
-        <!-- Linha separadora -->
-        <line x1="82" y1="35" x2="248" y2="35" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <!-- Subtítulo -->
-        <text x="82" y="50" font-family="'Inter',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.8)" letter-spacing="2.5">CONSULTORIA DIGITAL</text>
-      </svg>
+      <div class="logo-text">
+        <span class="brand">Studio44</span>
+        <span class="subbrand">Consultoria Digital</span>
+      </div>
     </div>
 
     <div class="cover-body">
@@ -721,17 +735,10 @@
 
     <div class="page-header">
       <div class="logo-small">
-        <svg viewBox="0 0 260 64" xmlns="http://www.w3.org/2000/svg" height="36">
-          <rect width="260" height="64" rx="8" fill="#6B9BD2"/>
-          <g transform="translate(10,8)">
-            <polygon points="0,12 14,0 14,10 24,10 24,16 14,16 14,48 8,48 8,16 0,16" fill="white"/>
-            <polygon points="28,12 42,0 42,10 52,10 52,16 42,16 42,48 36,48 36,16 28,16" fill="white" opacity="0.85"/>
-            <polygon points="54,32 68,20 68,48 62,48 62,32 54,38" fill="white" opacity="0.6"/>
-          </g>
-          <text x="82" y="28" font-family="'Inter',sans-serif" font-weight="800" font-size="20" fill="white" letter-spacing="3">STUDIO 44</text>
-          <line x1="82" y1="35" x2="248" y2="35" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-          <text x="82" y="50" font-family="'Inter',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.8)" letter-spacing="2.5">CONSULTORIA DIGITAL</text>
-        </svg>
+        <div class="logo-text">
+          <span class="brand">Studio44</span>
+          <span class="subbrand">Consultoria Digital</span>
+        </div>
       </div>
       <span class="page-num">PÁGINA 02 — CONTEXTO</span>
     </div>
@@ -834,17 +841,10 @@
 
     <div class="page-header">
       <div class="logo-small">
-        <svg viewBox="0 0 260 64" xmlns="http://www.w3.org/2000/svg" height="36">
-          <rect width="260" height="64" rx="8" fill="#6B9BD2"/>
-          <g transform="translate(10,8)">
-            <polygon points="0,12 14,0 14,10 24,10 24,16 14,16 14,48 8,48 8,16 0,16" fill="white"/>
-            <polygon points="28,12 42,0 42,10 52,10 52,16 42,16 42,48 36,48 36,16 28,16" fill="white" opacity="0.85"/>
-            <polygon points="54,32 68,20 68,48 62,48 62,32 54,38" fill="white" opacity="0.6"/>
-          </g>
-          <text x="82" y="28" font-family="'Inter',sans-serif" font-weight="800" font-size="20" fill="white" letter-spacing="3">STUDIO 44</text>
-          <line x1="82" y1="35" x2="248" y2="35" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-          <text x="82" y="50" font-family="'Inter',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.8)" letter-spacing="2.5">CONSULTORIA DIGITAL</text>
-        </svg>
+        <div class="logo-text">
+          <span class="brand">Studio44</span>
+          <span class="subbrand">Consultoria Digital</span>
+        </div>
       </div>
       <span class="page-num">PÁGINA 03 — FLUXO DE CONVERSA</span>
     </div>
@@ -943,17 +943,10 @@
 
     <div class="page-header">
       <div class="logo-small">
-        <svg viewBox="0 0 260 64" xmlns="http://www.w3.org/2000/svg" height="36">
-          <rect width="260" height="64" rx="8" fill="#6B9BD2"/>
-          <g transform="translate(10,8)">
-            <polygon points="0,12 14,0 14,10 24,10 24,16 14,16 14,48 8,48 8,16 0,16" fill="white"/>
-            <polygon points="28,12 42,0 42,10 52,10 52,16 42,16 42,48 36,48 36,16 28,16" fill="white" opacity="0.85"/>
-            <polygon points="54,32 68,20 68,48 62,48 62,32 54,38" fill="white" opacity="0.6"/>
-          </g>
-          <text x="82" y="28" font-family="'Inter',sans-serif" font-weight="800" font-size="20" fill="white" letter-spacing="3">STUDIO 44</text>
-          <line x1="82" y1="35" x2="248" y2="35" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-          <text x="82" y="50" font-family="'Inter',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.8)" letter-spacing="2.5">CONSULTORIA DIGITAL</text>
-        </svg>
+        <div class="logo-text">
+          <span class="brand">Studio44</span>
+          <span class="subbrand">Consultoria Digital</span>
+        </div>
       </div>
       <span class="page-num">PÁGINA 04 — PRAZO E INVESTIMENTO</span>
     </div>
@@ -1078,17 +1071,10 @@
 
     <div class="page-header">
       <div class="logo-small">
-        <svg viewBox="0 0 260 64" xmlns="http://www.w3.org/2000/svg" height="36">
-          <rect width="260" height="64" rx="8" fill="#6B9BD2"/>
-          <g transform="translate(10,8)">
-            <polygon points="0,12 14,0 14,10 24,10 24,16 14,16 14,48 8,48 8,16 0,16" fill="white"/>
-            <polygon points="28,12 42,0 42,10 52,10 52,16 42,16 42,48 36,48 36,16 28,16" fill="white" opacity="0.85"/>
-            <polygon points="54,32 68,20 68,48 62,48 62,32 54,38" fill="white" opacity="0.6"/>
-          </g>
-          <text x="82" y="28" font-family="'Inter',sans-serif" font-weight="800" font-size="20" fill="white" letter-spacing="3">STUDIO 44</text>
-          <line x1="82" y1="35" x2="248" y2="35" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-          <text x="82" y="50" font-family="'Inter',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,0.8)" letter-spacing="2.5">CONSULTORIA DIGITAL</text>
-        </svg>
+        <div class="logo-text">
+          <span class="brand">Studio44</span>
+          <span class="subbrand">Consultoria Digital</span>
+        </div>
       </div>
       <span class="page-num">PÁGINA 05 — PRÓXIMOS PASSOS</span>
     </div>
