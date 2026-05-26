@@ -1158,12 +1158,8 @@ async function gerarPDF() {
   btn.disabled = true;
 
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
   const paginas = document.querySelectorAll('.page');
-  const larguraMM = 210;
-  const alturaMM = 297;
-  let primeiraPagina = true;
+  let pdf = null;
 
   for (let i = 0; i < paginas.length; i++) {
     const canvas = await html2canvas(paginas[i], {
@@ -1173,39 +1169,17 @@ async function gerarPDF() {
       logging: false,
     });
 
-    // Altura proporcional ao renderizar na largura A4
-    const proporcao = canvas.height / canvas.width;
-    const alturaRenderMM = larguraMM * proporcao;
+    // Converte pixels para mm (96dpi → mm)
+    const larguraMM = canvas.width  * 25.4 / 192;
+    const alturaMM  = canvas.height * 25.4 / 192;
 
-    // Quantas folhas A4 essa seção ocupa
-    const totalFolhas = Math.ceil(alturaRenderMM / alturaMM);
-    // Pixels por folha A4
-    const pixelsPorFolha = Math.floor(canvas.height / totalFolhas);
-
-    for (let f = 0; f < totalFolhas; f++) {
-      if (!primeiraPagina) pdf.addPage();
-      primeiraPagina = false;
-
-      // Fatia do canvas para esta folha
-      const inicioY = f * pixelsPorFolha;
-      const alturaFatia = (f === totalFolhas - 1)
-        ? canvas.height - inicioY
-        : pixelsPorFolha;
-
-      const fatia = document.createElement('canvas');
-      fatia.width  = canvas.width;
-      fatia.height = alturaFatia;
-      fatia.getContext('2d').drawImage(
-        canvas, 0, inicioY, canvas.width, alturaFatia,
-                0, 0,      canvas.width, alturaFatia
-      );
-
-      const imgData   = fatia.toDataURL('image/jpeg', 0.95);
-      const alturaMM_ = larguraMM * (alturaFatia / canvas.width);
-      const offsetY   = alturaMM_ < alturaMM ? (alturaMM - alturaMM_) / 2 : 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, offsetY, larguraMM, alturaMM_);
+    if (!pdf) {
+      pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [larguraMM, alturaMM] });
+    } else {
+      pdf.addPage([larguraMM, alturaMM]);
     }
+
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, larguraMM, alturaMM);
   }
 
   pdf.save('Proposta-Studio44-Colegio-Alfredo-Castro.pdf');
