@@ -13,11 +13,36 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+const MESES_PT_DASH = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+type RegraClass = { genero: string; idadeMinMeses: number; idadeMaxMeses: number | null; denominacao: string };
+
+function classEmMes(
+  genero: 'MACHO' | 'FEMEA',
+  eraMes: number | null,
+  eraAno: number | null,
+  reprodutor: boolean,
+  regras: RegraClass[],
+  refAno: number,
+  refMes: number,
+): string {
+  if (genero === 'MACHO' && reprodutor) return 'Touro';
+  if (eraAno == null) return genero === 'MACHO' ? 'Boi' : 'Vaca';
+  const meses = (refAno - eraAno) * 12 + (refMes - (eraMes ?? 1));
+  if (meses < 0) return genero === 'MACHO' ? 'Bezerro Macho' : 'Bezerra Fêmea';
+  const filtradas = regras.filter((r) => r.genero === genero);
+  for (const r of filtradas) {
+    if (meses >= r.idadeMinMeses && (r.idadeMaxMeses == null || meses <= r.idadeMaxMeses))
+      return r.denominacao;
+  }
+  return genero === 'MACHO' ? 'Boi' : 'Vaca';
+}
+
 async function getDashboardData() {
   const [animaisVivos, porDenominacaoRaw, porProprietarioRaw, mortesTotal, mortesAno, mortesMes] = await Promise.all([
     prisma.animal.findMany({
       where: { status: 'VIVO' },
-      select: { denominacao: true, proprietarioId: true },
+      select: { denominacao: true, proprietarioId: true, genero: true, eraMes: true, eraAno: true, reprodutor: true, createdAt: true },
     }),
     prisma.animal.groupBy({
       by: ['denominacao'],
@@ -36,10 +61,10 @@ async function getDashboardData() {
   ]);
 
   const proprietarioIds = porProprietarioRaw.map((p) => p.proprietarioId);
-  const usuarios = await prisma.user.findMany({
-    where: { id: { in: proprietarioIds } },
-    select: { id: true, name: true },
-  });
+  const [usuarios, regrasClass] = await Promise.all([
+    prisma.user.findMany({ where: { id: { in: proprietarioIds } }, select: { id: true, name: true } }),
+    prisma.classificacaoConfig.findMany({ orderBy: { ordem: 'asc' } }),
+  ]);
 
   const counts: Record<string, number> = {};
   for (const a of animaisVivos) {
@@ -72,6 +97,45 @@ async function getDashboardData() {
       .sort((a, b) => a.denominacao.localeCompare(b.denominacao));
   }
 
+  // ── Evolution data (last 18 months) ──────────────────────────────────────
+  const today = new Date();
+  const months = Array.from({ length: 18 }, (_, i) => {
+    const d = new Date(today.getFullYear(), today.getMonth() - (17 - i), 1);
+    const endOf = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+    return { ano: d.getFullYear(), mes: d.getMonth() + 1, endOf, label: `${MESES_PT_DASH[d.getMonth()]}/${d.getFullYear()}` };
+  });
+
+  // All denomination labels seen across all months (stable set)
+  const denomSet = new Set<string>();
+  for (const a of animaisVivos) denomSet.add(classEmMes(a.genero, a.eraMes, a.eraAno, a.reprodutor, regrasClass, today.getFullYear(), today.getMonth() + 1));
+  const denominacoesEvolucao = Array.from(denomSet).sort();
+
+  // All proprietário names (stable set)
+  const propMap = new Map(usuarios.map((u) => [u.id, u.name]));
+  const propNomes = Array.from(new Set(animaisVivos.map((a) => propMap.get(a.proprietarioId) ?? 'Desconhecido'))).sort();
+
+  const evolucaoComposicao = months.map(({ ano, mes, endOf, label }) => {
+    const entry: Record<string, number | string> = { label };
+    for (const d of denominacoesEvolucao) entry[d] = 0;
+    for (const a of animaisVivos) {
+      if (a.createdAt > endOf) continue;
+      const cls = classEmMes(a.genero, a.eraMes, a.eraAno, a.reprodutor, regrasClass, ano, mes);
+      (entry[cls] as number)++;
+    }
+    return entry;
+  });
+
+  const evolucaoPorProprietario = months.map(({ endOf, label }) => {
+    const entry: Record<string, number | string> = { label };
+    for (const n of propNomes) entry[n] = 0;
+    for (const a of animaisVivos) {
+      if (a.createdAt > endOf) continue;
+      const nome = propMap.get(a.proprietarioId) ?? 'Desconhecido';
+      (entry[nome] as number)++;
+    }
+    return entry;
+  });
+
   return {
     stats: {
       total,
@@ -89,6 +153,10 @@ async function getDashboardData() {
     porDenominacao,
     porProprietario,
     porDenominacaoPorProprietario,
+    evolucaoComposicao,
+    evolucaoPorProprietario,
+    denominacoesEvolucao,
+    propNomes,
   };
 }
 
@@ -109,7 +177,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect('/login');
 
-  const { stats, porDenominacao, porProprietario, porDenominacaoPorProprietario } = await getDashboardData();
+  const { stats, porDenominacao, porProprietario, porDenominacaoPorProprietario, evolucaoComposicao, evolucaoPorProprietario, denominacoesEvolucao, propNomes } = await getDashboardData();
 
   return (
     <div className="space-y-8">
@@ -139,7 +207,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-[#6B6B65] uppercase tracking-wide">Distribuição do Rebanho</h2>
             <div className="flex-1 h-px bg-[#E8E8E3]" />
           </div>
-          <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} porDenominacaoPorProprietario={porDenominacaoPorProprietario} />
+          <DashboardCharts porDenominacao={porDenominacao} porProprietario={porProprietario} porDenominacaoPorProprietario={porDenominacaoPorProprietario} evolucaoComposicao={evolucaoComposicao} evolucaoPorProprietario={evolucaoPorProprietario} denominacoesEvolucao={denominacoesEvolucao} propNomes={propNomes} />
         </div>
 
         <div className="space-y-4">
