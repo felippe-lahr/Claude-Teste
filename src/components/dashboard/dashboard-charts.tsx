@@ -21,14 +21,15 @@ interface Props {
   propNomes: string[];
 }
 
+// Match StatCard colors on dashboard
 const DENOM_COLORS: Record<string, string> = {
-  'Vaca':          '#8B3B68',
-  'Boi':           '#1B58A3',
-  'Touro':         '#4D37B0',
-  'Novilha':       '#1A6B5E',
-  'Garrote':       '#8A4E1C',
-  'Bezerra Fêmea': '#C2185B',
-  'Bezerro Macho': '#1565A8',
+  'Vaca':          '#06b6d4',
+  'Boi':           '#3b82f6',
+  'Touro':         '#10b981',
+  'Novilha':       '#8b5cf6',
+  'Garrote':       '#f59e0b',
+  'Bezerra Fêmea': '#ec4899',
+  'Bezerro Macho': '#f97316',
 };
 const DEFAULT_DENOM_COLOR = '#6B6B65';
 
