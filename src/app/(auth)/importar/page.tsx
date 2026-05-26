@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet, ArrowRight } from 'lucide-react';
+import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet, ArrowRight, Copy } from 'lucide-react';
 
 interface PreviewRow {
   numero: string;
@@ -13,6 +13,11 @@ interface PreviewRow {
   reprodutor: boolean;
   proprietario: string;
   observacoes: string;
+}
+
+interface Duplicata {
+  numero: string;
+  linhas: number[];
 }
 
 interface ImportResult {
@@ -35,6 +40,8 @@ export default function ImportarPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<PreviewRow[]>([]);
   const [totalRows, setTotalRows] = useState(0);
+  const [duplicatas, setDuplicatas] = useState<Duplicata[]>([]);
+  const [resolucoes, setResolucoes] = useState<Record<string, 'discard' | 'rename'>>({});
   const [result, setResult] = useState<ImportResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [forceMode, setForceMode] = useState(false);
@@ -55,6 +62,12 @@ export default function ImportarPage() {
       const data = await res.json();
       setPreview(data.preview ?? []);
       setTotalRows(data.total ?? 0);
+      const dups: Duplicata[] = data.duplicatas ?? [];
+      setDuplicatas(dups);
+      // Default resolution: discard
+      const defaultRes: Record<string, 'discard' | 'rename'> = {};
+      dups.forEach((d) => { defaultRes[d.numero.toLowerCase()] = 'discard'; });
+      setResolucoes(defaultRes);
       setStep(3);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Erro ao processar arquivo');
@@ -70,6 +83,7 @@ export default function ImportarPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
+      fd.append('resolucoes', JSON.stringify(resolucoes));
       const url = force ? '/api/importar/confirmar?force=1' : '/api/importar/confirmar';
       const res = await fetch(url, { method: 'POST', body: fd });
       const data = await res.json();
@@ -94,10 +108,16 @@ export default function ImportarPage() {
     setFile(null);
     setPreview([]);
     setTotalRows(0);
+    setDuplicatas([]);
+    setResolucoes({});
     setResult(null);
     setForceMode(false);
     setDuplicateMsg(null);
     if (fileRef.current) fileRef.current.value = '';
+  }
+
+  function setResolucao(numero: string, acao: 'discard' | 'rename') {
+    setResolucoes((prev) => ({ ...prev, [numero.toLowerCase()]: acao }));
   }
 
   return (
@@ -201,6 +221,52 @@ export default function ImportarPage() {
       {/* Step 3: Preview */}
       {step === 3 && (
         <div className="space-y-4">
+
+          {/* Duplicatas encontradas */}
+          {duplicatas.length > 0 && (
+            <div className="bg-amber-50 border border-amber-300 rounded-xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Copy size={18} className="text-amber-600" />
+                <h3 className="text-sm font-semibold text-amber-800">
+                  {duplicatas.length} número{duplicatas.length > 1 ? 's' : ''} duplicado{duplicatas.length > 1 ? 's' : ''} encontrado{duplicatas.length > 1 ? 's' : ''} na planilha
+                </h3>
+              </div>
+              <p className="text-xs text-amber-700 mb-4">
+                A primeira ocorrência de cada número será sempre mantida. Escolha o que fazer com as ocorrências seguintes:
+              </p>
+              <div className="space-y-3">
+                {duplicatas.map((d) => {
+                  const key = d.numero.toLowerCase();
+                  const acao = resolucoes[key] ?? 'discard';
+                  return (
+                    <div key={d.numero} className="flex items-center justify-between bg-white rounded-lg border border-amber-200 px-4 py-3 gap-4">
+                      <div>
+                        <span className="font-semibold text-slate-800 text-sm">Nº {d.numero}</span>
+                        <span className="text-xs text-slate-500 ml-2">
+                          aparece {d.linhas.length}× — linhas {d.linhas.join(', ')}
+                        </span>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          onClick={() => setResolucao(d.numero, 'discard')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${acao === 'discard' ? 'bg-red-600 text-white border-red-600' : 'border-slate-300 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          Descartar 2ª ocorrência
+                        </button>
+                        <button
+                          onClick={() => setResolucao(d.numero, 'rename')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${acao === 'rename' ? 'bg-indigo-600 text-white border-indigo-600' : 'border-slate-300 text-slate-600 hover:bg-slate-50'}`}
+                        >
+                          Renomear 2ª para <strong>{d.numero}D</strong>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -220,18 +286,24 @@ export default function ImportarPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {preview.map((row, i) => (
-                    <tr key={i} className="hover:bg-slate-50">
-                      <td className="px-3 py-2 text-slate-700">{row.numero || '—'}</td>
-                      <td className="px-3 py-2 text-slate-600">{row.genero}</td>
-                      <td className="px-3 py-2 text-slate-600">{formatMes(row.eraMes)}</td>
-                      <td className="px-3 py-2 text-slate-600">{String(row.eraAno ?? '—')}</td>
-                      <td className="px-3 py-2 text-slate-600">{String(row.peso ?? '—')}</td>
-                      <td className="px-3 py-2 text-slate-600">{row.reprodutor ? 'Sim' : 'Não'}</td>
-                      <td className="px-3 py-2 text-slate-700 font-medium">{row.proprietario}</td>
-                      <td className="px-3 py-2 text-slate-500 max-w-xs truncate">{row.observacoes || '—'}</td>
-                    </tr>
-                  ))}
+                  {preview.map((row, i) => {
+                    const isDup = duplicatas.some((d) => d.numero.toLowerCase() === row.numero.toLowerCase());
+                    return (
+                      <tr key={i} className={isDup ? 'bg-amber-50' : 'hover:bg-slate-50'}>
+                        <td className={`px-3 py-2 font-medium ${isDup ? 'text-amber-700' : 'text-slate-700'}`}>
+                          {row.numero || '—'}
+                          {isDup && <span className="ml-1 text-amber-500 text-[10px]">dup</span>}
+                        </td>
+                        <td className="px-3 py-2 text-slate-600">{row.genero}</td>
+                        <td className="px-3 py-2 text-slate-600">{formatMes(row.eraMes)}</td>
+                        <td className="px-3 py-2 text-slate-600">{String(row.eraAno ?? '—')}</td>
+                        <td className="px-3 py-2 text-slate-600">{String(row.peso ?? '—')}</td>
+                        <td className="px-3 py-2 text-slate-600">{row.reprodutor ? 'Sim' : 'Não'}</td>
+                        <td className="px-3 py-2 text-slate-700 font-medium">{row.proprietario}</td>
+                        <td className="px-3 py-2 text-slate-500 max-w-xs truncate">{row.observacoes || '—'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

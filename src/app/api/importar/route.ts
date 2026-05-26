@@ -33,5 +33,17 @@ export async function POST(req: NextRequest) {
     observacoes: String(row['Observações'] ?? row['Observacoes'] ?? ''),
   }));
 
-  return NextResponse.json({ preview, total: rows.length });
+  // Detect intra-file duplicate números
+  const numLinhasMap = new Map<string, { numero: string; linhas: number[] }>();
+  rows.forEach((row, i) => {
+    const numero = String(row['Número'] ?? row['Numero'] ?? '').trim();
+    if (!numero) return;
+    const key = numero.toLowerCase();
+    if (!numLinhasMap.has(key)) numLinhasMap.set(key, { numero, linhas: [] });
+    numLinhasMap.get(key)!.linhas.push(i + 2); // +2: 1-based index + header row
+  });
+
+  const duplicatas = Array.from(numLinhasMap.values()).filter((d) => d.linhas.length > 1);
+
+  return NextResponse.json({ preview, total: rows.length, duplicatas });
 }

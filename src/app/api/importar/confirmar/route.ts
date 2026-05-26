@@ -98,6 +98,10 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 });
 
+  // Resoluções de duplicatas: { "123": "discard" | "rename" }
+  const resolucoesTxt = formData.get('resolucoes') as string | null;
+  const resolucoes: Record<string, 'discard' | 'rename'> = resolucoesTxt ? JSON.parse(resolucoesTxt) : {};
+
   const buffer = Buffer.from(await file.arrayBuffer());
   const fileHash = createHash('sha256').update(buffer).digest('hex');
 
@@ -141,17 +145,27 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      const numeroRaw = parseStr(col(row, 'Número', 'Numero'));
-      const numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
-      const animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
-      const isUpdate = animalExistenteId !== undefined;
+      let numeroRaw = parseStr(col(row, 'Número', 'Numero'));
+      let numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
+      let animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
+      let isUpdate = animalExistenteId !== undefined;
 
-      // Block intra-file duplicates for new animals only
-      if (numeroKey && !isUpdate) {
-        if (numerosMap.has(numeroKey)) {
-          erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" duplicado nesta planilha`);
+      // Handle intra-file duplicates for new animals
+      if (numeroKey && !isUpdate && numerosMap.has(numeroKey)) {
+        const acao: 'discard' | 'rename' = resolucoes[numeroKey] ?? 'discard';
+        if (acao === 'discard') {
+          erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" ignorado (duplicata descartada)`);
           continue;
+        } else {
+          // rename: append D to this (second) occurrence and process as new animal
+          numeroRaw = numeroRaw + 'D';
+          numeroKey = numeroRaw.toLowerCase();
+          animalExistenteId = numerosMap.get(numeroKey);
+          isUpdate = animalExistenteId !== undefined;
         }
+      }
+
+      if (numeroKey && !isUpdate) {
         numerosMap.set(numeroKey, -1); // sentinel for new animals in this file
       }
 
