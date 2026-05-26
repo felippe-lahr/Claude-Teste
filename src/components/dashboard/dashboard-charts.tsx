@@ -21,7 +21,7 @@ interface Props {
   propNomes: string[];
 }
 
-// Mesmas cores dos StatCards do dashboard
+// Match StatCard colors on dashboard
 const DENOM_COLORS: Record<string, string> = {
   'Vaca':          '#06b6d4',
   'Boi':           '#3b82f6',
@@ -240,17 +240,8 @@ export function DashboardCharts({ porDenominacao, porProprietario, porDenominaca
               <XAxis type="number" domain={[0, maxVal + 1]} tick={{ fontSize: 10, fill: '#A8A8A2' }} axisLine={false} tickLine={false} allowDecimals={false} tickCount={Math.min(maxVal + 2, 6)} />
               <YAxis type="category" dataKey="denominacao" width={100} tick={{ fontSize: 12, fill: '#6B6B65' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F5F4EF' }} />
-<<<<<<< HEAD
-              <Bar dataKey="total" radius={[0, 6, 6, 0]} maxBarSize={64}>
-                <LabelList
-                  dataKey="total"
-                  position="right"
-                  style={{ fontSize: 11, fontWeight: 600, fill: '#6B6B65' }}
-                />
-=======
               <Bar dataKey="total" radius={[0, 6, 6, 0]} maxBarSize={28}>
                 <LabelList dataKey="total" position="right" style={{ fontSize: 11, fontWeight: 600, fill: '#6B6B65' }} />
->>>>>>> 5cbcd39 (feat(dashboard): add herd composition evolution and per-owner trend charts)
                 {chartData.map((entry) => (
                   <Cell key={entry.denominacao} fill={denomColor(entry.denominacao)} />
                 ))}
