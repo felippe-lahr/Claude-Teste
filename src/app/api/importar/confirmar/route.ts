@@ -125,8 +125,10 @@ export async function POST(req: NextRequest) {
     prisma.semen.findMany({ select: { id: true, codigo: true, touro: true } }),
     prisma.animal.findMany({ where: { numero: { not: null } }, select: { id: true, numero: true } }),
   ]);
-  // Maps numero (lowercase) → animalId for upsert detection
+  // Maps numero (lowercase) → animalId for DB lookup
   const numerosMap = new Map(animaisExistentes.map((a) => [a.numero!.toLowerCase().trim(), a.id]));
+  // Tracks numbers already processed in this import run (handles duplicates for both new and existing animals)
+  const processadosNaRun = new Set<string>();
 
   let importados = 0;
   let atualizados = 0;
@@ -147,23 +149,24 @@ export async function POST(req: NextRequest) {
 
       let numeroRaw = parseStr(col(row, 'Número', 'Numero'));
       let numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
-      let animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
-      let isUpdate = animalExistenteId !== undefined;
 
-      // Handle intra-file duplicates for new animals
-      if (numeroKey && !isUpdate && numerosMap.has(numeroKey)) {
+      // Duplicate detection: applies regardless of whether the animal is new or already in DB
+      if (numeroKey && processadosNaRun.has(numeroKey)) {
         const acao: 'discard' | 'rename' = resolucoes[numeroKey] ?? 'discard';
         if (acao === 'discard') {
           erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" ignorado (duplicata descartada)`);
           continue;
         } else {
-          // rename: append D to this (second) occurrence and process as new animal
+          // rename: append D to this (second) occurrence
           numeroRaw = numeroRaw + 'D';
           numeroKey = numeroRaw.toLowerCase();
-          animalExistenteId = numerosMap.get(numeroKey);
-          isUpdate = animalExistenteId !== undefined;
         }
       }
+
+      if (numeroKey) processadosNaRun.add(numeroKey);
+
+      let animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
+      let isUpdate = animalExistenteId !== undefined;
 
       if (numeroKey && !isUpdate) {
         numerosMap.set(numeroKey, -1); // sentinel for new animals in this file
