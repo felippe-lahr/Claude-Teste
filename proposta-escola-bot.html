@@ -1142,10 +1142,57 @@
   </div>
 </div>
 
-<!-- BOTÃO IMPRIMIR -->
-<button class="print-btn no-print" onclick="window.print()">
-  🖨️ Salvar como PDF
+<!-- BIBLIOTECAS PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- BOTÃO GERAR PDF -->
+<button class="print-btn no-print" id="pdfBtn" onclick="gerarPDF()">
+  📄 Gerar PDF
 </button>
+
+<script>
+async function gerarPDF() {
+  const btn = document.getElementById('pdfBtn');
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const paginas = document.querySelectorAll('.page');
+  const larguraMM = 210;
+  const alturaMM = 297;
+
+  for (let i = 0; i < paginas.length; i++) {
+    const canvas = await html2canvas(paginas[i], {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const proporcao = canvas.height / canvas.width;
+    const alturaReal = larguraMM * proporcao;
+
+    if (i > 0) pdf.addPage();
+
+    // Se a página for mais alta que A4, reduz para caber
+    if (alturaReal <= alturaMM) {
+      const offsetY = (alturaMM - alturaReal) / 2;
+      pdf.addImage(imgData, 'JPEG', 0, offsetY, larguraMM, alturaReal);
+    } else {
+      pdf.addImage(imgData, 'JPEG', 0, 0, larguraMM, alturaMM);
+    }
+  }
+
+  pdf.save('Proposta-Studio44-Colegio-Alfredo-Castro.pdf');
+
+  btn.textContent = '📄 Gerar PDF';
+  btn.disabled = false;
+}
+</script>
 
 </body>
 </html>
