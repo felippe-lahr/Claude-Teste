@@ -1,0 +1,53 @@
+RESUMO DA CONVERSA - Claude Code
+Data: 27/05/2026
+=====================================
+
+CONTEXTO
+--------
+O usuário (felippe-lahr) tem um projeto desenvolvido com a IA "Manus" e quer
+transferir o desenvolvimento para o Claude Code.
+
+PROJETO IDENTIFICADO
+--------------------
+Repositório: felippe-lahr/sistema-gestao-financeira
+Visibilidade: Público
+URL: https://github.com/felippe-lahr/sistema-gestao-financeira
+Descrição: Sistema completo de gestão financeira com múltiplas entidades,
+           transações recorrentes e integração WhatsApp (via Evolution API)
+
+Estrutura de pastas identificada:
+- api/
+- client/
+- docs/
+- drizzle/
+- patches/
+- scripts/
+- server/
+- shared/
+
+Ambientes no Railway:
+- staging  (accomplished-tenderness / staging) ✅ ativo
+- production (accomplished-tenderness / production) ✅ ativo
+
+PONTOS DISCUTIDOS
+-----------------
+1. Claude Code assumiu inicialmente o projeto errado (fazenda-santo-antonio-da-barra)
+   que já estava no repositório claude-teste.
+
+2. O usuário confirmou que o projeto correto é o sistema-gestao-financeira.
+
+3. Discutimos se Manus e Claude Code podem trabalhar no mesmo repositório:
+   - SIM, é possível sem conflitos
+   - Basta seguir o fluxo normal do Git (pull antes de trabalhar, branches separadas)
+   - Conflitos de merge só ocorrem se ambos editarem o mesmo arquivo ao mesmo tempo
+
+4. Para conectar o Claude Code ao repositório correto, o usuário precisa iniciar
+   uma NOVA SESSÃO em claude.ai/code apontando para:
+   felippe-lahr/sistema-gestao-financeira
+
+PRÓXIMO PASSO
+-------------
+- Abrir nova sessão em claude.ai/code
+- Selecionar repositório: felippe-lahr/sistema-gestao-financeira
+- Selecionar branch: main (ou branch de desenvolvimento)
+- Iniciar o desenvolvimento com Claude Code
