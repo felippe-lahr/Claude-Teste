@@ -250,9 +250,11 @@ model LoteAnimal {
 }
 
 model LoteAnimalItem {
-  id       Int @id @default(autoincrement())
-  loteId   Int
-  animalId Int
+  id         Int    @id @default(autoincrement())
+  loteId     Int
+  animalId   Int
+  pesoAtual  Float?
+  valorUnit  Float?
 
   lote   LoteAnimal @relation(fields: [loteId], references: [id], onDelete: Cascade)
   animal Animal     @relation(fields: [animalId], references: [id], onDelete: Cascade)

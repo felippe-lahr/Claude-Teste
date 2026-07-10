@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
   let rows: Record<string, string | number>[] = [];
 
   if (preencherAnimais) {
-    // Return all active (non-discarded, non-dead) animals as rows with empty peso/valor
     const animais = await prisma.animal.findMany({
       where: { descarte: false, status: { not: 'MORTO' } },
       select: { id: true, numero: true, denominacao: true, genero: true, peso: true, proprietario: { select: { name: true } } },
@@ -33,7 +32,6 @@ export async function GET(req: NextRequest) {
       Proprietário: a.proprietario?.name ?? '',
     }));
   } else {
-    // Blank template with example row
     rows = [
       { ID: 101, 'Peso Atual (kg)': 450, 'Valor (R$)': 3200 },
       { ID: 102, 'Peso Atual (kg)': 380, 'Valor (R$)': 2800 },
@@ -44,7 +42,6 @@ export async function GET(req: NextRequest) {
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
 
-  // Column widths
   ws['!cols'] = preencherAnimais
     ? [{ wch: 8 }, { wch: 12 }, { wch: 20 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 20 }]
     : [{ wch: 8 }, { wch: 16 }, { wch: 14 }];
