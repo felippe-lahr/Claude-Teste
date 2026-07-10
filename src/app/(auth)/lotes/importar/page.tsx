@@ -27,6 +27,7 @@ export default function ImportarLotePage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Lot details
   const [nome, setNome] = useState('');
   const [comprador, setComprador] = useState('');
   const [dataFechamento, setDataFechamento] = useState('');
@@ -92,35 +93,30 @@ export default function ImportarLotePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div>
+        <div className="flex items-start justify-between gap-4">
           <h1 className="text-xl font-bold text-[#111110]">Importar Lote via Planilha</h1>
-          <p className="text-sm text-[#6B6B65] mt-1">
-            Planilha deve ter colunas: <code className="bg-[#F5F4EF] px-1 rounded">ID</code>,{' '}
-            <code className="bg-[#F5F4EF] px-1 rounded">Peso Atual (kg)</code> (opcional),{' '}
-            <code className="bg-[#F5F4EF] px-1 rounded">Valor (R$)</code> (opcional)
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0">
           <a
             href="/api/lotes/template?animais=true"
             download
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition whitespace-nowrap"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#111110] text-white text-sm font-semibold hover:bg-[#2a2a28] transition whitespace-nowrap shrink-0"
           >
-            <Download size={13} />
-            Lista de animais
+            <Download size={14} />
+            Baixar planilha
           </a>
-          <a
-            href="/api/lotes/template"
-            download
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-xs font-semibold hover:bg-[#F5F4EF] transition whitespace-nowrap"
-          >
-            <Download size={13} />
-            Template em branco
-          </a>
+        </div>
+        <div className="mt-3 bg-[#F5F4EF] rounded-xl p-4 text-sm text-[#6B6B65] space-y-1">
+          <p><strong className="text-[#111110]">Como usar:</strong></p>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>Baixe a planilha — ela já vem com todos os animais ativos e o proprietário de cada um</li>
+            <li>Preencha <strong className="text-[#111110]">Peso Atual (kg)</strong> e <strong className="text-[#111110]">Valor (R$)</strong> para os animais que farão parte do lote</li>
+            <li>Delete as linhas dos animais que <em>não</em> entram no lote</li>
+            <li>Suba a planilha aqui — o sistema agrupa por proprietário automaticamente</li>
+          </ol>
         </div>
       </div>
 
+      {/* Upload */}
       <div
         className="border-2 border-dashed border-[#E8E8E3] rounded-xl p-8 text-center cursor-pointer hover:border-[#111110]/30 transition"
         onClick={() => fileRef.current?.click()}
@@ -146,6 +142,7 @@ export default function ImportarLotePage() {
         )}
       </div>
 
+      {/* Preview */}
       {preview && (
         <div className="bg-white border border-[#E8E8E3] rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-[#E8E8E3] flex items-center gap-2">
@@ -185,6 +182,7 @@ export default function ImportarLotePage() {
         </div>
       )}
 
+      {/* Lot details form */}
       {preview && (
         <div className="bg-white border border-[#E8E8E3] rounded-xl p-5 space-y-4">
           <h2 className="text-sm font-semibold text-[#111110]">Detalhes do Lote</h2>
