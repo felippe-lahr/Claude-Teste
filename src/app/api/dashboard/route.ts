@@ -9,18 +9,18 @@ export async function GET() {
 
   const [animaisVivos, porDenominacao, porProprietario, mortesTotal, mortesAno, mortesMes] = await Promise.all([
     prisma.animal.findMany({
-      where: { status: 'VIVO' },
+      where: { status: 'VIVO', descarte: false },
       select: { denominacao: true, proprietarioId: true },
     }),
     prisma.animal.groupBy({
       by: ['denominacao'],
-      where: { status: 'VIVO' },
+      where: { status: 'VIVO', descarte: false },
       _count: { id: true },
       orderBy: { denominacao: 'asc' },
     }),
     prisma.animal.groupBy({
       by: ['proprietarioId'],
-      where: { status: 'VIVO' },
+      where: { status: 'VIVO', descarte: false },
       _count: { id: true },
     }),
     prisma.morte.count(),
