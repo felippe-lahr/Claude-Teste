@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
 
   const preview = rows.slice(0, 10).map((row) => ({
+    id: row['ID'] ?? row['Id'] ?? null,
     numero: String(row['Número'] ?? row['Numero'] ?? ''),
     genero: String(row['Gênero'] ?? row['Genero'] ?? ''),
     eraMes: row['Mês Nasc'] ?? row['Mes Nasc'] ?? null,
@@ -33,14 +34,13 @@ export async function POST(req: NextRequest) {
     observacoes: String(row['Observações'] ?? row['Observacoes'] ?? ''),
   }));
 
-  // Detect intra-file duplicate números
   const numLinhasMap = new Map<string, { numero: string; linhas: number[] }>();
   rows.forEach((row, i) => {
     const numero = String(row['Número'] ?? row['Numero'] ?? '').trim();
     if (!numero) return;
     const key = numero.toLowerCase();
     if (!numLinhasMap.has(key)) numLinhasMap.set(key, { numero, linhas: [] });
-    numLinhasMap.get(key)!.linhas.push(i + 2); // +2: 1-based index + header row
+    numLinhasMap.get(key)!.linhas.push(i + 2);
   });
 
   const duplicatas = Array.from(numLinhasMap.values()).filter((d) => d.linhas.length > 1);

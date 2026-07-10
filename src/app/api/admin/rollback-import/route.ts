@@ -5,10 +5,6 @@ import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-// GET  → preview: which animals would be deleted
-// POST → confirm: actually delete them
-// Both require an active session.
-
 async function getLastImport() {
   return prisma.logAlteracao.findFirst({
     where: { tipo: 'IMPORTACAO' },
@@ -23,7 +19,6 @@ export async function GET() {
   const log = await getLastImport();
   if (!log) return NextResponse.json({ error: 'Nenhuma importação encontrada' }, { status: 404 });
 
-  // Animals created within 2 hours before (and up to 1 min after) the import log entry
   const desde = new Date(log.createdAt.getTime() - 2 * 60 * 60 * 1000);
   const ate   = new Date(log.createdAt.getTime() + 60 * 1000);
 
@@ -34,13 +29,7 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    importacao: {
-      id: log.id,
-      arquivo: log.fileName,
-      data: log.createdAt,
-      descricao: log.descricao,
-      por: log.userName,
-    },
+    importacao: { id: log.id, arquivo: log.fileName, data: log.createdAt, descricao: log.descricao, por: log.userName },
     animaisParaDeletar: animais,
     total: animais.length,
   });
@@ -75,7 +64,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Nenhum animal para reverter', deletados: 0 });
   }
 
-  // Cascade delete dependent records first
   await prisma.$transaction([
     prisma.reproducaoAnimal.deleteMany({ where: { animalId: { in: ids } } }),
     prisma.registroSanitario.deleteMany({ where: { animalId: { in: ids } } }),
