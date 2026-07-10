@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Scale, DollarSign } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Scale, DollarSign, Download } from 'lucide-react';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { parseDateBR } from '@/lib/utils';
 
@@ -92,13 +92,33 @@ export default function ImportarLotePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-[#111110]">Importar Lote via Planilha</h1>
-        <p className="text-sm text-[#6B6B65] mt-1">
-          Planilha deve ter colunas: <code className="bg-[#F5F4EF] px-1 rounded">ID</code>,{' '}
-          <code className="bg-[#F5F4EF] px-1 rounded">Peso Atual (kg)</code> (opcional),{' '}
-          <code className="bg-[#F5F4EF] px-1 rounded">Valor (R$)</code> (opcional)
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-[#111110]">Importar Lote via Planilha</h1>
+          <p className="text-sm text-[#6B6B65] mt-1">
+            Planilha deve ter colunas: <code className="bg-[#F5F4EF] px-1 rounded">ID</code>,{' '}
+            <code className="bg-[#F5F4EF] px-1 rounded">Peso Atual (kg)</code> (opcional),{' '}
+            <code className="bg-[#F5F4EF] px-1 rounded">Valor (R$)</code> (opcional)
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 shrink-0">
+          <a
+            href="/api/lotes/template?animais=true"
+            download
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition whitespace-nowrap"
+          >
+            <Download size={13} />
+            Lista de animais
+          </a>
+          <a
+            href="/api/lotes/template"
+            download
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-xs font-semibold hover:bg-[#F5F4EF] transition whitespace-nowrap"
+          >
+            <Download size={13} />
+            Template em branco
+          </a>
+        </div>
       </div>
 
       <div
@@ -168,10 +188,12 @@ export default function ImportarLotePage() {
       {preview && (
         <div className="bg-white border border-[#E8E8E3] rounded-xl p-5 space-y-4">
           <h2 className="text-sm font-semibold text-[#111110]">Detalhes do Lote</h2>
+
           <div>
             <label className="block text-xs font-semibold text-[#6B6B65] mb-1">Nome do Lote *</label>
             <input value={nome} onChange={(e) => setNome(e.target.value)} className={inputCls} placeholder="Ex: Lote Garrotes Julho 2026" />
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#6B6B65] mb-1">Data de Fechamento</label>
@@ -182,6 +204,7 @@ export default function ImportarLotePage() {
               <input value={comprador} onChange={(e) => setComprador(e.target.value)} className={inputCls} placeholder="Nome do comprador" />
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-[#6B6B65] mb-1">Nota Fiscal (NF)</label>
@@ -192,10 +215,12 @@ export default function ImportarLotePage() {
               <input value={gta} onChange={(e) => setGta(e.target.value)} className={inputCls} placeholder="Nº do GTA" />
             </div>
           </div>
+
           <div>
             <label className="block text-xs font-semibold text-[#6B6B65] mb-1">Observações</label>
             <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} rows={2} className={inputCls + ' resize-none'} />
           </div>
+
           {hasPeso && (
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" checked={atualizarPeso} onChange={(e) => setAtualizarPeso(e.target.checked)} className="w-4 h-4 rounded border-[#E8E8E3] text-[#111110]" />
@@ -205,9 +230,16 @@ export default function ImportarLotePage() {
               </div>
             </label>
           )}
+
           <div className="flex gap-3 justify-end pt-2">
-            <button onClick={() => router.push('/lotes')} className="px-4 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm hover:bg-[#F5F4EF] transition">Cancelar</button>
-            <button onClick={confirmar} disabled={saving || !nome || validIds === 0} className="px-4 py-2 rounded-lg bg-[#111110] text-white text-sm font-semibold hover:bg-[#2a2a28] transition disabled:opacity-40">
+            <button onClick={() => router.push('/lotes')} className="px-4 py-2 rounded-lg border border-[#E8E8E3] text-[#6B6B65] text-sm hover:bg-[#F5F4EF] transition">
+              Cancelar
+            </button>
+            <button
+              onClick={confirmar}
+              disabled={saving || !nome || validIds === 0}
+              className="px-4 py-2 rounded-lg bg-[#111110] text-white text-sm font-semibold hover:bg-[#2a2a28] transition disabled:opacity-40"
+            >
               {saving ? 'Importando...' : `Criar Lote com ${validIds} animais`}
             </button>
           </div>
