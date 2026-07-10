@@ -147,6 +147,11 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
+      // ID column → update existing animal; absent/empty → create new
+      const idColRaw = col(row, 'ID', 'Id');
+      const idFromSheet = idColRaw ? parseInt(String(idColRaw)) : NaN;
+      const animalIdByCol = !isNaN(idFromSheet) && idFromSheet > 0 ? idFromSheet : null;
+
       let numeroRaw = parseStr(col(row, 'Número', 'Numero'));
       let numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
 
@@ -165,8 +170,9 @@ export async function POST(req: NextRequest) {
 
       if (numeroKey) processadosNaRun.add(numeroKey);
 
-      let animalExistenteId = numeroKey ? numerosMap.get(numeroKey) : undefined;
-      let isUpdate = animalExistenteId !== undefined;
+      // ID column takes precedence; fall back to numero lookup for backward compat
+      let animalExistenteId: number | undefined = animalIdByCol ?? (numeroKey ? numerosMap.get(numeroKey) : undefined);
+      let isUpdate = animalExistenteId !== undefined && animalExistenteId > 0;
 
       if (numeroKey && !isUpdate) {
         numerosMap.set(numeroKey, -1); // sentinel for new animals in this file

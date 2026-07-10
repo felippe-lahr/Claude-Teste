@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
 
   const preview = rows.slice(0, 10).map((row) => ({
+    id: row['ID'] ?? row['Id'] ?? null,
     numero: String(row['Número'] ?? row['Numero'] ?? ''),
     genero: String(row['Gênero'] ?? row['Genero'] ?? ''),
     eraMes: row['Mês Nasc'] ?? row['Mes Nasc'] ?? null,
