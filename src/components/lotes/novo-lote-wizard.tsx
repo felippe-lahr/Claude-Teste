@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
-import { X, Scale, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Scale, DollarSign, ChevronDown, ChevronUp, FileSpreadsheet } from 'lucide-react';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { parseDateBR } from '@/lib/utils';
 
@@ -168,7 +168,17 @@ export function NovoLoteWizard({
               {step === 1 ? 'Selecionar animais' : step === 2 ? 'Peso e valor por animal' : 'Detalhes do lote'}
             </span>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100"><X size={16} /></button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/lotes/importar"
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 text-xs font-medium hover:bg-slate-50 transition"
+            >
+              <FileSpreadsheet size={13} />
+              Importar planilha
+            </a>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100"><X size={16} /></button>
+          </div>
         </div>
 
         {step === 1 && (
