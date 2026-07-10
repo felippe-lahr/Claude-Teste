@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       animais: {
         include: {
           animal: {
-            select: { id: true, numero: true, denominacao: true, genero: true, peso: true, status: true, proprietario: { select: { name: true } } },
+            select: { id: true, numero: true, denominacao: true, genero: true, peso: true, status: true, descarte: true, proprietario: { select: { id: true, name: true } } },
           },
         },
       },
@@ -39,9 +39,22 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { nome, dataFechamento, comprador, valorTotal, pesoTotal, notaFiscal, gta, observacoes, animalIds } = body;
+  const { nome, dataFechamento, comprador, notaFiscal, gta, observacoes, animais: animaisData } = body;
 
-  if (!nome || !Array.isArray(animalIds) || animalIds.length === 0) {
+  // animaisData: Array<{ id: number; pesoAtual?: number | null; valorUnit?: number | null }>
+  // Falls back to legacy animalIds array for backward compat
+  const animalItems: { id: number; pesoAtual: number | null; valorUnit: number | null }[] =
+    Array.isArray(animaisData)
+      ? animaisData.map((a: { id: number; pesoAtual?: number | null; valorUnit?: number | null }) => ({
+          id: a.id,
+          pesoAtual: a.pesoAtual ?? null,
+          valorUnit: a.valorUnit ?? null,
+        }))
+      : (body.animalIds ?? []).map((id: number) => ({ id, pesoAtual: null, valorUnit: null }));
+
+  const animalIds = animalItems.map((a) => a.id);
+
+  if (!nome || animalIds.length === 0) {
     return NextResponse.json({ error: 'Nome e animais são obrigatórios' }, { status: 400 });
   }
 
@@ -59,18 +72,28 @@ export async function POST(req: NextRequest) {
     }, { status: 409 });
   }
 
+  // Compute totals from per-animal data
+  const pesoTotal = animalItems.reduce((s, a) => s + (a.pesoAtual ?? 0), 0) || null;
+  const valorTotal = animalItems.reduce((s, a) => s + (a.valorUnit ?? 0), 0) || null;
+
   const lote = await prisma.loteAnimal.create({
     data: {
       nome,
       dataFechamento: dataFechamento ? new Date(dataFechamento) : null,
       comprador: comprador || null,
-      valorTotal: valorTotal ? parseFloat(valorTotal) : null,
-      pesoTotal: pesoTotal ? parseFloat(pesoTotal) : null,
+      valorTotal,
+      pesoTotal,
       notaFiscal: notaFiscal || null,
       gta: gta || null,
       observacoes: observacoes || null,
       criadoPorId: parseInt(session.user.id),
-      animais: { create: animalIds.map((id: number) => ({ animalId: id })) },
+      animais: {
+        create: animalItems.map((a) => ({
+          animalId: a.id,
+          pesoAtual: a.pesoAtual,
+          valorUnit: a.valorUnit,
+        })),
+      },
     },
     include: {
       animais: { include: { animal: { select: { numero: true, proprietario: { select: { name: true } } } } } },
