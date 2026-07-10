@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   if (preencherAnimais) {
     const animais = await prisma.animal.findMany({
       where: { status: 'VIVO', descarte: false },
-      select: { id: true, numero: true, denominacao: true, genero: true, peso: true, proprietario: { select: { name: true } } },
+      select: { id: true, numero: true, denominacao: true, genero: true, eraMes: true, eraAno: true, peso: true, proprietario: { select: { name: true } } },
       orderBy: [{ proprietario: { name: 'asc' } }, { numero: 'asc' }],
     });
 
@@ -27,6 +27,8 @@ export async function GET(req: NextRequest) {
       Número: a.numero ?? '',
       Denominação: a.denominacao ?? '',
       Gênero: a.genero === 'MACHO' ? 'Macho' : 'Fêmea',
+      'Mês Nasc': a.eraMes ?? '',
+      'Ano Nasc': a.eraAno ?? '',
       'Peso Atual (kg)': a.peso ?? '',
       'Valor (R$)': '',
       Proprietário: a.proprietario?.name ?? '',
@@ -43,7 +45,7 @@ export async function GET(req: NextRequest) {
   const ws = XLSX.utils.json_to_sheet(rows);
 
   ws['!cols'] = preencherAnimais
-    ? [{ wch: 8 }, { wch: 12 }, { wch: 20 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 20 }]
+    ? [{ wch: 8 }, { wch: 12 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 16 }, { wch: 14 }, { wch: 20 }]
     : [{ wch: 8 }, { wch: 16 }, { wch: 14 }];
 
   XLSX.utils.book_append_sheet(wb, ws, 'Lote');
