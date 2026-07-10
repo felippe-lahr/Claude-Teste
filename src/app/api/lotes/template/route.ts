@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
   if (preencherAnimais) {
     const animais = await prisma.animal.findMany({
-      where: { descarte: false, status: { not: 'MORTO' } },
+      where: { status: 'VIVO' },
       select: { id: true, numero: true, denominacao: true, genero: true, peso: true, proprietario: { select: { name: true } } },
       orderBy: [{ proprietario: { name: 'asc' } }, { numero: 'asc' }],
     });
