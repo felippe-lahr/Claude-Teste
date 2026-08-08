@@ -22,16 +22,16 @@ export async function GET() {
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Sistema Fazenda';
 
-  // ── 1. Main sheet ─────────────────────────────────────────────────────────
+  // ── 1. Main sheet ─────────────────────────────────────────────
   const ws = wb.addWorksheet('Animais');
 
-  // Layout — 38 columns A–AL
+  // Layout — 39 columns A–AM
   // A-I: dados básicos | J-K: Venda Mês/Ano | L: Obs
-  // M: Status Reprodutivo | N: Estágio Prenhez (P1/P2/P3) ← novo
+  // M: Status Reprodutivo | N: Estágio Prenhez (P1/P2/P3)
   // O-R: Nunca Pariu + Último Parto Mês/Ano | R-S: Toque Mês/Ano
   // T-Y: Inseminada/Monta/Monta Mês/Ano/Inseminação Mês/Ano
   // Z-AA: Sêmen/Obs | AB-AD: CausaMorte/Óbito Mês/Ano
-  // AE-AL: Vacinas 1 e 2
+  // AE-AL: Vacinas 1 e 2 | AM: Mãe (nº)
   ws.columns = [
     { header: 'Número',              key: 'a',  width: 12 },
     { header: 'Proprietário',        key: 'b',  width: 22 },
@@ -46,31 +46,32 @@ export async function GET() {
     { header: 'Venda Ano',          key: 'k',  width: 14 }, // K
     { header: 'Observações',        key: 'l',  width: 22 }, // L
     { header: 'Status Reprodutivo', key: 'm',  width: 22 }, // M
-    { header: 'Estágio Prenhez',    key: 'n',  width: 16 }, // N ← novo
-    { header: 'Nunca Pariu',        key: 'o',  width: 14 }, // O (era N)
-    { header: 'Último Parto Mês',   key: 'p',  width: 16 }, // P (era O)
-    { header: 'Último Parto Ano',   key: 'q',  width: 16 }, // Q (era P)
-    { header: 'Toque Mês',          key: 'r',  width: 14 }, // R (era Q)
-    { header: 'Toque Ano',          key: 's',  width: 14 }, // S (era R)
-    { header: 'Inseminada',         key: 't',  width: 14 }, // T (era S)
-    { header: 'Monta Natural',      key: 'u',  width: 14 }, // U (era T)
-    { header: 'Monta Mês',         key: 'v',  width: 14 }, // V (era U)
-    { header: 'Monta Ano',         key: 'w',  width: 14 }, // W (era V)
-    { header: 'Inseminação Mês',   key: 'x',  width: 16 }, // X (era W)
-    { header: 'Inseminação Ano',   key: 'y',  width: 16 }, // Y (era X)
-    { header: 'Sêmen (código)',     key: 'z',  width: 18 }, // Z (era Y)
-    { header: 'Obs. Reprodução',    key: 'aa', width: 22 }, // AA (era Z)
-    { header: 'Causa da Morte',     key: 'ab', width: 22 }, // AB (era AA)
-    { header: 'Óbito Mês',         key: 'ac', width: 14 }, // AC (era AB)
-    { header: 'Óbito Ano',         key: 'ad', width: 14 }, // AD (era AC)
-    { header: 'Vacina 1 - Produto', key: 'ae', width: 22 }, // AE (era AD)
-    { header: 'Vacina 1 - Mês',     key: 'af', width: 14 }, // AF (era AE)
-    { header: 'Vacina 1 - Ano',     key: 'ag', width: 14 }, // AG (era AF)
-    { header: 'Vacina 1 - Dose',    key: 'ah', width: 16 }, // AH (era AG)
-    { header: 'Vacina 2 - Produto', key: 'ai', width: 22 }, // AI (era AH)
-    { header: 'Vacina 2 - Mês',     key: 'aj', width: 14 }, // AJ (era AI)
-    { header: 'Vacina 2 - Ano',     key: 'ak', width: 14 }, // AK (era AJ)
-    { header: 'Vacina 2 - Dose',    key: 'al', width: 16 }, // AL (era AK)
+    { header: 'Estágio Prenhez',    key: 'n',  width: 16 }, // N
+    { header: 'Nunca Pariu',        key: 'o',  width: 14 }, // O
+    { header: 'Último Parto Mês',   key: 'p',  width: 16 }, // P
+    { header: 'Último Parto Ano',   key: 'q',  width: 16 }, // Q
+    { header: 'Toque Mês',          key: 'r',  width: 14 }, // R
+    { header: 'Toque Ano',          key: 's',  width: 14 }, // S
+    { header: 'Inseminada',         key: 't',  width: 14 }, // T
+    { header: 'Monta Natural',      key: 'u',  width: 14 }, // U
+    { header: 'Monta Mês',         key: 'v',  width: 14 }, // V
+    { header: 'Monta Ano',         key: 'w',  width: 14 }, // W
+    { header: 'Inseminação Mês',   key: 'x',  width: 16 }, // X
+    { header: 'Inseminação Ano',   key: 'y',  width: 16 }, // Y
+    { header: 'Sêmen (código)',     key: 'z',  width: 18 }, // Z
+    { header: 'Obs. Reprodução',    key: 'aa', width: 22 }, // AA
+    { header: 'Causa da Morte',     key: 'ab', width: 22 }, // AB
+    { header: 'Óbito Mês',         key: 'ac', width: 14 }, // AC
+    { header: 'Óbito Ano',         key: 'ad', width: 14 }, // AD
+    { header: 'Vacina 1 - Produto', key: 'ae', width: 22 }, // AE
+    { header: 'Vacina 1 - Mês',     key: 'af', width: 14 }, // AF
+    { header: 'Vacina 1 - Ano',     key: 'ag', width: 14 }, // AG
+    { header: 'Vacina 1 - Dose',    key: 'ah', width: 16 }, // AH
+    { header: 'Vacina 2 - Produto', key: 'ai', width: 22 }, // AI
+    { header: 'Vacina 2 - Mês',     key: 'aj', width: 14 }, // AJ
+    { header: 'Vacina 2 - Ano',     key: 'ak', width: 14 }, // AK
+    { header: 'Vacina 2 - Dose',    key: 'al', width: 16 }, // AL
+    { header: 'Mãe (nº)',           key: 'am', width: 12 }, // AM ← vínculo com a mãe (número de outro animal)
   ];
 
   // Style header row
@@ -85,7 +86,7 @@ export async function GET() {
   const p0 = proprietarios[0]?.name ?? 'Proprietário';
   const s0 = semens[0]?.codigo ?? '';
 
-  // Example rows (38 columns A–AL)
+  // Example rows (39 columns A–AM)
   // Macho — sem reprodução
   ws.addRow([
     '001', p0, 'MACHO', 'Não', 'Não', 3, 2022, 350, 'VIVO',
@@ -102,6 +103,7 @@ export async function GET() {
     '', '',        // AC AD óbito mês/ano
     'Aftosa', 'jan', 2024, '2ml', // AE AF AG AH vacina 1
     '', '', '', '',               // AI AJ AK AL vacina 2
+    '',                           // AM mãe (nº)
   ]);
   // Fêmea prenha P1 via IA — toque e inseminação em mar/2025
   ws.addRow([
@@ -119,6 +121,7 @@ export async function GET() {
     '', '',            // AC AD óbito
     '', '', '', '',    // AE-AH vacina 1
     '', '', '', '',    // AI-AL vacina 2
+    '',                // AM mãe (nº)
   ]);
   // Fêmea vazia com último parto
   ws.addRow([
@@ -127,6 +130,7 @@ export async function GET() {
     '', '', 'Não', 'Não', '', '', '', '',
     '', '', '', '', '',
     '', '', '', '', '', '', '', '',
+    '', // AM mãe (nº)
   ]);
   // Fêmea primípara
   ws.addRow([
@@ -135,12 +139,22 @@ export async function GET() {
     '', '', 'Não', 'Não', '', '', '', '',
     '', '', '', '', '',
     '', '', '', '', '', '', '', '',
+    '', // AM mãe (nº)
+  ]);
+  // Bezerro nascido — vinculado à mãe nº 002 (o parto de fev/2026 é lançado na mãe automaticamente)
+  ws.addRow([
+    '002/1', p0, 'MACHO', 'Não', 'Não', 2, 2026, 45, 'VIVO',
+    '', '', '', '', '', '', '', '',
+    '', '', 'Não', 'Não', '', '', '', '',
+    '', '', '', '', '',
+    '', '', '', '', '', '', '', '',
+    '002', // AM mãe (nº) → vincula à vaca 002
   ]);
 
   ws.views = [{ state: 'frozen', ySplit: 1 }];
-  ws.autoFilter = { from: 'A1', to: 'AL1' };
+  ws.autoFilter = { from: 'A1', to: 'AM1' };
 
-  // ── 2. Hidden helper sheet ────────────────────────────────────────────────
+  // ── 2. Hidden helper sheet ──────────────────────────────────────────
   const listas = wb.addWorksheet('_listas');
   listas.state = 'veryHidden';
 
@@ -157,7 +171,7 @@ export async function GET() {
   const semenEnd = Math.max(semens.length + 1, 2);
   const causaEnd = Math.max(causasMorte.length + 1, 2);
 
-  // ── 3. Data validations ───────────────────────────────────────────────────
+  // ── 3. Data validations ──────────────────────────────────────────
   for (let r = 2; r <= 501; r++) {
     ws.getCell(`B${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [`_listas!$A$2:$A$${propEnd}`] };
     ws.getCell(`C${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: ['"MACHO,FEMEA"'] };
@@ -203,15 +217,15 @@ export async function GET() {
     ws.getCell(`AK${r}`).dataValidation = { type: 'list', allowBlank: true, formulae: [ANOS] };
   }
 
-  // ── 4. Conditional formatting ─────────────────────────────────────────────
+  // ── 4. Conditional formatting ─────────────────────────────────────
   ws.addConditionalFormatting({
-    ref: 'A2:AL501',
+    ref: 'A2:AM501',
     rules: [
       { type: 'expression', priority: 1, formulae: ['CELL("row")=ROW()'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFFFF9C4' } } } },
     ],
   });
   ws.addConditionalFormatting({
-    ref: 'A2:AL501',
+    ref: 'A2:AM501',
     rules: [
       { type: 'expression', priority: 2, formulae: ['MOD(ROW(),2)=0'], style: { fill: { type: 'pattern', pattern: 'solid', bgColor: { argb: 'FFE8F4FD' } } } },
     ],

@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import { createHash } from 'crypto';
 import { parseDateBR } from '@/lib/utils';
 import { registrarLog } from '@/lib/log';
+import { registrarPartoNaMae } from '@/lib/parto';
 
 function parseDate(value: unknown): Date | null {
   if (!value) return null;
@@ -24,7 +25,6 @@ function parseDate(value: unknown): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-// Accepts "mm/aaaa" or "mm/yyyy" → first day of that month
 function parseMonthYear(value: unknown): Date | null {
   if (!value) return null;
   const str = String(value).trim();
@@ -42,8 +42,6 @@ const MES_MAP: Record<string, number> = {
   jul:7, ago:8, set:9, out:10, nov:11, dez:12,
 };
 
-// Reads "Mês" + "Ano" column pair → first day of that month
-// Falls back to old full-date column for backward compat
 function parseMesAno(row: Record<string, unknown>, mesKey: string, anoKey: string, ...legacyKeys: string[]): Date | null {
   const mesRaw = parseStr(col(row, mesKey));
   const anoRaw = parseStr(col(row, anoKey));
@@ -53,7 +51,6 @@ function parseMesAno(row: Record<string, unknown>, mesKey: string, anoKey: strin
     if (!isNaN(mesNum) && !isNaN(anoNum) && mesNum >= 1 && mesNum <= 12)
       return new Date(Date.UTC(anoNum, mesNum - 1, 1));
   }
-  // Backward compat: try legacy column (old dd/mm/aaaa or mm/aaaa format)
   if (legacyKeys.length > 0) {
     const legacy = col(row, ...legacyKeys);
     if (legacy) return parseDate(legacy);
@@ -66,7 +63,6 @@ function parseStr(value: unknown): string {
   return String(value).trim();
 }
 
-// Read a column by its exact header, then by a fallback without the "(dd/mm/aaaa)" suffix
 function col(row: Record<string, unknown>, ...keys: string[]): unknown {
   for (const key of keys) {
     if (row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
@@ -74,13 +70,10 @@ function col(row: Record<string, unknown>, ...keys: string[]): unknown {
   return null;
 }
 
-// Strict proprietário matching: exact first, then full-string contains — avoids first-name collisions
 function findProprietario(usuarios: { id: number; name: string }[], nome: string) {
   const n = nome.toLowerCase().trim();
-  // 1. Exact (case-insensitive)
   const exact = usuarios.find((u) => u.name.toLowerCase().trim() === n);
   if (exact) return exact;
-  // 2. User name fully contained in input OR input fully contained in user name
   return usuarios.find((u) => {
     const u2 = u.name.toLowerCase().trim();
     return u2.includes(n) || n.includes(u2);
@@ -98,14 +91,12 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null;
   if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 });
 
-  // Resoluções de duplicatas: { "123": "discard" | "rename" }
   const resolucoesTxt = formData.get('resolucoes') as string | null;
   const resolucoes: Record<string, 'discard' | 'rename'> = resolucoesTxt ? JSON.parse(resolucoesTxt) : {};
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const fileHash = createHash('sha256').update(buffer).digest('hex');
 
-  // Block re-upload of an identical file (unless ?force=1)
   if (!force) {
     const logDuplicado = await prisma.logAlteracao.findFirst({ where: { fileHash, tipo: 'IMPORTACAO' } });
     if (logDuplicado) {
@@ -125,9 +116,9 @@ export async function POST(req: NextRequest) {
     prisma.semen.findMany({ select: { id: true, codigo: true, touro: true } }),
     prisma.animal.findMany({ where: { numero: { not: null } }, select: { id: true, numero: true } }),
   ]);
-  // Maps numero (lowercase) → animalId for DB lookup
   const numerosMap = new Map(animaisExistentes.map((a) => [a.numero!.toLowerCase().trim(), a.id]));
-  // Tracks numbers already processed in this import run (handles duplicates for both new and existing animals)
+  // Mapa número → id real (para resolver a mãe pelo número, inclusive mães vindas na própria planilha)
+  const numeroToId = new Map(animaisExistentes.map((a) => [a.numero!.toLowerCase().trim(), a.id]));
   const processadosNaRun = new Set<string>();
 
   let importados = 0;
@@ -155,14 +146,12 @@ export async function POST(req: NextRequest) {
       let numeroRaw = parseStr(col(row, 'Número', 'Numero'));
       let numeroKey = numeroRaw ? numeroRaw.toLowerCase().trim() : null;
 
-      // Duplicate detection: applies regardless of whether the animal is new or already in DB
       if (numeroKey && processadosNaRun.has(numeroKey)) {
         const acao: 'discard' | 'rename' = resolucoes[numeroKey] ?? 'discard';
         if (acao === 'discard') {
           erros.push(`Linha ${rowNum}: Animal nº "${numeroRaw}" ignorado (duplicata descartada)`);
           continue;
         } else {
-          // rename: append D to this (second) occurrence
           numeroRaw = numeroRaw + 'D';
           numeroKey = numeroRaw.toLowerCase();
         }
@@ -175,7 +164,7 @@ export async function POST(req: NextRequest) {
       let isUpdate = animalExistenteId !== undefined && animalExistenteId > 0;
 
       if (numeroKey && !isUpdate) {
-        numerosMap.set(numeroKey, -1); // sentinel for new animals in this file
+        numerosMap.set(numeroKey, -1);
       }
 
       const generoStr = parseStr(col(row, 'Gênero', 'Genero')).toUpperCase();
@@ -200,6 +189,15 @@ export async function POST(req: NextRequest) {
 
       const dataVenda = parseMesAno(row, 'Venda Mês', 'Venda Ano', 'Data Venda (dd/mm/aaaa)', 'Data Venda');
 
+      // Mãe (genealogia): resolve o número da mãe → id real
+      const maeNumeroRaw = parseStr(col(row, 'Mãe (nº)', 'Mãe (no)', 'Mae (no)', 'Mãe', 'Mae'));
+      let maeResolvedId: number | null = null;
+      if (maeNumeroRaw) {
+        const cand = numeroToId.get(maeNumeroRaw.toLowerCase().trim());
+        if (cand && cand > 0 && cand !== animalExistenteId) maeResolvedId = cand;
+        else erros.push(`Linha ${rowNum}: Mãe nº "${maeNumeroRaw}" não encontrada — animal importado sem vínculo de mãe`);
+      }
+
       const animalData = {
         numero: numeroRaw || null,
         genero,
@@ -213,6 +211,8 @@ export async function POST(req: NextRequest) {
         observacoes: parseStr(col(row, 'Observações', 'Observacoes')) || null,
         dataVenda: status === 'VENDIDO' && dataVenda ? dataVenda : null,
         proprietarioId: usuario.id,
+        // Só define maeId quando um número de mãe válido foi informado (não apaga vínculo em atualizações sem a coluna)
+        ...(maeResolvedId ? { maeId: maeResolvedId } : {}),
       };
 
       let animal: { id: number; numero: string | null };
@@ -229,7 +229,20 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Morte — upsert so updates don't create duplicate records
+      // Registra o número real deste animal para que linhas seguintes possam referenciá-lo como mãe
+      if (animal.numero) numeroToId.set(animal.numero.toLowerCase().trim(), animal.id);
+
+      // Parto automático na mãe: o nascimento da cria (mês/ano) vira o último parto da mãe
+      if (maeResolvedId && eraMes && eraAno) {
+        await registrarPartoNaMae({
+          maeId: maeResolvedId,
+          criaMes: parseInt(String(eraMes)),
+          criaAno: parseInt(String(eraAno)),
+          criaNumero: animal.numero,
+          userId: parseInt(session.user.id),
+        });
+      }
+
       if (status === 'MORTO') {
         const causaMorte = parseStr(col(row, 'Causa da Morte')) || null;
         const dataObito = parseMesAno(row, 'Óbito Mês', 'Óbito Ano', 'Data do Óbito (mm/aaaa)', 'Data do Óbito (dd/mm/aaaa)', 'Data do Obito (dd/mm/aaaa)', 'Data do Óbito', 'Data Obito');
@@ -242,7 +255,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Reprodução (apenas fêmeas) — always append a new record (history-based)
       if (genero === 'FEMEA') {
         const statusReproStr = parseStr(col(row, 'Status Reprodutivo')).toUpperCase();
         const validStatusRepro: StatusReprodutivo[] = ['CHEIA', 'VAZIA'];
@@ -278,7 +290,6 @@ export async function POST(req: NextRequest) {
         const observacoesRepro = parseStr(col(row, 'Obs. Reprodução', 'Obs Reproducao')) || null;
 
         if (statusReprodutivo || dataToque || montaNatural || nuncaPariu || ultimoPartoMes) {
-          // Resolve estação from dataToque, dataInseminacao or dataMontaNatural
           let estacaoMontaId: number | null = null;
           for (const candidateDate of [dataToque, dataInseminacao, dataMontaNatural]) {
             if (!candidateDate) continue;
@@ -313,7 +324,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Vacinas — for updates, skip entries already recorded (same produto+data)
       const vacinas = [];
       for (let v = 1; v <= 2; v++) {
         const produto = parseStr(col(row, `Vacina ${v} - Produto`)) || null;
