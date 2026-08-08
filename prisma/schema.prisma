@@ -76,10 +76,13 @@ model Animal {
   fotoUrl        String?
   dataVenda      DateTime?
   proprietarioId Int
+  maeId          Int?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
   proprietario        User                @relation(fields: [proprietarioId], references: [id])
+  mae                 Animal?             @relation("MaeCrias", fields: [maeId], references: [id])
+  crias               Animal[]            @relation("MaeCrias")
   morte               Morte?
   registrosSanitarios RegistroSanitario[]
   reproducoes         ReproducaoAnimal[]
@@ -88,6 +91,7 @@ model Animal {
   @@index([proprietarioId])
   @@index([status])
   @@index([denominacao])
+  @@index([maeId])
 }
 
 model ClassificacaoConfig {

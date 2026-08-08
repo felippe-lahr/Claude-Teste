@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { calcularDenominacao, classificarAnimal } from '@/lib/classificacao';
 import { registrarLog } from '@/lib/log';
+import { registrarPartoNaMae } from '@/lib/parto';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
 
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, maeId, vacinas, reproducao } = body;
 
   if (!genero || !proprietarioId) {
     return NextResponse.json({ error: 'Campos obrigatórios faltando' }, { status: 400 });
@@ -145,20 +146,10 @@ export async function POST(req: NextRequest) {
       observacoes: observacoes || null,
       dataVenda: dataVenda ? (parseDateBR(dataVenda) ?? new Date(dataVenda)) : null,
       proprietarioId: parseInt(proprietarioId),
+      maeId: maeId ? parseInt(maeId) : null,
     },
     include: { proprietario: { select: { id: true, name: true } } },
   });
-
-  if (status === 'MORTO') {
-    await prisma.morte.create({
-      data: {
-        animalId: animal.id,
-        dataObito: dataObito ? (parseDateBR(dataObito) ?? new Date(dataObito)) : new Date(),
-        causa: causaMorte && causaMorte !== '__outra__' ? causaMorte : null,
-        registradoPorId: parseInt(session.user.id),
-      },
-    });
-  }
 
   if (Array.isArray(vacinas) && vacinas.length > 0) {
     await prisma.registroSanitario.createMany({
@@ -200,6 +191,26 @@ export async function POST(req: NextRequest) {
           observacoes: observacoesRepro ?? null,
           registradoPorId: parseInt(session.user.id),
         },
+      });
+    }
+  }
+
+  // Parto automático na mãe: o nascimento da cria (mês/ano) vira o último parto da mãe
+  if (maeId && eraMes && eraAno) {
+    const registrado = await registrarPartoNaMae({
+      maeId: parseInt(maeId),
+      criaMes: parseInt(eraMes),
+      criaAno: parseInt(eraAno),
+      criaNumero: animal.numero,
+      userId: parseInt(session.user.id),
+    });
+    if (registrado) {
+      await registrarLog({
+        tipo: 'REPRODUCAO',
+        descricao: `Parto registrado automaticamente: ${parseInt(eraMes)}/${parseInt(eraAno)} (nascimento da cria${animal.numero ? ` nº ${animal.numero}` : ''})`,
+        userId: parseInt(session.user.id),
+        userName: session.user.name ?? session.user.email ?? 'Usuário',
+        animalId: parseInt(maeId),
       });
     }
   }

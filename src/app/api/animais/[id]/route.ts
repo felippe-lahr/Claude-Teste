@@ -6,6 +6,7 @@ import { classificarAnimal } from '@/lib/classificacao';
 import { EstagioPrenhez, Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
 import { registrarLog } from '@/lib/log';
+import { registrarPartoNaMae } from '@/lib/parto';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -15,6 +16,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     where: { id: parseInt(params.id) },
     include: {
       proprietario: { select: { id: true, name: true } },
+      mae: { select: { id: true, numero: true, denominacao: true } },
       morte: true,
       registrosSanitarios: { orderBy: { data: 'desc' } },
       reproducoes: {
@@ -39,7 +41,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const body = await req.json();
-  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, vacinas, dataObito, causaMorte, reproducao } = body;
+  const { numero, genero, eraMes, eraAno, peso, reprodutor, descarte, status, observacoes, proprietarioId, dataVenda, maeId, vacinas, dataObito, causaMorte, reproducao } = body;
+
+  // Um animal não pode ser mãe de si mesmo
+  const maeIdParsed = maeId && parseInt(maeId) !== parseInt(params.id) ? parseInt(maeId) : null;
 
   // Block changing to a number that already exists on another animal
   if (numero) {
@@ -77,6 +82,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       observacoes: observacoes || null,
       dataVenda: dataVenda ? (parseDateBR(dataVenda) ?? new Date(dataVenda)) : null,
       proprietarioId: parseInt(proprietarioId),
+      maeId: maeIdParsed,
     },
     include: {
       proprietario: { select: { id: true, name: true } },
@@ -151,6 +157,26 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         animalId: animal.id,
         animalNumero: animal.numero,
         proprietario: animal.proprietario.name,
+      });
+    }
+  }
+
+  // Parto automático na mãe: o nascimento da cria (mês/ano) vira o último parto da mãe
+  if (maeIdParsed && eraMes && eraAno) {
+    const registrado = await registrarPartoNaMae({
+      maeId: maeIdParsed,
+      criaMes: parseInt(eraMes),
+      criaAno: parseInt(eraAno),
+      criaNumero: animal.numero,
+      userId: parseInt(session.user.id),
+    });
+    if (registrado) {
+      await registrarLog({
+        tipo: 'REPRODUCAO',
+        descricao: `Parto registrado automaticamente: ${parseInt(eraMes)}/${parseInt(eraAno)} (nascimento da cria${animal.numero ? ` nº ${animal.numero}` : ''})`,
+        userId: parseInt(session.user.id),
+        userName: session.user.name ?? session.user.email ?? 'Usuário',
+        animalId: maeIdParsed,
       });
     }
   }
