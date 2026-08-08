@@ -5,14 +5,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, X, Syringe, HeartPulse } from 'lucide-react';
+import { Plus, X, Syringe, HeartPulse, Search } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { Badge } from '@/components/ui/badge';
-import { MonthYearPickerBR } from '@/components/ui/month-year-picker-br';
+import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { parseDateBR, formatDateBR } from '@/lib/utils';
 
 const schema = z.object({
   numero: z.string().optional(),
+  maeId: z.string().optional(),
   proprietarioId: z.string().min(1, 'Proprietário obrigatório'),
   genero: z.enum(['MACHO', 'FEMEA'], { required_error: 'Gênero obrigatório' }),
   status: z.enum(['VIVO', 'MORTO', 'VENDIDO']).default('VIVO'),
@@ -81,6 +82,16 @@ interface Proprietario {
   name: string;
 }
 
+interface MaeResult {
+  id: number;
+  numero: string | null;
+  denominacao: string;
+  proprietarioId: number;
+  proprietarioNome: string;
+  criasCount: number;
+  proximoNumero: string | null;
+}
+
 interface AnimalData {
   id?: number;
   numero?: string | null;
@@ -121,6 +132,14 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
   const [causas, setCausas] = useState<CausaMorte[]>([]);
   const [jaTemMorte, setJaTemMorte] = useState(false);
   const [loteInfo, setLoteInfo] = useState<{ nome: string; status: string; comprador: string | null; dataFechamento: string | null } | null>(null);
+
+  // Mãe (genealogia)
+  const [maeId, setMaeId] = useState('');
+  const [maeLabel, setMaeLabel] = useState('');
+  const [maeQuery, setMaeQuery] = useState('');
+  const [maeResults, setMaeResults] = useState<MaeResult[]>([]);
+  const [maeSearching, setMaeSearching] = useState(false);
+  const [maeOpen, setMaeOpen] = useState(false);
 
   // Reprodução
   const [estacoes, setEstacoes] = useState<EstacaoMonta[]>([]);
@@ -181,6 +200,11 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
       setUltimoPartoAno('');
       setNuncaPariu(false);
       setObservacoesRepro('');
+      setMaeId('');
+      setMaeLabel('');
+      setMaeQuery('');
+      setMaeResults([]);
+      setMaeOpen(false);
       if (animal) {
         reset({
           numero: animal.numero ?? '',
@@ -210,6 +234,10 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
                 dose: v.dose,
               })));
               if (data.morte) setJaTemMorte(true);
+              if (data.mae) {
+                setMaeId(String(data.mae.id));
+                setMaeLabel(`${data.mae.numero ?? 's/ nº'} · ${data.mae.denominacao}`);
+              }
               setReproducoes(data.reproducoes ?? []);
               if (data.loteItems && data.loteItems.length > 0) {
                 const item = data.loteItems[0];
@@ -252,6 +280,48 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
     }, 400);
     return () => clearTimeout(timer);
   }, [genero, eraMes, eraAno, reprodutor]);
+
+  // Busca de mães (debounced)
+  useEffect(() => {
+    if (!maeOpen) return;
+    const q = maeQuery.trim();
+    setMaeSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams();
+        if (q) params.set('q', q);
+        if (animal?.id) params.set('excludeId', String(animal.id));
+        const res = await fetch(`/api/animais/maes?${params.toString()}`);
+        const data = await res.json();
+        setMaeResults(Array.isArray(data) ? data : []);
+      } catch {
+        setMaeResults([]);
+      } finally {
+        setMaeSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [maeQuery, maeOpen, animal?.id]);
+
+  function selecionarMae(m: MaeResult) {
+    setMaeId(String(m.id));
+    setMaeLabel(`${m.numero ?? 's/ nº'} · ${m.denominacao}`);
+    setMaeOpen(false);
+    setMaeQuery('');
+    setMaeResults([]);
+    // Sugere o número da cria se o campo estiver vazio
+    if (!watch('numero') && m.proximoNumero) setValue('numero', m.proximoNumero);
+    // Herda o proprietário da mãe se ainda não escolhido
+    if (!watch('proprietarioId')) setValue('proprietarioId', String(m.proprietarioId));
+  }
+
+  function limparMae() {
+    setMaeId('');
+    setMaeLabel('');
+    setMaeQuery('');
+    setMaeResults([]);
+    setMaeOpen(false);
+  }
 
   useEffect(() => {
     if (!dataToque) { setEstacaoDetectada(null); return; }
@@ -307,6 +377,7 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          maeId: maeId || null,
           dataVenda: data.status === 'VENDIDO' && data.dataVenda ? data.dataVenda : null,
           dataObito: data.status === 'MORTO' && data.dataObito ? data.dataObito : null,
           causaMorte: data.status === 'MORTO' ? (data.causaMorte ?? null) : null,
@@ -357,6 +428,51 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <input {...register('numero')} placeholder="Ex: 001" className={inputClass} />
         </div>
 
+        {/* Mãe (genealogia) */}
+        <div>
+          <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mãe (opcional)</label>
+          {maeId ? (
+            <div className="flex items-center justify-between gap-2 border border-[#ACDCC2] bg-[#EDF7F1] rounded-lg px-3 py-2">
+              <span className="text-sm text-[#111110]">Mãe: <strong>{maeLabel}</strong></span>
+              <button type="button" onClick={limparMae} className="text-[#6B6B65] hover:text-red-500 transition-colors" aria-label="Remover mãe">
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A8A8A2]" />
+                <input
+                  value={maeQuery}
+                  onChange={(e) => { setMaeQuery(e.target.value); setMaeOpen(true); }}
+                  onFocus={() => setMaeOpen(true)}
+                  placeholder="Buscar vaca pelo número..."
+                  className={inputClass + ' pl-9'}
+                />
+              </div>
+              {maeOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white border border-[#E8E8E3] rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                  {maeSearching && <p className="px-3 py-2 text-xs text-[#A8A8A2]">Buscando...</p>}
+                  {!maeSearching && maeResults.length === 0 && <p className="px-3 py-2 text-xs text-[#A8A8A2]">Nenhuma fêmea encontrada.</p>}
+                  {!maeSearching && maeResults.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => selecionarMae(m)}
+                      className="w-full text-left px-3 py-2 hover:bg-[#F5F4EF] transition-colors border-b border-[#F5F4EF] last:border-b-0"
+                    >
+                      <span className="text-sm font-medium text-[#111110]">{m.numero ?? 's/ nº'}</span>
+                      <span className="text-xs text-[#6B6B65]"> · {m.denominacao} · {m.proprietarioNome}</span>
+                      {m.proximoNumero && <span className="block text-xs text-[#2F6A47]">Sugestão de nº para a cria: {m.proximoNumero}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-[#A8A8A2] mt-1">Ao vincular a mãe, sugerimos o número da cria e — se preencher o mês/ano de nascimento — o parto é lançado automaticamente na mãe.</p>
+        </div>
+
         <div>
           <label className="block text-xs font-semibold text-[#111110] mb-1.5">Proprietário *</label>
           <select {...register('proprietarioId')} className={selectClass}>
@@ -395,8 +511,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
             <p className="text-xs font-semibold text-red-700 uppercase tracking-wide">Registro de Óbito</p>
             <div>
-              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano do Óbito</label>
-              <MonthYearPickerBR
+              <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Óbito</label>
+              <DatePickerBR
                 value={watch('dataObito') || null}
                 onChange={(v) => setValue('dataObito', v ?? '')}
                 className={inputClass}
@@ -423,8 +539,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
         {status === 'VENDIDO' && (
           <div>
-            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Venda</label>
-            <MonthYearPickerBR
+            <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Venda</label>
+            <DatePickerBR
               value={watch('dataVenda') || null}
               onChange={(v) => setValue('dataVenda', v ?? '')}
               className={inputClass}
@@ -615,8 +731,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano do Toque</label>
-                <MonthYearPickerBR
+                <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data do Toque</label>
+                <DatePickerBR
                   value={dataToque || null}
                   onChange={(v) => setDataToque(v ?? '')}
                   className={inputClass}
@@ -639,8 +755,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               {inseminada && (
                 <>
                   <div>
-                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Inseminação</label>
-                    <MonthYearPickerBR
+                    <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data da Inseminação</label>
+                    <DatePickerBR
                       value={dataInseminacao || null}
                       onChange={(v) => setDataInseminacao(v ?? '')}
                       className={inputClass}
@@ -663,8 +779,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
 
               {montaNatural && (
                 <div>
-                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Mês/Ano da Monta Natural</label>
-                  <MonthYearPickerBR
+                  <label className="block text-xs font-semibold text-[#111110] mb-1.5">Data de Início da Monta</label>
+                  <DatePickerBR
                     value={dataMontaNatural || null}
                     onChange={(v) => setDataMontaNatural(v ?? '')}
                     className={inputClass}
@@ -745,8 +861,8 @@ export function AnimalDrawer({ open, onClose, animal, proprietarios, onSaved }: 
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs text-[#6B6B65] mb-1">Mês/Ano Aplicação</label>
-                  <MonthYearPickerBR
+                  <label className="block text-xs text-[#6B6B65] mb-1">Data de Aplicação</label>
+                  <DatePickerBR
                     value={v.data || null}
                     onChange={(val) => updateVacina(i, 'data', val ?? '')}
                     className={inputClass}
