@@ -74,12 +74,23 @@ async function getDashboardData() {
   const total = animaisVivos.length;
 
   const porDenominacao = porDenominacaoRaw.map((d) => ({ denominacao: d.denominacao, total: d._count.id }));
-  const porProprietario = porProprietarioRaw.map((p) => {
+
+  // Percentual por proprietário com 1 casa decimal, somando exatamente 100,0%
+  // (método do maior resto: distribui os décimos restantes para os maiores restos fracionários)
+  const decimosExatos = porProprietarioRaw.map((p) => (total > 0 ? (p._count.id / total) * 1000 : 0));
+  const decimos = decimosExatos.map((v) => Math.floor(v));
+  let sobra = (total > 0 ? 1000 : 0) - decimos.reduce((s, v) => s + v, 0);
+  const ordemResto = decimosExatos
+    .map((v, i) => ({ i, frac: v - Math.floor(v) }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; k < ordemResto.length && sobra > 0; k++) { decimos[ordemResto[k].i]++; sobra--; }
+
+  const porProprietario = porProprietarioRaw.map((p, idx) => {
     const usuario = usuarios.find((u) => u.id === p.proprietarioId);
     return {
       nome: usuario?.name ?? 'Desconhecido',
       total: p._count.id,
-      percentual: total > 0 ? Math.round((p._count.id / total) * 100) : 0,
+      percentual: decimos[idx] / 10,
     };
   });
 
@@ -240,7 +251,7 @@ export default async function DashboardPage() {
                       className="rounded-lg px-2.5 py-1 text-sm font-bold"
                       style={{ backgroundColor: `${borderColor}15`, color: borderColor }}
                     >
-                      {p.percentual}%
+                      {p.percentual.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
                     </div>
                   </div>
                   <div className="bg-[#F0EFEB] rounded-full h-3">

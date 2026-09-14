@@ -260,7 +260,7 @@ export function DashboardCharts({ porDenominacao, porProprietario, porDenominaca
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={porProprietario} dataKey="total" nameKey="nome" cx="50%" cy="50%" outerRadius={76} innerRadius={44} paddingAngle={3}
-                label={(props) => { const d = props as { nome?: string; percentual?: number }; if (!d.nome) return ''; return `${d.nome.split(' ')[0]} ${d.percentual ?? 0}%`; }}
+                label={(props) => { const d = props as { nome?: string; percentual?: number }; if (!d.nome) return ''; return `${d.nome.split(' ')[0]} ${(d.percentual ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`; }}
                 labelLine={false}>
                 {porProprietario.map((_, index) => <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
               </Pie>
