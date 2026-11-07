@@ -124,6 +124,21 @@ export async function POST(req: NextRequest) {
   let importados = 0;
   let atualizados = 0;
   const erros: string[] = [];
+  // Detalhes de cada animal efetivamente importado (para o relatório em PDF)
+  const detalhes: Array<{
+    linha: number;
+    numero: string | null;
+    acao: 'criado' | 'atualizado';
+    genero: 'MACHO' | 'FEMEA';
+    denominacao: string;
+    proprietario: string;
+    eraMes: number | null;
+    eraAno: number | null;
+    peso: number | null;
+    status: string;
+    mae: string | null;
+    observacoes: string | null;
+  }> = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -351,6 +366,21 @@ export async function POST(req: NextRequest) {
       }
 
       if (isUpdate) { atualizados++; } else { importados++; }
+
+      detalhes.push({
+        linha: rowNum,
+        numero: animal.numero,
+        acao: isUpdate ? 'atualizado' : 'criado',
+        genero,
+        denominacao,
+        proprietario: usuario.name,
+        eraMes: animalData.eraMes,
+        eraAno: animalData.eraAno,
+        peso: animalData.peso,
+        status,
+        mae: maeResolvedId ? (maeNumeroRaw || null) : null,
+        observacoes: animalData.observacoes,
+      });
     } catch (e) {
       erros.push(`Linha ${rowNum}: ${e instanceof Error ? e.message : 'Erro desconhecido'}`);
     }
@@ -368,5 +398,5 @@ export async function POST(req: NextRequest) {
     importErros: erros.length,
   });
 
-  return NextResponse.json({ importados, atualizados, erros, total: rows.length });
+  return NextResponse.json({ importados, atualizados, erros, total: rows.length, detalhes, arquivo: file.name });
 }

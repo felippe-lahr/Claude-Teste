@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet, ArrowRight, Copy } from 'lucide-react';
+import { Upload, Download, CheckCircle, AlertCircle, FileSpreadsheet, ArrowRight, Copy, FileText } from 'lucide-react';
 
 interface PreviewRow {
   numero: string;
@@ -25,6 +25,8 @@ interface ImportResult {
   atualizados: number;
   erros: string[];
   total: number;
+  detalhes?: unknown[];
+  arquivo?: string;
 }
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -46,7 +48,43 @@ export default function ImportarPage() {
   const [loading, setLoading] = useState(false);
   const [forceMode, setForceMode] = useState(false);
   const [duplicateMsg, setDuplicateMsg] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const pdfBaixado = useRef(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  async function baixarRelatorio(data: ImportResult) {
+    setPdfLoading(true);
+    try {
+      const res = await fetch('/api/importar/relatorio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error('Erro ao gerar PDF');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `importacao-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao gerar PDF');
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  // Gera e baixa o PDF automaticamente assim que a importação conclui (uma vez)
+  useEffect(() => {
+    if (step === 4 && result && !pdfBaixado.current) {
+      pdfBaixado.current = true;
+      baixarRelatorio(result);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, result]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -113,6 +151,7 @@ export default function ImportarPage() {
     setResult(null);
     setForceMode(false);
     setDuplicateMsg(null);
+    pdfBaixado.current = false;
     if (fileRef.current) fileRef.current.value = '';
   }
 
@@ -384,6 +423,21 @@ export default function ImportarPage() {
               </ul>
             </div>
           )}
+
+          <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-indigo-800">
+              <FileText size={18} className="text-indigo-500 shrink-0" />
+              <span>O relatório em PDF com todos os dados importados e os erros/observações foi gerado automaticamente.</span>
+            </div>
+            <button
+              onClick={() => result && baixarRelatorio(result)}
+              disabled={pdfLoading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition disabled:opacity-60 shrink-0"
+            >
+              <Download size={16} />
+              {pdfLoading ? 'Gerando PDF...' : 'Baixar PDF novamente'}
+            </button>
+          </div>
 
           <div className="flex gap-3">
             <button
