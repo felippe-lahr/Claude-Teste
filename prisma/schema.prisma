@@ -87,11 +87,29 @@ model Animal {
   registrosSanitarios RegistroSanitario[]
   reproducoes         ReproducaoAnimal[]
   loteItems           LoteAnimalItem[]
+  historicoStatus     HistoricoStatus[]
 
   @@index([proprietarioId])
   @@index([status])
   @@index([denominacao])
   @@index([maeId])
+}
+
+model HistoricoStatus {
+  id              Int           @id @default(autoincrement())
+  animalId        Int
+  statusDe        StatusAnimal?
+  statusPara      StatusAnimal
+  data            DateTime
+  registradoPorId Int?
+  observacao      String?
+  createdAt       DateTime      @default(now())
+
+  animal Animal @relation(fields: [animalId], references: [id], onDelete: Cascade)
+
+  @@index([animalId])
+  @@index([statusPara])
+  @@index([data])
 }
 
 model ClassificacaoConfig {
