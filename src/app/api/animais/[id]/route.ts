@@ -7,6 +7,7 @@ import { EstagioPrenhez, Genero, StatusAnimal, StatusReprodutivo } from '@prisma
 import { parseDateBR } from '@/lib/utils';
 import { registrarLog } from '@/lib/log';
 import { registrarPartoNaMae } from '@/lib/parto';
+import { registrarMudancaStatus } from '@/lib/historico-status';
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -99,6 +100,23 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         causa: causaMorte && causaMorte !== '__outra__' ? causaMorte : null,
         registradoPorId: parseInt(session.user.id),
       },
+    });
+  }
+
+  // Histórico de status: registra a mudança quando o status muda
+  if (before && before.status !== status) {
+    const dataMudanca =
+      status === 'MORTO'
+        ? (dataObito ? (parseDateBR(dataObito) ?? new Date(dataObito)) : new Date())
+        : status === 'VENDIDO'
+          ? (dataVenda ? (parseDateBR(dataVenda) ?? new Date(dataVenda)) : new Date())
+          : new Date();
+    await registrarMudancaStatus({
+      animalId: animal.id,
+      statusDe: before.status,
+      statusPara: status as StatusAnimal,
+      data: dataMudanca,
+      userId: parseInt(session.user.id),
     });
   }
 

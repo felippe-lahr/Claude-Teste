@@ -5,8 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { calcularDenominacao, classificarAnimal } from '@/lib/classificacao';
 import { registrarLog } from '@/lib/log';
 import { registrarPartoNaMae } from '@/lib/parto';
+import { registrarMudancaStatus } from '@/lib/historico-status';
 import { Genero, StatusAnimal, StatusReprodutivo } from '@prisma/client';
 import { parseDateBR } from '@/lib/utils';
+import { eraIndexConds } from '@/lib/animais-era';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -51,21 +53,61 @@ export async function GET(req: NextRequest) {
   const eraAno = searchParams.get('eraAno');
   if (eraAno) where.eraAno = parseInt(eraAno);
 
+  const andConds: Record<string, unknown>[] = [];
+
   const eraMin = searchParams.get('eraMin');
   const eraMax = searchParams.get('eraMax');
   if (eraMin && eraMax) {
-    const minIdx = parseInt(eraMin); // year*12 + (month-1)
-    const maxIdx = parseInt(eraMax);
-    const minYear = Math.floor(minIdx / 12);
-    const minMonth = (minIdx % 12) + 1;
-    const maxYear = Math.floor(maxIdx / 12);
-    const maxMonth = (maxIdx % 12) + 1;
-    (where as Record<string, unknown>).AND = [
-      { eraAno: { not: null } },
-      { OR: [{ eraAno: { gt: minYear } }, { AND: [{ eraAno: minYear }, { OR: [{ eraMes: null }, { eraMes: { gte: minMonth } }] }] }] },
-      { OR: [{ eraAno: { lt: maxYear } }, { AND: [{ eraAno: maxYear }, { OR: [{ eraMes: null }, { eraMes: { lte: maxMonth } }] }] }] },
-    ];
+    andConds.push(...eraIndexConds(parseInt(eraMin), parseInt(eraMax)));
   }
+
+  // Filtro: data de cadastro (createdAt)
+  const cadastroInicio = searchParams.get('cadastroInicio');
+  const cadastroFim = searchParams.get('cadastroFim');
+  if (cadastroInicio || cadastroFim) {
+    const range: Record<string, Date> = {};
+    if (cadastroInicio) range.gte = new Date(`${cadastroInicio}T00:00:00`);
+    if (cadastroFim) range.lte = new Date(`${cadastroFim}T23:59:59`);
+    where.createdAt = range;
+  }
+
+  // Filtro: animais que mudaram para um status dentro de um período
+  const statusMudouPara = searchParams.get('statusMudouPara');
+  const statusDataInicio = searchParams.get('statusDataInicio');
+  const statusDataFim = searchParams.get('statusDataFim');
+  if (statusMudouPara && (['VIVO', 'MORTO', 'VENDIDO'] as string[]).includes(statusMudouPara)) {
+    const dataRange: Record<string, Date> = {};
+    if (statusDataInicio) dataRange.gte = new Date(`${statusDataInicio}T00:00:00`);
+    if (statusDataFim) dataRange.lte = new Date(`${statusDataFim}T23:59:59`);
+    where.historicoStatus = {
+      some: {
+        statusPara: statusMudouPara as StatusAnimal,
+        ...(Object.keys(dataRange).length ? { data: dataRange } : {}),
+      },
+    };
+  }
+
+  // Filtro: animais que "viraram" determinada categoria (denominação) num período.
+  // A transição é calculada da data de nascimento + idade mínima da regra da categoria.
+  const virouDenominacao = searchParams.get('virouDenominacao');
+  const virouInicio = searchParams.get('virouInicio'); // "yyyy-mm"
+  const virouFim = searchParams.get('virouFim');       // "yyyy-mm"
+  if (virouDenominacao && (virouInicio || virouFim)) {
+    const regra = await prisma.classificacaoConfig.findFirst({ where: { denominacao: virouDenominacao } });
+    if (regra) {
+      const toIdx = (sm: string) => { const [y, mo] = sm.split('-').map(Number); return y * 12 + (mo - 1); };
+      // nascimento = transição - idadeMinMeses  →  faixa de nascimento equivalente ao período da transição
+      const minIdx = virouInicio ? Math.max(0, toIdx(virouInicio) - regra.idadeMinMeses) : 0;
+      const maxIdx = virouFim ? Math.max(0, toIdx(virouFim) - regra.idadeMinMeses) : 10_000_000;
+      andConds.push({ genero: regra.genero });
+      andConds.push(...eraIndexConds(minIdx, maxIdx));
+    } else {
+      // Categoria sem regra de idade (ex.: Boi/Vaca/Touro) — não há transição por idade a calcular.
+      where.id = -1;
+    }
+  }
+
+  if (andConds.length) (where as Record<string, unknown>).AND = andConds;
 
   const [animais, total, regras] = await Promise.all([
     prisma.animal.findMany({
@@ -149,6 +191,16 @@ export async function POST(req: NextRequest) {
       maeId: maeId ? parseInt(maeId) : null,
     },
     include: { proprietario: { select: { id: true, name: true } } },
+  });
+
+  // Histórico de status: registra o estado inicial do animal
+  await registrarMudancaStatus({
+    animalId: animal.id,
+    statusDe: null,
+    statusPara: animal.status,
+    data: animal.status === 'VENDIDO' && animal.dataVenda ? animal.dataVenda : animal.createdAt,
+    userId: parseInt(session.user.id),
+    observacao: 'Cadastro do animal',
   });
 
   if (Array.isArray(vacinas) && vacinas.length > 0) {
