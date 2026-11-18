@@ -58,6 +58,8 @@ interface Props {
 
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
+const dateInputCls = 'w-full bg-[#F5F4EF] border border-[#E8E8E3] rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#2F6A47] disabled:opacity-50';
+
 function idxToLabel(idx: number) {
   const year = Math.floor(idx / 12);
   const month = idx % 12;
@@ -94,6 +96,14 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
   const [sliderRange, setSliderRange] = useState<[number, number]>([sliderMin, sliderMax]);
   const [sliderActive, setSliderActive] = useState(false);
 
+  // Filtros por data (cadastro, mudança de status, virou categoria)
+  const [dateFilters, setDateFilters] = useState({
+    cadastroInicio: '', cadastroFim: '',
+    statusMudouPara: '', statusDataInicio: '', statusDataFim: '',
+    virouDenominacao: '', virouInicio: '', virouFim: '',
+  });
+  const [dateFiltersOpen, setDateFiltersOpen] = useState(false);
+
   // Batch selection
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [batchModal, setBatchModal] = useState<BatchModal>(null);
@@ -112,6 +122,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
         params.set('eraMin', String(sliderRange[0]));
         params.set('eraMax', String(sliderRange[1]));
       }
+      Object.entries(dateFilters).forEach(([k, v]) => { if (v) params.set(k, v); });
 
       const res = await fetch(`/api/animais?${params}`);
       const data = await res.json();
@@ -124,12 +135,17 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
     } finally {
       setLoading(false);
     }
-  }, [page, limit, filters, denominacoesSel, sliderActive, sliderRange]);
+  }, [page, limit, filters, denominacoesSel, sliderActive, sliderRange, dateFilters]);
 
   useEffect(() => { fetchAnimais(); }, [fetchAnimais]);
 
   function handleFilterChange(key: string, value: string) {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  }
+
+  function handleDateFilter(key: string, value: string) {
+    setDateFilters((prev) => ({ ...prev, [key]: value }));
     setPage(1);
   }
 
@@ -141,6 +157,7 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
       params.set('eraMin', String(sliderRange[0]));
       params.set('eraMax', String(sliderRange[1]));
     }
+    Object.entries(dateFilters).forEach(([k, v]) => { if (v) params.set(k, v); });
     window.open(`/api/animais/relatorio?${params}`, '_blank');
   }
 
@@ -396,6 +413,60 @@ export function AnimaisClient({ proprietarios, denominacoes, minAno, maxAno, cau
                     </span>
                   );
                 })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Filtros por data: cadastro, mudança de status, virou categoria */}
+        <div className="pt-3 border-t border-[#F0EFEB]">
+          <button
+            onClick={() => setDateFiltersOpen((v) => !v)}
+            className="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-[#2F6A47] transition"
+          >
+            <Calendar size={14} className="text-slate-400" />
+            Filtros por data (cadastro, status, categoria)
+            <svg className={`w-3 h-3 transition-transform ${dateFiltersOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </button>
+
+          {dateFiltersOpen && (
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Data de cadastro */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Data de cadastro</p>
+                <div className="flex gap-2">
+                  <input type="date" value={dateFilters.cadastroInicio} onChange={(e) => handleDateFilter('cadastroInicio', e.target.value)} className={dateInputCls} />
+                  <input type="date" value={dateFilters.cadastroFim} onChange={(e) => handleDateFilter('cadastroFim', e.target.value)} className={dateInputCls} />
+                </div>
+              </div>
+
+              {/* Mudança de status */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Mudou de status</p>
+                <select value={dateFilters.statusMudouPara} onChange={(e) => handleDateFilter('statusMudouPara', e.target.value)} className={dateInputCls}>
+                  <option value="">Para...</option>
+                  <option value="VIVO">Vivo</option>
+                  <option value="MORTO">Morto</option>
+                  <option value="VENDIDO">Vendido</option>
+                </select>
+                <div className="flex gap-2">
+                  <input type="date" value={dateFilters.statusDataInicio} onChange={(e) => handleDateFilter('statusDataInicio', e.target.value)} className={dateInputCls} disabled={!dateFilters.statusMudouPara} />
+                  <input type="date" value={dateFilters.statusDataFim} onChange={(e) => handleDateFilter('statusDataFim', e.target.value)} className={dateInputCls} disabled={!dateFilters.statusMudouPara} />
+                </div>
+              </div>
+
+              {/* Virou categoria */}
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Virou categoria</p>
+                <select value={dateFilters.virouDenominacao} onChange={(e) => handleDateFilter('virouDenominacao', e.target.value)} className={dateInputCls}>
+                  <option value="">Categoria...</option>
+                  {denominacoes.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <div className="flex gap-2">
+                  <input type="month" value={dateFilters.virouInicio} onChange={(e) => handleDateFilter('virouInicio', e.target.value)} className={dateInputCls} disabled={!dateFilters.virouDenominacao} />
+                  <input type="month" value={dateFilters.virouFim} onChange={(e) => handleDateFilter('virouFim', e.target.value)} className={dateInputCls} disabled={!dateFilters.virouDenominacao} />
+                </div>
+                <p className="text-[10px] text-slate-400">Calculado da data de nascimento. Categorias sem faixa de idade (Boi/Vaca/Touro) não se aplicam.</p>
               </div>
             </div>
           )}
