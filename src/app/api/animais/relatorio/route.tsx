@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { Genero, StatusAnimal } from '@prisma/client';
 import { renderToBuffer, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { calcularEstagioAtual, DEFAULT_PRENHEZ_CONFIGS } from '@/lib/prenhez';
+import { eraIndexConds } from '@/lib/animais-era';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,21 +81,58 @@ export async function GET(req: NextRequest) {
   if (descarteFilter === 'true') where.descarte = true;
   else if (descarteFilter === 'false') where.descarte = false;
 
+  const andConds: Record<string, unknown>[] = [];
+
   const eraMin = searchParams.get('eraMin');
   const eraMax = searchParams.get('eraMax');
   if (eraMin && eraMax) {
-    const minIdx = parseInt(eraMin); // year*12 + (month-1)
-    const maxIdx = parseInt(eraMax);
-    const minYear = Math.floor(minIdx / 12);
-    const minMonth = (minIdx % 12) + 1;
-    const maxYear = Math.floor(maxIdx / 12);
-    const maxMonth = (maxIdx % 12) + 1;
-    (where as Record<string, unknown>).AND = [
-      { eraAno: { not: null } },
-      { OR: [{ eraAno: { gt: minYear } }, { AND: [{ eraAno: minYear }, { OR: [{ eraMes: null }, { eraMes: { gte: minMonth } }] }] }] },
-      { OR: [{ eraAno: { lt: maxYear } }, { AND: [{ eraAno: maxYear }, { OR: [{ eraMes: null }, { eraMes: { lte: maxMonth } }] }] }] },
-    ];
+    andConds.push(...eraIndexConds(parseInt(eraMin), parseInt(eraMax)));
   }
+
+  // Data de cadastro
+  const cadastroInicio = searchParams.get('cadastroInicio');
+  const cadastroFim = searchParams.get('cadastroFim');
+  if (cadastroInicio || cadastroFim) {
+    const range: Record<string, Date> = {};
+    if (cadastroInicio) range.gte = new Date(`${cadastroInicio}T00:00:00`);
+    if (cadastroFim) range.lte = new Date(`${cadastroFim}T23:59:59`);
+    where.createdAt = range;
+  }
+
+  // Mudança de status num período
+  const statusMudouPara = searchParams.get('statusMudouPara');
+  const statusDataInicio = searchParams.get('statusDataInicio');
+  const statusDataFim = searchParams.get('statusDataFim');
+  if (statusMudouPara && (['VIVO', 'MORTO', 'VENDIDO'] as string[]).includes(statusMudouPara)) {
+    const dataRange: Record<string, Date> = {};
+    if (statusDataInicio) dataRange.gte = new Date(`${statusDataInicio}T00:00:00`);
+    if (statusDataFim) dataRange.lte = new Date(`${statusDataFim}T23:59:59`);
+    where.historicoStatus = {
+      some: {
+        statusPara: statusMudouPara as StatusAnimal,
+        ...(Object.keys(dataRange).length ? { data: dataRange } : {}),
+      },
+    };
+  }
+
+  // Virou determinada categoria num período (calculado do nascimento)
+  const virouDenominacao = searchParams.get('virouDenominacao');
+  const virouInicio = searchParams.get('virouInicio');
+  const virouFim = searchParams.get('virouFim');
+  if (virouDenominacao && (virouInicio || virouFim)) {
+    const regra = await prisma.classificacaoConfig.findFirst({ where: { denominacao: virouDenominacao } });
+    if (regra) {
+      const toIdx = (sm: string) => { const [y, mo] = sm.split('-').map(Number); return y * 12 + (mo - 1); };
+      const minIdx = virouInicio ? Math.max(0, toIdx(virouInicio) - regra.idadeMinMeses) : 0;
+      const maxIdx = virouFim ? Math.max(0, toIdx(virouFim) - regra.idadeMinMeses) : 10_000_000;
+      andConds.push({ genero: regra.genero });
+      andConds.push(...eraIndexConds(minIdx, maxIdx));
+    } else {
+      where.id = -1;
+    }
+  }
+
+  if (andConds.length) (where as Record<string, unknown>).AND = andConds;
 
   const animais = await prisma.animal.findMany({
     where,

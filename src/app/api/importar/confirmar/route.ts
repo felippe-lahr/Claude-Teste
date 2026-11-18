@@ -9,6 +9,7 @@ import { createHash } from 'crypto';
 import { parseDateBR } from '@/lib/utils';
 import { registrarLog } from '@/lib/log';
 import { registrarPartoNaMae } from '@/lib/parto';
+import { registrarMudancaStatus } from '@/lib/historico-status';
 
 function parseDate(value: unknown): Date | null {
   if (!value) return null;
@@ -246,6 +247,18 @@ export async function POST(req: NextRequest) {
 
       // Registra o número real deste animal para que linhas seguintes possam referenciá-lo como mãe
       if (animal.numero) numeroToId.set(animal.numero.toLowerCase().trim(), animal.id);
+
+      // Histórico de status: registra o estado inicial dos animais criados pela importação
+      if (!isUpdate) {
+        await registrarMudancaStatus({
+          animalId: animal.id,
+          statusDe: null,
+          statusPara: status,
+          data: status === 'VENDIDO' && animalData.dataVenda ? animalData.dataVenda : new Date(),
+          userId: parseInt(session.user.id),
+          observacao: 'Importação de planilha',
+        });
+      }
 
       // Parto automático na mãe: o nascimento da cria (mês/ano) vira o último parto da mãe
       if (maeResolvedId && eraMes && eraAno) {
