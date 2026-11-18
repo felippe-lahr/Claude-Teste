@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical, Baby } from 'lucide-react';
+import { Settings, TrendingUp, List, Users, Key, Skull, Trash2, Calendar, FlaskConical, Baby, History } from 'lucide-react';
 import { Drawer } from '@/components/ui/drawer';
 import { DatePickerBR } from '@/components/ui/date-picker-br';
 import { formatDateBR } from '@/lib/utils';
@@ -99,6 +99,33 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
 
   const [configsPrenhez, setConfigsPrenhez] = useState(initialConfigsPrenhez);
   const [savingPrenhez, setSavingPrenhez] = useState(false);
+
+  const [backfillLoading, setBackfillLoading] = useState(false);
+  const [backfillInfo, setBackfillInfo] = useState<string | null>(null);
+
+  async function previewBackfill() {
+    setBackfillLoading(true); setBackfillInfo(null);
+    try {
+      const res = await fetch('/api/admin/historico-status/backfill');
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error ?? 'Erro');
+      setBackfillInfo(`${d.semHistorico} animal(is) ainda sem histórico (de ${d.total}). ${d.jaComHistorico} já possuem.`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro'); }
+    finally { setBackfillLoading(false); }
+  }
+
+  async function aplicarBackfill() {
+    if (!confirm('Reconstruir o histórico de status dos animais que ainda não têm? Não altera status atuais e não duplica históricos já existentes.')) return;
+    setBackfillLoading(true);
+    try {
+      const res = await fetch('/api/admin/historico-status/backfill', { method: 'POST' });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error ?? 'Erro');
+      setBackfillInfo(`Reconstruído: ${d.registrosCriados} registro(s) para ${d.animaisProcessados} animal(is).`);
+      toast.success('Histórico de status reconstruído');
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro'); }
+    finally { setBackfillLoading(false); }
+  }
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<SenhaData>({
     resolver: zodResolver(senhaSchema),
@@ -664,6 +691,35 @@ export function ConfiguracoesClient({ ticker: initialTicker, classificacoes: ini
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Seção: Manutenção — reconstrução do histórico de status */}
+      <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2 mb-2">
+          <History size={16} className="text-indigo-500" />
+          Histórico de status
+        </h2>
+        <p className="text-xs text-slate-500 mb-5">
+          A partir de agora, toda mudança de status (Vivo / Morto / Vendido) é registrada com data automaticamente.
+          Use o botão abaixo uma vez para reconstruir o histórico dos animais já cadastrados (entrada como Vivo pela data de cadastro, óbito e venda). É seguro: não altera status atuais e não duplica o que já existe.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={previewBackfill}
+            disabled={backfillLoading}
+            className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition disabled:opacity-50"
+          >
+            {backfillLoading ? 'Verificando...' : 'Pré-visualizar'}
+          </button>
+          <button
+            onClick={aplicarBackfill}
+            disabled={backfillLoading}
+            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition disabled:opacity-50"
+          >
+            {backfillLoading ? 'Processando...' : 'Reconstruir histórico'}
+          </button>
+          {backfillInfo && <span className="text-xs text-slate-600">{backfillInfo}</span>}
         </div>
       </section>
 
